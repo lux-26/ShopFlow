@@ -1,0 +1,803 @@
+/* ==========================================
+   1. RESET & CONFIGURATION GLOBALE
+   ================================---------- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.profile-page-container {
+    display: flex;
+    align-items: flex-start;
+    min-height: 100vh;
+    background-color: #f3f4f6;
+    padding: 24px;
+    gap: 24px;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    color: #1f2937;
+    max-width: 1350px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* ==========================================
+   2. SIDEBAR DE NAVIGATION
+   ================================---------- */
+.profile-sidebar {
+    width: 260px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: fit-content;
+    border: 1px solid #e5e7eb;
+}
+
+.profile-avatar-section {
+    padding: 24px;
+    text-align: center;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.profile-avatar-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 12px;
+}
+
+.profile-avatar-section h3 {
+    font-size: 16px;
+    color: #1e3a8a;
+    margin-bottom: 4px;
+}
+
+.profile-avatar-section p {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.profile-nav-links {
+    display: flex;
+    flex-direction: column;
+    padding: 12px 0;
+}
+
+.nav-link-item {
+    background: none;
+    border: none;
+    text-align: left;
+    padding: 12px 24px;
+    font-size: 14px;
+    color: #1f2937;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+}
+
+.nav-link-item:hover {
+    background-color: #f3f4f6;
+}
+
+.nav-link-item.active {
+    background-color: #eff6ff;
+    color: #1e3a8a;
+    font-weight: 600;
+    border-left: 3px solid #1e3a8a;
+}
+
+/* ==========================================
+   3. CONTENU PRINCIPAL & HEADER
+   ================================---------- */
+.profile-main-content {
+    flex: 1;
+    width: 100%;
+    max-width: 1000px;
+}
+
+.profile-section-content,
+.security-section-container {
+    width: 100%;
+}
+
+.profile-top-header,
+.profile-content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+}
+
+.profile-top-header h1,
+.profile-content-header h2 {
+    font-size: 24px;
+    color: #1e3a8a;
+    margin-bottom: 6px;
+}
+
+.profile-top-header p,
+.profile-content-header p {
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.profile-badge-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #ffffff;
+    padding: 10px 16px;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e5e7eb;
+}
+
+.profile-badge-card img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.gold-badge {
+    display: inline-block;
+    background: #fef08a;
+    color: #854d0e;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 12px;
+    margin-top: 4px;
+}
+
+/* ==========================================
+   4. STRUCTURES EN GRILLE & CARTES
+   ================================---------- */
+.profile-grid-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+}
+
+.profile-left-col {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.profile-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+}
+
+.card-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 12px;
+}
+
+.card-header-flex h3 {
+    font-size: 16px;
+    color: #1f2937;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ==========================================
+   5. FORMULAIRES & CHAMPS
+   ================================---------- */
+.form-grid-profile {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.security-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.input-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.name-inputs-row {
+    display: flex;
+    gap: 12px;
+}
+
+.input-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 6px;
+}
+
+.input-group input,
+.input-group textarea {
+    padding: 10px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    background-color: #f9fafb;
+    font-size: 14px;
+    color: #1f2937;
+    transition: border-color 0.2s;
+    width: 100%;
+}
+
+.input-group input:focus,
+.input-group textarea:focus {
+    outline: none;
+    border-color: #1e3a8a;
+    background-color: #fff;
+}
+
+.static-field {
+    padding: 10px 12px;
+    background-color: #f9fafb;
+    border: 1px dashed #e5e7eb;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.btn-edit-profile,
+.btn-save-profile {
+    background: none;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-edit-profile {
+    color: #1e3a8a;
+}
+
+.btn-save-profile {
+    color: #16a34a;
+}
+
+/* ==========================================
+   6. PROGRAMME DE FIDÉLITÉ
+   ================================---------- */
+.loyalty-banner-card {
+    background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+    border-radius: 12px;
+    padding: 24px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.loyalty-banner-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.loyalty-tag {
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    opacity: 0.8;
+}
+
+.loyalty-banner-content h2 {
+    font-size: 28px;
+    margin: 4px 0;
+}
+
+.loyalty-banner-content p {
+    font-size: 13px;
+    opacity: 0.9;
+}
+
+.btn-loyalty-advantages {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: white;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-loyalty-advantages:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.loyalty-progress-bar {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.loyalty-progress-fill {
+    height: 100%;
+    background: #fef08a;
+    border-radius: 4px;
+}
+
+/* ==========================================
+   7. COMMANDES RÉCENTES
+   ================================---------- */
+.orders-card h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    margin-bottom: 16px;
+    color: #1f2937;
+}
+
+.orders-list-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.order-item-card {
+    padding: 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #f9fafb;
+}
+
+.order-item-top {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+.status-pill {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+.status-pill.delivered {
+    background-color: #dcfce7;
+    color: #16a34a;
+}
+
+.status-pill.pending {
+    background-color: #fef9c3;
+    color: #ca8a04;
+}
+
+.order-item-details {
+    font-size: 13px;
+    color: #6b7280;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.order-price-tag {
+    font-weight: bold;
+    color: #1f2937;
+}
+
+.btn-view-all-orders {
+    width: 100%;
+    padding: 10px;
+    background: none;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    color: #1e3a8a;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-view-all-orders:hover {
+    background-color: #f3f4f6;
+}
+
+/* ==========================================
+   8. SÉCURITÉ & 2FA & SESSIONS
+   ================================---------- */
+.card-section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 12px;
+    font-size: 16px;
+    color: #1f2937;
+}
+
+.card-section-title.space-between {
+    justify-content: space-between;
+}
+
+.title-with-icon {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #1e3a8a;
+}
+
+.mb-16 {
+    margin-bottom: 16px;
+}
+
+.mb-24 {
+    margin-bottom: 24px;
+}
+
+.mt-20 {
+    margin-top: 20px;
+}
+
+.btn-primary-custom {
+    background-color: #1e3a8a;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-primary-custom:hover {
+    background-color: #172a6b;
+}
+
+.btn-danger-text {
+    background: none;
+    border: none;
+    color: #b91c1c;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-danger-text:hover {
+    text-decoration: underline;
+}
+
+.status-badge-outline {
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    background-color: #f3f4f6;
+    color: #6b7280;
+    border: 1px solid #e5e7eb;
+    font-weight: bold;
+}
+
+.status-badge-outline.active {
+    background-color: #dcfce7;
+    color: #166534;
+    border-color: #bbf7d0;
+}
+
+.security-desc {
+    font-size: 14px;
+    color: #6b7280;
+    margin-bottom: 16px;
+    line-height: 1.5;
+}
+
+.btn-toggle-2fa {
+    padding: 8px 24px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-danger-outline {
+    background: transparent;
+    color: #b91c1c;
+    border: 1px solid #b91c1c;
+}
+
+/* Sessions Actives */
+.sessions-list-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.session-item-row {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #f9fafb;
+}
+
+.session-icon {
+    font-size: 20px;
+    color: #6b7280;
+    margin-right: 16px;
+    width: 30px;
+    text-align: center;
+}
+
+.session-info {
+    flex: 1;
+}
+
+.session-title-line {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+}
+
+.session-info p {
+    font-size: 13px;
+    color: #6b7280;
+    margin-bottom: 2px;
+}
+
+.session-activity {
+    font-size: 12px;
+    color: #9ca3af;
+}
+
+.btn-close-session {
+    background: none;
+    border: none;
+    color: #6b7280;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 8px;
+}
+
+.btn-close-session:hover {
+    color: #b91c1c;
+}
+
+.empty-text {
+    color: #6b7280;
+    font-size: 14px;
+    font-style: italic;
+}
+
+/* ==========================================
+   9. NOTIFICATIONS & MOYENS DE PAIEMENT
+   ================================---------- */
+.notif-toggle-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+}
+
+.notif-toggle-item strong {
+    font-size: 14px;
+    color: #1f2937;
+}
+
+.notif-toggle-item p {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.toggle-switch {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.payment-options-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.payment-method-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 16px;
+    background: #f9fafb;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+}
+
+.payment-method-card.active-border {
+    border-color: #1e3a8a;
+    background: #ffffff;
+    box-shadow: 0 0 0 1px #1e3a8a;
+}
+
+.payment-method-card.simple {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.payment-radio-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.payment-brand-icon {
+    margin-left: auto;
+    color: #6b7280;
+    font-size: 18px;
+}
+
+.card-inputs-subgrid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 12px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.form-group-profile {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group-profile.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-group-profile label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #4b5563;
+    margin-bottom: 4px;
+}
+
+.form-group-profile input {
+    padding: 8px 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    width: 100%;
+}
+
+.payment-sub-operators {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 2px;
+    display: block;
+}
+
+.btn-full-dark-blue {
+    width: 100%;
+    background-color: #1e3a8a;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-full-dark-blue:hover {
+    background-color: #172a6b;
+}
+
+/* ========================================================== */
+/* 11. STYLE DU POPUP DE NOTIFICATION (TOAST)                  */
+/* ========================================================== */
+.custom-toast-notification {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background-color: #ffffff;
+    border-left: 5px solid #1e3a8a;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    padding: 16px 20px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    z-index: 1000;
+    animation: slideInUp 0.3s ease-out forwards;
+    min-width: 300px;
+}
+
+
+.toast-icon-wrapper {
+    color: #1e3a8a;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.toast-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.toast-title {
+    font-weight: 700;
+    font-size: 15px;
+    color: #1f2937;
+    margin-bottom: 2px;
+}
+
+.toast-message {
+    font-size: 13px;
+    color: #4b5563;
+    margin: 0;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ==========================================
+   10. RESPONSIVE DESIGN (MOBILE & TABLETTE)
+   ================================---------- */
+@media (max-width: 900px) {
+    .profile-grid-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .profile-page-container {
+        flex-direction: column;
+        padding: 16px;
+    }
+
+    .profile-sidebar {
+        width: 100%;
+    }
+
+    .form-grid-profile,
+    .card-inputs-subgrid {
+        grid-template-columns: 1fr;
+    }
+
+    .name-inputs-row {
+        flex-direction: column;
+    }
+}

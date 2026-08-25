@@ -1,0 +1,78 @@
+/* --- index.css : Variables globales du Design System ShopFlow Professional --- */
+
+@import url('[https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap](https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap)');
+
+:root {
+  /* 1. Couleurs */
+  --surface: #f8f9ff;
+  --surface-dim: #cbdbf5;
+  --surface-bright: #f8f9ff;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #eff4ff;
+  --surface-container: #e5eeff;
+  --surface-container-high: #dce9ff;
+  --surface-container-highest: #d3e4fe;
+  --on-surface: #0b1c30;
+  --on-surface-variant: #444651;
+  --inverse-surface: #213145;
+  --inverse-on-surface: #eaf1ff;
+  --outline: #757682;
+  --outline-variant: #c5c5d3;
+  --surface-tint: #4059aa;
+
+  --primary: #00236f;
+  --on-primary: #ffffff;
+  --primary-container: #00236F;
+  --on-primary-container: #90a8ff;
+  --inverse-primary: #b6c4ff;
+
+  --secondary: #006c49;
+  --on-secondary: #ffffff;
+  --secondary-container: #6cf8bb;
+  --on-secondary-container: #00714d;
+
+  --tertiary: #272b2d;
+  --on-tertiary: #ffffff;
+  --tertiary-container: #3d4143;
+  --on-tertiary-container: #aaadaf;
+
+  --error: #f12525;
+  --on-error: #ffffff;
+  --error-container: #ffdad6;
+  --on-error-container: #93000a;
+
+  --background: #f8f9ff;
+  --on-background: #0b1c30;
+  --surface-variant: #d3e4fe;
+
+  /* 2. Typographie (Inter) */
+  --font-main: 'Inter', sans-serif;
+  --font-size-display-lg: 48px;
+  --font-size-headline-lg: 32px;
+  --font-size-headline-md: 24px;
+  --font-size-body-lg: 18px;
+  --font-size-body-md: 16px;
+  --font-size-label-md: 14px;
+  --font-size-label-sm: 12px;
+
+  /* 3. Spacing (Unité de 8px) */
+  --spacing-unit: 8px;
+  --container-max: 1280px;
+  --gutter: 24px;
+
+  /* 4. Shapes & Radius */
+  --radius-sm: 0.125rem;
+  --radius-default: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-full: 9999px;
+}
+
+/* Styles de base de l'application */
+body {
+  margin: 0;
+  font-family: var(--font-main);
+  background-color: var(--background);
+  color: var(--on-background);
+}

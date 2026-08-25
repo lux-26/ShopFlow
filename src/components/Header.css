@@ -1,0 +1,333 @@
+/* ==========================================
+   EN-TÊTE GLOBAL (HEADER)
+   ========================================== */
+.shopflow-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: calc(var(--spacing-unit) * 2) calc(var(--spacing-unit) * 4);
+    background-color: var(--surface-container-lowest, #ffffff);
+    border-bottom: 1px solid var(--outline-variant, #e2e8f0);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+/* --- LOGO --- */
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing-unit) * 1);
+    text-decoration: none;
+}
+
+.logo-image {
+    width: 32px;
+    height: auto;
+}
+
+.logo-text {
+    font-size: var(--font-size-headline-md, 20px);
+    font-weight: 600;
+    color: var(--primary-container, #002D62);
+    letter-spacing: -0.01em;
+}
+
+/* --- BARRE DE RECHERCHE --- */
+.header-search {
+    display: flex;
+    align-items: center;
+    background-color: var(--surface-container-low, #f8fafc);
+    border-radius: var(--radius-full, 50px);
+    padding: calc(var(--spacing-unit) * 1) calc(var(--spacing-unit) * 2);
+    width: 400px;
+    border: 1px solid var(--outline-variant, #cbd5e1);
+}
+
+.search-icon {
+    color: var(--outline, #64748b);
+    margin-right: calc(var(--spacing-unit) * 1);
+}
+
+.search-input {
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 100%;
+    font-family: var(--font-main, inherit);
+    font-size: var(--font-size-body-md, 14px);
+    color: var(--on-background, #1e293b);
+}
+
+.search-input::placeholder {
+    color: var(--outline, #94a3b8);
+}
+
+/* --- ACTIONS DROITE --- */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing-unit) * 3);
+}
+
+/* --- BOUTONS D'ICÔNES ET BADGES UNIFIÉS --- */
+.icon-btn,
+.cart-icon-btn {
+    position: relative !important;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    color: var(--on-surface-variant, #475569);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    text-decoration: none;
+}
+
+.icon-btn:hover,
+.cart-icon-btn:hover {
+    background-color: var(--surface-container, #f1f5f9);
+    color: var(--primary, #002D62);
+}
+
+/* Style unique et corrigé pour les badges */
+.badge {
+    position: absolute !important;
+    top: 2px !important;
+    right: 2px !important;
+    width: 18px !important;
+    height: 18px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background-color: var(--error, #ef4444) !important;
+    color: var(--on-error, #ffffff) !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    padding: 0 !important;
+    border-radius: var(--radius-full, 50%) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+    z-index: 10 !important;
+    flex-shrink: 0;
+}
+
+/* --- PROFIL UTILISATEUR --- */
+.nav-profile-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: var(--on-surface-variant, #475569);
+    font-weight: 500;
+    font-size: var(--font-size-body-md, 14px);
+    transition: opacity 0.2s ease, color 0.2s ease;
+}
+
+.nav-profile-link:hover {
+    color: var(--primary-container, #002D62);
+    opacity: 0.85;
+}
+
+.header-user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #2563eb;
+}
+
+/* --- CENTRE DE NOTIFICATIONS --- */
+.notification-container {
+    position: relative;
+    display: inline-block;
+}
+
+.notifications-dropdown-pro {
+    position: absolute;
+    top: 45px;
+    right: 0;
+    width: 380px;
+    background-color: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+    z-index: 1000;
+    overflow: hidden;
+    animation: fadeIn 0.2s ease-out;
+    border: 1px solid #e2e8f0;
+}
+
+.notifications-dropdown-header {
+    padding: 16px 20px 12px 20px;
+    border-bottom: 1px solid #f1f5f9;
+    background-color: #ffffff;
+}
+
+.notifications-dropdown-header h3 {
+    margin: 0 0 12px 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+/* Onglets de notification */
+.notif-tabs {
+    display: flex;
+    gap: 20px;
+}
+
+.tab-btn {
+    background: none;
+    border: none;
+    padding: 6px 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: #64748b;
+    cursor: pointer;
+    position: relative;
+}
+
+.tab-btn.active {
+    color: #0f172a;
+    font-weight: 600;
+}
+
+.tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -12px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #0f172a;
+    border-radius: 2px;
+}
+
+/* Liste des notifications */
+.dropdown-body-pro {
+    max-height: 350px;
+    overflow-y: auto;
+    padding: 8px 0;
+}
+
+.notification-item-pro {
+    display: flex;
+    gap: 14px;
+    padding: 14px 20px;
+    transition: background-color 0.2s;
+    border-bottom: 1px solid #f8fafc;
+}
+
+.notification-item-pro:hover {
+    background-color: #f8fafc;
+}
+
+.notif-icon-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.notif-content-pro {
+    flex: 1;
+}
+
+.notif-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 4px;
+}
+
+.notif-top-row h4 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.notif-time {
+    font-size: 11px;
+    color: #94a3b8;
+    white-space: nowrap;
+}
+
+.notif-content-pro p {
+    margin: 0;
+    font-size: 13px;
+    color: #64748b;
+    line-height: 1.4;
+}
+
+.no-notifs {
+    padding: 24px;
+    text-align: center;
+    color: #64748b;
+    font-size: 13px;
+    margin: 0;
+}
+
+/* Pied de dropdown pour le bouton Marquer comme lu */
+.dropdown-footer-pro {
+    padding: 12px 20px;
+    background-color: #f8fafc;
+    border-top: 1px solid #f1f5f9;
+}
+
+.dropdown-footer-pro button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background-color: #ffffff;
+    color: #2563eb;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.dropdown-footer-pro button:hover {
+    background-color: #eff6ff;
+    border-color: #2563eb;
+}
+
+/* --- ANIMATION --- */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* --- RESPONSIVE MOBILE --- */
+@media (max-width: 900px) {
+    .shopflow-header {
+        padding: 12px 16px;
+        gap: 15px;
+    }
+
+    .header-search {
+        display: none;
+    }
+
+    .header-right {
+        gap: 12px;
+    }
+}
