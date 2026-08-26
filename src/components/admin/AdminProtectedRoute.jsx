@@ -9,7 +9,7 @@ export default function AdminProtectedRoute({ children }) {
 
   if (!isAuthenticated || !isAdmin) {
     // Redirection vers la page de connexion si non autorisé
-    return <Navigate to="/connexion" replace />;
+    return <Navigate to="/logout" replace />;
   }
 
   return children;

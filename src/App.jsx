@@ -18,6 +18,7 @@ import Profile from "./components/Profile/Profile";
 import Loyalty from "./pages/Loyalty";
 import Cart from "./pages/Cart";
 import Login from "./pages/Login";
+import Logout from "./pages/admin/Logout";
 import Register from "./pages/Register";
 import SearchPage from "./pages/SearchPage";
 import Checkout from "./pages/Checkout";
@@ -29,7 +30,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminProducts from "./pages/admin/AdminProducts";
 import AdminOrders from "./pages/admin/AdminOrders";
 import AdminUsers from "./pages/admin/AdminUsers";
-import AdminSettings from "./pages/admin/AdminSettings"; // N'oubliez pas d'importer settings si vous l'avez créé
+import AdminSettings from "./pages/admin/AdminSettings";
 import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
 
 // Composant interne pour gérer l'affichage conditionnel du Header/Footer
@@ -59,6 +60,7 @@ function AppContent() {
           <Route path="/loyalty" element={<Loyalty />} />
           <Route path="/produit/:id" element={<ProductDetail />} />
 
+          <Route path="/logout" element={<Logout />} />
           {/* Routes Admin protégées */}
           <Route
             path="/admin"
