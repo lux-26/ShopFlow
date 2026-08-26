@@ -20,13 +20,12 @@ export default function Header() {
 
   const navigate = useNavigate();
 
-  // Fonction utilitaire pour extraire un avatar valide (ignore l'ancienne image bleue par défaut si besoin)
+  // Fonction utilitaire pour extraire un avatar valide
   const getValidAvatar = () => {
     try {
       const savedUser = localStorage.getItem("shopflow_user_info");
       if (savedUser) {
         const parsed = JSON.parse(savedUser);
-        // Si l'objet utilisateur existe et a un avatar valide (qui n'est pas vide)
         if (
           parsed &&
           parsed.avatar &&
@@ -39,8 +38,6 @@ export default function Header() {
     } catch (e) {
       console.error(e);
     }
-
-    // Si la page de profil n'a pas d'avatar personnalisé, on retourne null pour afficher l'icône "Compte"
     return null;
   };
 
@@ -68,6 +65,7 @@ export default function Header() {
     const handleStorageChange = () => {
       updateProfileAvatar();
       updateCartCount();
+      loadNotifications(); // Met aussi à jour les notifs en cas de changement de stockage
     };
 
     window.addEventListener("storage", handleStorageChange);
@@ -109,17 +107,10 @@ export default function Header() {
     }
   };
 
-  // Fonction pour gérer le clic sur le panier
+  // Accès direct au panier sans condition de connexion
   const handleCartClick = (e) => {
     e.preventDefault();
-    const isLoggedIn = localStorage.getItem("shopflow_is_logged") === "true";
-    const savedCart = JSON.parse(localStorage.getItem("shopflow_cart")) || [];
-
-    if (!isLoggedIn && savedCart.length > 0) {
-      navigate("/login");
-    } else {
-      navigate("/cart");
-    }
+    navigate("/cart");
   };
 
   // Calcul du nombre total d'articles dans le panier
@@ -129,8 +120,16 @@ export default function Header() {
     setTotalItems(count);
   };
 
-  // Chargement des notifications avec gestion du localStorage
+  // Chargement des notifications avec vérification de la connexion
   const loadNotifications = () => {
+    const isLoggedIn = localStorage.getItem("shopflow_is_logged") === "true";
+
+    // CORRECTION : Si l'utilisateur n'est pas connecté, on vide les notifications pour masquer le badge
+    if (!isLoggedIn) {
+      setNotifications([]);
+      return;
+    }
+
     const savedNotifs = JSON.parse(
       localStorage.getItem("shopflow_notifications"),
     );

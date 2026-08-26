@@ -13,7 +13,7 @@ import {
   faCircleInfo,
 } from "@fortawesome/free-solid-svg-icons";
 import { faBluetooth } from "@fortawesome/free-brands-svg-icons";
-import "../components/ProductCard.css";
+import "../../../components/clients/shared/ProductCard/ProductCard.css";
 import "./ProductDetail.css";
 
 export default function ProductDetail() {

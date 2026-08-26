@@ -2,9 +2,9 @@ import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleInfo } from "@fortawesome/free-solid-svg-icons";
-import { catalogProducts as PRODUCTS } from "./Catalog"; // Correction de l'import ici
-import ProductCard from "../components/ProductCard";
-import heroImg from "../assets/hero.jpeg";
+import { catalogProducts as PRODUCTS } from "../catalog/Catalog";
+import ProductCard from "../../../components/clients/shared/ProductCard/ProductCard";
+import heroImg from "../../../assets/hero.jpeg";
 import "./Home.css";
 
 const CATEGORIES = [

@@ -6,23 +6,23 @@ import {
 } from "react-router-dom";
 
 // Composants principaux
-import Header from "./components/Header";
-import Footer from "./components/Footer";
-import WhatsAppButton from "./components/WhatsAppButton";
+import Header from "./components/clients/shared/Header/Header";
+import Footer from "./components/clients/shared/Footer/Footer";
+import WhatsAppButton from "./components/clients/shared/WhatsAppButton/WhatsAppButton";
 
 // Pages publiques
-import Home from "./pages/Home";
-import Catalog from "./pages/Catalog";
-import ProductDetail from "./pages/ProductDetail";
-import Profile from "./components/Profile/Profile";
-import Loyalty from "./pages/Loyalty";
-import Cart from "./pages/Cart";
-import Login from "./pages/Login";
+import Home from "./pages/clients/Home/Home";
+import Catalog from "./pages/clients/catalog/Catalog";
+import ProductDetail from "./pages/clients/ProductDetail/ProductDetail";
+import Profile from "./components/clients/Profile/Profile";
+import Loyalty from "./pages/clients/Loyalty/Loyalty";
+import Cart from "./pages/clients/Cart/Cart";
+import Login from "./pages/clients/Login/Login";
 import Logout from "./pages/admin/Logout";
-import Register from "./pages/Register";
-import SearchPage from "./pages/SearchPage";
-import Checkout from "./pages/Checkout";
-import ForgotPassword from "./pages/ForgotPassword";
+import Register from "./pages/clients/Register/Register";
+import SearchPage from "./pages/clients/SearchPage/SearchPage";
+import Checkout from "./pages/clients/Checkout/Checkout";
+import ForgotPassword from "./pages/clients/ForgotPassword/ForgotPassword";
 
 // Composants Admin
 import AdminLayout from "./components/admin/AdminLayout";
@@ -36,12 +36,10 @@ import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
 // Composant interne pour gérer l'affichage conditionnel du Header/Footer
 function AppContent() {
   const location = useLocation();
-  // Vérifie si on se trouve dans l'espace admin
   const isAdminRoute = location.pathname.startsWith("/admin");
 
   return (
     <>
-      {/* Le Header public ne s'affiche PAS sur les pages admin */}
       {!isAdminRoute && <Header />}
 
       <main>
@@ -61,6 +59,7 @@ function AppContent() {
           <Route path="/produit/:id" element={<ProductDetail />} />
 
           <Route path="/logout" element={<Logout />} />
+
           {/* Routes Admin protégées */}
           <Route
             path="/admin"
@@ -80,7 +79,6 @@ function AppContent() {
         </Routes>
       </main>
 
-      {/* Le Footer et le WhatsApp ne s'affichent PAS non plus sur les pages admin */}
       {!isAdminRoute && (
         <>
           <Footer />

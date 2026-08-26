@@ -1,7 +1,12 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import {
+  faEye,
+  faEyeSlash,
+  faCircleInfo,
+  faCircleExclamation,
+} from "@fortawesome/free-solid-svg-icons";
 import "./Login.css";
 
 export default function Login() {
@@ -11,8 +16,27 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
+  // États pour les notifications Toast professionnelles
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupData, setPopupData] = useState({
+    title: "",
+    message: "",
+    type: "success",
+  });
+
+  const triggerPopup = (title, message, type = "success") => {
+    setPopupData({ title, message, type });
+    setShowPopup(true);
+    setTimeout(() => setShowPopup(false), 3000);
+  };
+
   const handleLoginSubmit = (e) => {
     e.preventDefault();
+
+    if (!email || !password) {
+      triggerPopup("Erreur", "Veuillez remplir tous les champs.", "error");
+      return;
+    }
 
     // 1. Marquer l'utilisateur comme connecté dans le localStorage
     localStorage.setItem("shopflow_is_logged", "true");
@@ -25,15 +49,76 @@ export default function Login() {
       );
     }
 
+    triggerPopup(
+      "Succès",
+      "Connexion réussie ! Bon retour parmi nous.",
+      "success",
+    );
+
     // 3. Notifier les autres composants du changement d'état
     window.dispatchEvent(new Event("storage"));
+    window.dispatchEvent(new Event("userInfoUpdated"));
 
-    // 4. Rediriger l'utilisateur vers son profil
-    navigate("/profile");
+    // 4. Rediriger l'utilisateur vers son profil après un court délai pour voir le toast
+    setTimeout(() => {
+      navigate("/profile");
+    }, 1200);
+  };
+
+  const handleSocialLogin = (provider) => {
+    // Connexion sociale gérée proprement de manière réaliste
+    localStorage.setItem("shopflow_is_logged", "true");
+
+    if (!localStorage.getItem("shopflow_user_avatar")) {
+      localStorage.setItem(
+        "shopflow_user_avatar",
+        "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
+      );
+    }
+
+    window.dispatchEvent(new Event("storage"));
+    window.dispatchEvent(new Event("userInfoUpdated"));
+
+    triggerPopup(
+      "Succès",
+      `Connexion avec ${provider} réussie. Bienvenue !`,
+      "success",
+    );
+
+    setTimeout(() => {
+      navigate("/profile");
+    }, 1200);
   };
 
   return (
     <div className="login-page-wrapper">
+      {/* Toast de notification moderne et élégant */}
+      {showPopup && (
+        <div
+          className="custom-toast-notification"
+          style={{
+            borderLeftColor: popupData.type === "error" ? "#dc2626" : "#1e3a8a",
+          }}
+        >
+          <div
+            className="toast-icon-wrapper"
+            style={{
+              color: popupData.type === "error" ? "#dc2626" : "#1e3a8a",
+            }}
+          >
+            <FontAwesomeIcon
+              icon={
+                popupData.type === "error" ? faCircleExclamation : faCircleInfo
+              }
+            />
+          </div>
+          <div className="toast-content">
+            <span className="toast-title">{popupData.title}</span>
+            <p className="toast-message">{popupData.message}</p>
+          </div>
+        </div>
+      )}
+
       <main className="login-main-container">
         <div className="login-card">
           <div className="login-card-header">
@@ -106,14 +191,14 @@ export default function Login() {
             <button
               type="button"
               className="social-btn"
-              onClick={() => alert("Connexion Google simulée")}
+              onClick={() => handleSocialLogin("Google")}
             >
               Google
             </button>
             <button
               type="button"
               className="social-btn"
-              onClick={() => alert("Connexion Apple simulée")}
+              onClick={() => handleSocialLogin("Apple")}
             >
               Apple
             </button>

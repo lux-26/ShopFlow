@@ -7,7 +7,7 @@ import {
   faShoppingBag,
   faCircleInfo,
 } from "@fortawesome/free-solid-svg-icons";
-import "./Login.css";
+import "../Login/Login.css";
 
 export default function Register() {
   const navigate = useNavigate();

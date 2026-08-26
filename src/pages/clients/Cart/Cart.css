@@ -292,6 +292,7 @@
     margin-bottom: 12px;
     transition: background-color 0.2s;
     box-sizing: border-box;
+    cursor: pointer;
 }
 
 .btn-checkout:hover {
@@ -313,7 +314,7 @@
 }
 
 .btn-continue:hover {
-    background-color: #f8fafc;
+    background-color: #f1f1f1;
 }
 
 /* Badges de réassurance */

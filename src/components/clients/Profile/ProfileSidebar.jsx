@@ -56,10 +56,15 @@ export default function ProfileSidebar({
     }
   };
 
-  // Exécution effective de la déconnexion
+  // Exécution effective de la déconnexion (CORRIGÉE)
   const confirmLogout = () => {
     localStorage.removeItem("shopflow_is_logged");
     localStorage.removeItem("shopflow_user_avatar");
+
+    // CORRECTION : Nettoyage des notifications et signalement au Header
+    localStorage.removeItem("shopflow_notifications");
+    window.dispatchEvent(new Event("notificationUpdated"));
+
     window.dispatchEvent(new Event("storage"));
     navigate("/");
   };

@@ -1,7 +1,7 @@
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { catalogProducts } from "../pages/Catalog"; // Import du catalogue pour unifier les sources
-import "./SearchPage.css";
+import { catalogProducts } from "../catalog/Catalog";
+import "../Register/SearchPage.css";
 
 export default function SearchPage() {
   const [searchParams] = useSearchParams();

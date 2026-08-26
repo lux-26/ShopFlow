@@ -7,7 +7,7 @@ import {
   faHeadset,
   faShoppingBag,
 } from "@fortawesome/free-solid-svg-icons";
-import { addNotification } from "../utils/notifications";
+import { addNotification } from "../../../utils/notifications";
 import "./Loyalty.css";
 
 export default function Loyalty() {
