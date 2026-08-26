@@ -1,13 +1,18 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
 
 // Composants principaux
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import WhatsAppButton from "./components/WhatsAppButton";
 
-// Pages
+// Pages publiques
 import Home from "./pages/Home";
-import Catalog, { catalogProducts } from "./pages/Catalog";
+import Catalog from "./pages/Catalog";
 import ProductDetail from "./pages/ProductDetail";
 import Profile from "./components/Profile/Profile";
 import Loyalty from "./pages/Loyalty";
@@ -18,18 +23,34 @@ import SearchPage from "./pages/SearchPage";
 import Checkout from "./pages/Checkout";
 import ForgotPassword from "./pages/ForgotPassword";
 
-function App() {
+// Composants Admin
+import AdminLayout from "./components/admin/AdminLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminProducts from "./pages/admin/AdminProducts";
+import AdminOrders from "./pages/admin/AdminOrders";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminSettings from "./pages/admin/AdminSettings"; // N'oubliez pas d'importer settings si vous l'avez créé
+import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
+
+// Composant interne pour gérer l'affichage conditionnel du Header/Footer
+function AppContent() {
+  const location = useLocation();
+  // Vérifie si on se trouve dans l'espace admin
+  const isAdminRoute = location.pathname.startsWith("/admin");
+
   return (
-    <Router>
-      <Header />
+    <>
+      {/* Le Header public ne s'affiche PAS sur les pages admin */}
+      {!isAdminRoute && <Header />}
 
       <main>
         <Routes>
+          {/* Routes publiques */}
           <Route path="/" element={<Home />} />
           <Route path="/catalog" element={<Catalog />} />
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
-          <Route path="/checkout" element={<Checkout />} />{" "}
+          <Route path="/checkout" element={<Checkout />} />
           <Route path="/login" element={<Login />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/register" element={<Register />} />
@@ -37,11 +58,41 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/loyalty" element={<Loyalty />} />
           <Route path="/produit/:id" element={<ProductDetail />} />
+
+          {/* Routes Admin protégées */}
+          <Route
+            path="/admin"
+            element={
+              <AdminProtectedRoute>
+                <AdminLayout />
+              </AdminProtectedRoute>
+            }
+          >
+            <Route index element={<AdminDashboard />} />
+            <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="products" element={<AdminProducts />} />
+            <Route path="orders" element={<AdminOrders />} />
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="settings" element={<AdminSettings />} />
+          </Route>
         </Routes>
       </main>
 
-      <Footer />
-      <WhatsAppButton />
+      {/* Le Footer et le WhatsApp ne s'affichent PAS non plus sur les pages admin */}
+      {!isAdminRoute && (
+        <>
+          <Footer />
+          <WhatsAppButton />
+        </>
+      )}
+    </>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <AppContent />
     </Router>
   );
 }
