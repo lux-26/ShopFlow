@@ -74,7 +74,7 @@ export default function Register() {
   };
 
   return (
-    <div className="login-page-wrapper">
+    <div className="login-page-wrapper page-transition">
       <main className="login-main-container">
         <div className="login-card">
           <div className="login-card-header">

@@ -91,7 +91,7 @@ export default function Login() {
   };
 
   return (
-    <div className="login-page-wrapper">
+    <div className="login-page-wrapper page-transition">
       {/* Toast de notification moderne et élégant */}
       {showPopup && (
         <div

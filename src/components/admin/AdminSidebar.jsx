@@ -34,7 +34,7 @@ export default function AdminSidebar() {
 
   return (
     <>
-      <aside className="admin-sidebar">
+      <aside className="admin-sidebar page-transition">
         <div className="sidebar-brand">
           <FontAwesomeIcon icon={faShop} className="brand-icon" />
           <div>

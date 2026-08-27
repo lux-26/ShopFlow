@@ -13,6 +13,7 @@ import {
   faCircleInfo,
 } from "@fortawesome/free-solid-svg-icons";
 import { faBluetooth } from "@fortawesome/free-brands-svg-icons";
+import { catalogProducts } from "../../clients/catalog/Catalog"; // Ajustez le chemin vers votre fichier de données s'il diffère
 import "../../../components/clients/shared/ProductCard/ProductCard.css";
 import "./ProductDetail.css";
 
@@ -23,65 +24,25 @@ export default function ProductDetail() {
   // 1. Récupération prioritaire via le state passé au clic
   let rawProduct = location.state?.product;
 
-  const defaultProducts = [
-    {
-      id: 1,
-      name: "Montre Connectée Sport Edition",
-      price: 49.99,
-      category: "Accessoires",
-      image:
-        "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&auto=format&fit=crop&q=60",
-    },
-    {
-      id: 2,
-      name: "Écouteurs TWS Pro Sans Fil",
-      price: 29.99,
-      category: "Accessoires",
-      image:
-        "https://images.unsplash.com/photo-1572536147248-ac59a8abfa4b?w=500&auto=format&fit=crop&q=60",
-    },
-    {
-      id: 3,
-      name: "Chargeur Rapide USB-C GaN 90W",
-      price: 39.99,
-      category: "Accessoires",
-      image:
-        "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=500&auto=format&fit=crop&q=60",
-    },
-    {
-      id: 4,
-      name: "Sac à dos pour PC Portable",
-      price: 24.99,
-      category: "Bagagerie",
-      image:
-        "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500&auto=format&fit=crop&q=60",
-    },
-  ];
-
-  // 2. Si absent du state, on cherche dans le localStorage et les produits par défaut
+  // 2. Si absent du state, on cherche proprement dans le catalogue global et le localStorage
   if (!rawProduct) {
     const savedProducts =
       JSON.parse(localStorage.getItem("shopflow_products")) || [];
-    const allProducts = [...savedProducts, ...defaultProducts];
+    const allProducts = [...savedProducts, ...catalogProducts];
 
     rawProduct = allProducts.find((p) => {
       const matchId = String(p.id) === String(id);
       const matchSlug =
         p.name?.toLowerCase().replace(/\s+/g, "-") === String(id).toLowerCase();
-      const matchIncludes = String(id).includes(String(p.id));
-      return matchId || matchSlug || matchIncludes;
+      return matchId || matchSlug;
     });
-
-    if (!rawProduct && allProducts.length > 0) {
-      rawProduct = allProducts[0];
-    }
   }
 
   // S'il est vraiment introuvable
   if (!rawProduct) {
     return (
       <div
-        className="product-not-found"
+        className="product-not-found page-transition"
         style={{ padding: "80px 20px", textAlign: "center" }}
       >
         <h2>Produit introuvable</h2>
@@ -93,7 +54,7 @@ export default function ProductDetail() {
     );
   }
 
-  // 3. NORMALISATION : On s'assure d'uniformiser les données peu importe d'où vient le clic (Accueil, Catalogue, Recherche)
+  // 3. NORMALISATION : On s'assure d'uniformiser les données peu importe d'où vient le clic
   const product = {
     ...rawProduct,
     id: rawProduct.id || id,
@@ -110,7 +71,7 @@ export default function ProductDetail() {
       rawProduct.image ||
       rawProduct.img ||
       rawProduct.imageUrl ||
-      defaultProducts[0].image,
+      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&auto=format&fit=crop&q=60",
     category: rawProduct.category || rawProduct.categorie || "Accessoires",
     description: rawProduct.description || rawProduct.desc || "",
   };
@@ -305,7 +266,6 @@ export default function ProductDetail() {
             <span className="reviews-count">(128 avis)</span>
           </div>
 
-          {/* CORRECTION DE LA DEVISE : Affichage en FCFA pour tout harmoniser */}
           <div className="product-price-tag">
             {typeof product.price === "number"
               ? `${product.price.toLocaleString()} FCFA`

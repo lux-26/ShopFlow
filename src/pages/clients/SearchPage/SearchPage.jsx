@@ -51,7 +51,7 @@ export default function SearchPage() {
   };
 
   return (
-    <div className="search-results-container">
+    <div className="search-results-container page-transition">
       <h2>Résultats de recherche pour : "{query}"</h2>
 
       <div className="products-grid">

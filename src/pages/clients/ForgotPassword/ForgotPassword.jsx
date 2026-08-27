@@ -21,7 +21,7 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="forgot-page-wrapper">
+    <div className="forgot-page-wrapper page-transition">
       <main className="forgot-main-container">
         <div className="forgot-card">
           <div className="forgot-card-header">

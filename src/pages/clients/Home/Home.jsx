@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleInfo } from "@fortawesome/free-solid-svg-icons";
 import { catalogProducts as PRODUCTS } from "../catalog/Catalog";
@@ -59,6 +59,7 @@ const CATEGORIES = [
 ];
 
 export default function Home() {
+  const navigate = useNavigate();
   const categoriesRef = useRef(null);
   const [showPopup, setShowPopup] = useState(false);
   const [addedProductTitle, setAddedProductTitle] = useState("");
@@ -73,6 +74,10 @@ export default function Home() {
     if (categoriesRef.current) {
       categoriesRef.current.scrollBy({ left: 300, behavior: "smooth" });
     }
+  };
+
+  const handleCategoryClick = (categoryName) => {
+    navigate(`/catalog?category=${encodeURIComponent(categoryName)}`);
   };
 
   const handleAddToCart = (product) => {
@@ -105,9 +110,14 @@ export default function Home() {
     }
   }, []);
 
+  const trendingProducts = PRODUCTS
+    ? [...PRODUCTS]
+        .sort((a, b) => b.rating - a.rating || b.reviews - a.reviews)
+        .slice(0, 4)
+    : [];
+
   return (
-    <div className="home-page">
-      {/* Pop-up unifié en bas à droite */}
+    <div className="home-page page-transition">
       {showPopup && (
         <div
           className="custom-toast-notification"
@@ -131,9 +141,20 @@ export default function Home() {
         style={{ backgroundImage: `url(${heroImg})` }}
       >
         <div className="hero-image-overlay"></div>
+        <div className="hero-content">
+          <span className="hero-badge">Nouvelle Collection 2026</span>
+          <h1>La précision rencontre l'élégance</h1>
+          <p>
+            Découvrez notre sélection rigoureuse de produits haut de gamme
+            conçus pour élever votre quotidien. Le design minimaliste au service
+            de la performance.
+          </p>
+          <Link to="/catalog" className="hero-btn">
+            Explorer le catalogue
+          </Link>
+        </div>
       </section>
 
-      {/* Section Catégories */}
       <section className="categories-section">
         <div className="categories-header">
           <h2>Catégories</h2>
@@ -156,7 +177,12 @@ export default function Home() {
         </div>
         <div className="categories-grid" ref={categoriesRef}>
           {CATEGORIES.map((cat) => (
-            <div key={cat.id} className="category-card">
+            <div
+              key={cat.id}
+              className="category-card"
+              onClick={() => handleCategoryClick(cat.name)}
+              style={{ cursor: "pointer" }}
+            >
               <div className="category-img-container">
                 <img src={cat.image} alt={cat.name} />
               </div>
@@ -166,7 +192,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Section Tendances Actuelles (Catalogue) */}
       <section className="catalog-section">
         <div className="catalog-header">
           <h2>Tendances Actuelles</h2>
@@ -174,8 +199,8 @@ export default function Home() {
         </div>
 
         <div className="product-grid">
-          {PRODUCTS && PRODUCTS.length > 0 ? (
-            PRODUCTS.slice(0, 8).map((product) => (
+          {trendingProducts.length > 0 ? (
+            trendingProducts.map((product) => (
               <ProductCard
                 key={product.id}
                 product={product}
@@ -187,10 +212,10 @@ export default function Home() {
           )}
         </div>
 
-        {/* Bouton Voir tout le catalogue */}
+        {/* Bouton Voir tout le catalogue avec une classe dédiée */}
         <div className="catalog-footer">
-          <Link to="/catalog" className="btn-view-all">
-            Voir tout le catalogue
+          <Link to="/catalog" className="btn-view-all btn-view-all-soft">
+            Voir tout le catalogue &rarr;
           </Link>
         </div>
       </section>

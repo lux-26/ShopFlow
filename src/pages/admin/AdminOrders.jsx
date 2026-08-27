@@ -73,7 +73,7 @@ export default function AdminOrders() {
   );
 
   return (
-    <div className="admin-content-wrapper">
+    <div className="admin-content-wrapper page-transition">
       {/* En-tête de la page */}
       <div className="page-header-flex">
         <div>

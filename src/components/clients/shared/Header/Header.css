@@ -22,7 +22,7 @@
 }
 
 .logo-image {
-    width: 32px;
+    width: 4rem;
     height: auto;
 }
 
@@ -33,34 +33,56 @@
     letter-spacing: -0.01em;
 }
 
-/* --- BARRE DE RECHERCHE --- */
-.header-search {
+/* --- BARRE DE NAVIGATION DYNAMIQUE (STYLE PILULE MODERNE) --- */
+.header-pill-nav {
     display: flex;
     align-items: center;
-    background-color: var(--surface-container-low, #f8fafc);
-    border-radius: var(--radius-full, 50px);
-    padding: calc(var(--spacing-unit) * 1) calc(var(--spacing-unit) * 2);
-    width: 400px;
-    border: 1px solid var(--outline-variant, #cbd5e1);
+    background-color: #f8fafc;
+    padding: 5px;
+    border-radius: 9999px;
+    border: 1px solid #e2e8f0;
+    gap: 6px;
 }
 
-.search-icon {
-    color: var(--outline, #64748b);
-    margin-right: calc(var(--spacing-unit) * 1);
+.pill-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: #64748b;
+    font-weight: 500;
+    font-size: 14px;
+    padding: 8px 16px;
+    border-radius: 9999px;
+    transition: all 0.25s ease-in-out;
 }
 
-.search-input {
-    border: none;
-    background: transparent;
-    outline: none;
-    width: 100%;
-    font-family: var(--font-main, inherit);
-    font-size: var(--font-size-body-md, 14px);
-    color: var(--on-background, #1e293b);
+.pill-icon {
+    font-size: 13px;
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
 }
 
-.search-input::placeholder {
-    color: var(--outline, #94a3b8);
+.pill-nav-item:hover {
+    color: #0f172a;
+    background-color: #f1f5f9;
+}
+
+.pill-nav-item:hover .pill-icon {
+    opacity: 1;
+}
+
+.pill-nav-item.active {
+    background-color: #ffffff;
+    color: var(--primary-container, #002D62);
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(0, 45, 98, 0.08);
+}
+
+.pill-nav-item.active .pill-icon {
+    color: var(--primary-container, #002D62);
+    opacity: 1;
 }
 
 /* --- ACTIONS DROITE --- */
@@ -323,7 +345,7 @@
         gap: 15px;
     }
 
-    .header-search {
+    .header-pill-nav {
         display: none;
     }
 

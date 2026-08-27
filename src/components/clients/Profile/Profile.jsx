@@ -6,6 +6,7 @@ import ProfileSidebar from "./ProfileSidebar";
 import ProfileInfos from "./ProfileInfos";
 import ProfileSecurity from "./ProfileSecurity";
 import ProfileNotifs from "./ProfileNotifs";
+import ProfileOrders from "./ProfileOrders";
 import ProfilePayment from "./ProfilePayment";
 import "./Profile.css";
 
@@ -120,7 +121,7 @@ export default function Profile() {
   };
 
   return (
-    <div className="profile-page-container">
+    <div className="profile-page-container page-transition">
       <ProfileSidebar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -138,11 +139,19 @@ export default function Profile() {
             recentOrders={recentOrders}
             loyaltyPoints={loyaltyPoints}
             triggerPopup={showCustomToast}
+            setActiveTab={setActiveTab}
           />
         )}
         {activeTab === "security" && <ProfileSecurity />}
         {activeTab === "notifications" && (
           <ProfileNotifs notifs={notifs} toggleNotif={toggleNotif} />
+        )}
+
+        {activeTab === "orders" && (
+          <ProfileOrders
+            recentOrders={recentOrders}
+            setActiveTab={setActiveTab}
+          />
         )}
 
         {activeTab === "payment" && (

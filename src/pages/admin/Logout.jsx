@@ -17,6 +17,7 @@ export default function Logout() {
         backgroundColor: "#f8fafc",
         padding: "2rem",
       }}
+      className="page-transition"
     >
       {/* Carte de déconnexion */}
       <div

@@ -1,11 +1,11 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
 import {
   faStar,
   faCartPlus,
   faCircleInfo,
+  faSearch,
 } from "@fortawesome/free-solid-svg-icons";
 import "./Catalog.css";
 
@@ -78,7 +78,7 @@ export const catalogProducts = [
   },
   {
     id: 6,
-    category: "Mode",
+    category: "Mode & Vêtements",
     name: "Veste en Jean Casual Urbaine",
     description:
       "100% coton, style intemporel, confortable pour toutes les saisons...",
@@ -91,7 +91,7 @@ export const catalogProducts = [
   },
   {
     id: 7,
-    category: "Mode",
+    category: "Mode & Vêtements",
     name: "Sneakers Streetwear Blanche",
     description:
       "Design épuré, semelle ergonomique amortissante, grand confort...",
@@ -105,7 +105,7 @@ export const catalogProducts = [
   },
   {
     id: 8,
-    category: "Mode",
+    category: "Accessoires",
     name: "Sac à Dos Minimaliste en Cuir",
     description:
       "Compartiment pour ordinateur portable 15 pouces, résistant à l'eau...",
@@ -118,7 +118,7 @@ export const catalogProducts = [
   },
   {
     id: 9,
-    category: "Mode",
+    category: "Accessoires",
     name: "Lunettes de Soleil Rétro Vintage",
     description: "Monture écaille de tortue, protection UV400 intégrale...",
     price: 20000,
@@ -130,7 +130,7 @@ export const catalogProducts = [
   },
   {
     id: 10,
-    category: "Maison",
+    category: "Mobilier",
     name: "Lampe de Bureau LED Design",
     description:
       "Intensité lumineuse réglable, ports de charge USB intégrés...",
@@ -143,7 +143,7 @@ export const catalogProducts = [
   },
   {
     id: 11,
-    category: "Maison",
+    category: "Cuisine & Maison",
     name: "Set de Tasses à Café en Céramique",
     description: "Ensemble de 4 tasses modernes résistantes à la chaleur...",
     price: 15000,
@@ -155,7 +155,7 @@ export const catalogProducts = [
   },
   {
     id: 12,
-    category: "Maison",
+    category: "Mobilier",
     name: "Plante Artificielle Monstera en Pot",
     description:
       "Effet réaliste garanti, aucun entretien nécessaire pour votre salon...",
@@ -169,7 +169,7 @@ export const catalogProducts = [
   },
   {
     id: 13,
-    category: "Maison",
+    category: "Cuisine & Maison",
     name: "Diffuseur d'Huiles Essentielles Aromathérapie",
     description: "Effet lumineux LED apaisant, arrêt automatique sécurisé...",
     price: 28000,
@@ -179,9 +179,39 @@ export const catalogProducts = [
     image:
       "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=500&auto=format&fit=crop&q=60",
   },
+  {
+    id: 14,
+    category: "Accessoires",
+    name: "Chargeurs ",
+    description:
+      "Compartiment pour ordinateur portable 15 pouces, résistant à l'eau...",
+    price: 5000,
+    rating: 4,
+    reviews: 50,
+    badge: "Nouveau",
+    image:
+      "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500&auto=format&fit=crop&q=60",
+  },
+];
+
+// Liste complète des 8 catégories compatibles avec la page d'accueil
+const ALL_CATEGORIES = [
+  "Électronique",
+  "Accessoires",
+  "Mobilier",
+  "Beauté",
+  "Mode & Vêtements",
+  "Sport & Loisirs",
+  "Cuisine & Maison",
+  "Informatique",
 ];
 
 export default function Catalog() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const filterParam = searchParams.get("filter");
+  const categoryParam = searchParams.get("category"); // Récupère la catégorie cliquée depuis l'accueil
+
   const [sortOption, setSortOption] = useState("pertinence");
   const [selectedCategory, setSelectedCategory] = useState("Électronique");
   const [priceRange, setPriceRange] = useState({ min: "", max: "" });
@@ -191,9 +221,27 @@ export default function Catalog() {
   const [showPopup, setShowPopup] = useState(false);
   const [addedProductTitle, setAddedProductTitle] = useState("");
 
-  // Filtrage des produits
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Met à jour la catégorie sélectionnée si l'URL contient un paramètre "category"
+  useEffect(() => {
+    if (categoryParam) {
+      setSelectedCategory(categoryParam);
+    }
+  }, [categoryParam]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterParam, selectedCategory, priceRange, selectedRating, searchQuery]);
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
   const filteredProducts = catalogProducts.filter((product) => {
-    const matchesCategory = product.category === selectedCategory;
     const matchesMinPrice =
       priceRange.min === "" || product.price >= Number(priceRange.min);
     const matchesMaxPrice =
@@ -201,23 +249,39 @@ export default function Catalog() {
     const matchesRating =
       selectedRating === null || product.rating >= selectedRating;
 
+    // Si on est sur la vue Nouveautés
+    if (filterParam === "nouveautes") {
+      const isNewBadge = product.badge === "Nouveau";
+      return isNewBadge && matchesMinPrice && matchesMaxPrice && matchesRating;
+    }
+
+    const matchesSearch =
+      searchQuery.trim() === "" ||
+      product.name.toLowerCase().includes(searchQuery.toLowerCase().trim()) ||
+      product.description
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase().trim());
+
+    if (searchQuery.trim() !== "") {
+      return (
+        matchesSearch && matchesMinPrice && matchesMaxPrice && matchesRating
+      );
+    }
+
+    const matchesCategory = product.category === selectedCategory;
     return (
       matchesCategory && matchesMinPrice && matchesMaxPrice && matchesRating
     );
   });
 
-  // Tri des produits (copie pour éviter de modifier le tableau d'origine directement)
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (sortOption === "price-asc") return a.price - b.price;
     if (sortOption === "price-desc") return b.price - a.price;
-    // Tri par pertinence basé sur le nombre d'avis et la note
     return b.reviews * b.rating - a.reviews * a.rating;
   });
 
   const itemsPerPage = 3;
   const totalPages = Math.ceil(sortedProducts.length / itemsPerPage) || 1;
-
-  // Correction de la pagination si on dépasse la dernière page suite à un filtre
   const safeCurrentPage = currentPage > totalPages ? 1 : currentPage;
 
   const indexOfLastItem = safeCurrentPage * itemsPerPage;
@@ -226,6 +290,11 @@ export default function Catalog() {
     indexOfFirstItem,
     indexOfLastItem,
   );
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const handleAddToCart = (product) => {
     const currentCart = JSON.parse(localStorage.getItem("shopflow_cart")) || [];
@@ -251,7 +320,7 @@ export default function Catalog() {
   };
 
   return (
-    <div className="catalog-page">
+    <div className="catalog-page page-transition">
       {showPopup && (
         <div className="custom-toast-notification">
           <div className="toast-icon-wrapper">
@@ -268,7 +337,11 @@ export default function Catalog() {
 
       <div className="catalog-container">
         <div className="catalog-header">
-          <h1 className="catalog-title">Catalogue : {selectedCategory}</h1>
+          <h1 className="catalog-title">
+            {filterParam === "nouveautes"
+              ? "✨ Nouveautés"
+              : `Catalogue : ${selectedCategory}`}
+          </h1>
           <div className="catalog-sort">
             <label htmlFor="sort-select">Trier par : </label>
             <select
@@ -284,27 +357,34 @@ export default function Catalog() {
         </div>
 
         <div className="catalog-layout">
-          {/* Sidebar des filtres */}
           <aside className="filters-sidebar">
             <h2>Filtres</h2>
 
-            <div className="filter-group">
-              <h3>Catégorie</h3>
-              {["Électronique", "Mode", "Maison"].map((cat) => (
-                <label key={cat}>
-                  <input
-                    type="radio"
-                    name="category"
-                    checked={selectedCategory === cat}
-                    onChange={() => {
-                      setSelectedCategory(cat);
-                      setCurrentPage(1);
-                    }}
-                  />
-                  {cat}
-                </label>
-              ))}
-            </div>
+            {filterParam !== "nouveautes" && (
+              <div className="filter-group">
+                <h3>Catégorie</h3>
+                {ALL_CATEGORIES.map((cat) => (
+                  <label key={cat}>
+                    <input
+                      type="radio"
+                      name="category"
+                      checked={selectedCategory === cat}
+                      onChange={() => {
+                        setSelectedCategory(cat);
+                        // Nettoie l'URL pour garder une navigation propre si besoin
+                        navigate(
+                          `/catalog?category=${encodeURIComponent(cat)}`,
+                          {
+                            replace: true,
+                          },
+                        );
+                      }}
+                    />
+                    {cat}
+                  </label>
+                ))}
+              </div>
+            )}
 
             <div className="filter-group">
               <h3>Prix (FCFA)</h3>
@@ -313,20 +393,18 @@ export default function Catalog() {
                   type="number"
                   placeholder="Min"
                   value={priceRange.min}
-                  onChange={(e) => {
-                    setPriceRange({ ...priceRange, min: e.target.value });
-                    setCurrentPage(1);
-                  }}
+                  onChange={(e) =>
+                    setPriceRange({ ...priceRange, min: e.target.value })
+                  }
                 />
                 <span>-</span>
                 <input
                   type="number"
                   placeholder="Max"
                   value={priceRange.max}
-                  onChange={(e) => {
-                    setPriceRange({ ...priceRange, max: e.target.value });
-                    setCurrentPage(1);
-                  }}
+                  onChange={(e) =>
+                    setPriceRange({ ...priceRange, max: e.target.value })
+                  }
                 />
               </div>
             </div>
@@ -338,10 +416,9 @@ export default function Catalog() {
                   type="radio"
                   name="rating"
                   checked={selectedRating === 4}
-                  onChange={() => {
-                    setSelectedRating(selectedRating === 4 ? null : 4);
-                    setCurrentPage(1);
-                  }}
+                  onChange={() =>
+                    setSelectedRating(selectedRating === 4 ? null : 4)
+                  }
                 />
                 <span className="stars">★★★★☆</span> & up
               </label>
@@ -350,10 +427,9 @@ export default function Catalog() {
                   type="radio"
                   name="rating"
                   checked={selectedRating === 3}
-                  onChange={() => {
-                    setSelectedRating(selectedRating === 3 ? null : 3);
-                    setCurrentPage(1);
-                  }}
+                  onChange={() =>
+                    setSelectedRating(selectedRating === 3 ? null : 3)
+                  }
                 />
                 <span className="stars">★★★☆☆</span> & up
               </label>
@@ -362,19 +438,38 @@ export default function Catalog() {
             <button
               className="btn-reset"
               onClick={() => {
+                navigate("/catalog");
                 setSelectedCategory("Électronique");
                 setPriceRange({ min: "", max: "" });
                 setSelectedRating(null);
                 setSortOption("pertinence");
-                setCurrentPage(1);
+                setSearchQuery("");
               }}
             >
               Réinitialiser
             </button>
           </aside>
 
-          {/* Grille des produits */}
           <main className="catalog-main">
+            {filterParam !== "nouveautes" && (
+              <form
+                onSubmit={handleSearchSubmit}
+                className="catalog-search-bar"
+              >
+                <FontAwesomeIcon
+                  icon={faSearch}
+                  className="catalog-search-icon"
+                />
+                <input
+                  type="text"
+                  placeholder="Rechercher un produit dans cette catégorie..."
+                  className="catalog-search-input"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </form>
+            )}
+
             {currentProducts.length === 0 ? (
               <div className="catalog-empty">
                 <p>Aucun produit ne correspond à vos critères de recherche.</p>
@@ -461,13 +556,12 @@ export default function Catalog() {
               </div>
             )}
 
-            {/* Pagination */}
             {totalPages > 1 && (
               <div className="pagination">
                 <button
                   className="page-btn"
                   disabled={safeCurrentPage === 1}
-                  onClick={() => setCurrentPage(safeCurrentPage - 1)}
+                  onClick={() => handlePageChange(safeCurrentPage - 1)}
                 >
                   &lt;
                 </button>
@@ -477,8 +571,10 @@ export default function Catalog() {
                   return (
                     <button
                       key={pageNumber}
-                      className={`page-btn ${safeCurrentPage === pageNumber ? "active" : ""}`}
-                      onClick={() => setCurrentPage(pageNumber)}
+                      className={`page-btn ${
+                        safeCurrentPage === pageNumber ? "active" : ""
+                      }`}
+                      onClick={() => handlePageChange(pageNumber)}
                     >
                       {pageNumber}
                     </button>
@@ -488,7 +584,7 @@ export default function Catalog() {
                 <button
                   className="page-btn"
                   disabled={safeCurrentPage === totalPages}
-                  onClick={() => setCurrentPage(safeCurrentPage + 1)}
+                  onClick={() => handlePageChange(safeCurrentPage + 1)}
                 >
                   &gt;
                 </button>

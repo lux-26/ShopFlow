@@ -112,7 +112,7 @@ export default function AdminProducts() {
   });
 
   return (
-    <div className="admin-content-wrapper">
+    <div className="admin-content-wrapper page-transition">
       {/* En-tête */}
       <div className="page-header-flex">
         <div>

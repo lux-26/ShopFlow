@@ -124,7 +124,7 @@ export default function Cart({ onGoToCheckout }) {
   };
 
   return (
-    <div className="cart-page">
+    <div className="cart-page page-transition">
       {showPopup && (
         <div
           className="custom-toast-notification"

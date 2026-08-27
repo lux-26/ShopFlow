@@ -127,7 +127,7 @@ export default function Loyalty() {
   };
 
   return (
-    <div className="loyalty-page">
+    <div className="loyalty-page page-transition">
       <div className="loyalty-container">
         {/* En-tête */}
         <div className="loyalty-header-section">

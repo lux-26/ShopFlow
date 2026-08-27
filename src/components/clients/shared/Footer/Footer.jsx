@@ -19,7 +19,7 @@ import "./Footer.css";
 
 export default function Footer() {
   return (
-    <footer className="shopflow-footer">
+    <footer className="shopflow-footer page-transition">
       <div className="footer-container">
         {/* Colonne 1 : Logo, description et réseaux sociaux */}
 

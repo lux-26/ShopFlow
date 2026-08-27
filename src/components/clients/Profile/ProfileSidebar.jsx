@@ -10,6 +10,8 @@ import {
   faCamera,
   faTriangleExclamation,
   faCircleInfo,
+  faHistory,
+  faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 
 export default function ProfileSidebar({
@@ -20,10 +22,7 @@ export default function ProfileSidebar({
 }) {
   const navigate = useNavigate();
 
-  // État pour afficher ou masquer la modale personnalisée de déconnexion
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-
-  // États pour le toast de notification
   const [showPopup, setShowPopup] = useState(false);
   const [popupData, setPopupData] = useState({ title: "", message: "" });
 
@@ -33,48 +32,104 @@ export default function ProfileSidebar({
     setTimeout(() => setShowPopup(false), 3000);
   };
 
-  // Gestion du changement de la photo de profil
+  const getInitials = (user) => {
+    if (!user) return "";
+    let firstName = user.firstName || "";
+    let lastName = user.lastName || "";
+
+    if (!firstName && !lastName && user.name) {
+      const parts = user.name.trim().split(" ");
+      firstName = parts[0] || "";
+      lastName = parts.length > 1 ? parts[parts.length - 1] : "";
+    }
+
+    const first = firstName ? firstName.charAt(0) : "";
+    const last = lastName && lastName !== firstName ? lastName.charAt(0) : "";
+    const initials = (first + last).toUpperCase();
+    return initials !== "" ? initials : null;
+  };
+
+  // --- Gestion propre de l'ajout d'image (conversion Base64 pour persistance fiable) ---
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      const updatedUser = { ...userInfo, avatar: imageUrl };
-      setUserInfo(updatedUser);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64Image = reader.result;
+        const updatedUser = { ...userInfo, avatar: base64Image };
 
-      // Sauvegarde dans la clé unifiée "shopflow_user_info"
-      localStorage.setItem("shopflow_user_info", JSON.stringify(updatedUser));
+        setUserInfo(updatedUser);
 
-      // Synchronisation avec le Header et le reste du site
-      localStorage.setItem("shopflow_user_avatar", imageUrl);
-      window.dispatchEvent(new Event("storage"));
+        // Sauvegarde unifiée
+        localStorage.setItem("shopflow_user_info", JSON.stringify(updatedUser));
+        localStorage.setItem("shopflow_user_avatar", base64Image);
 
-      // Déclenchement du toast unifié
-      triggerPopup(
-        "Succès",
-        "Votre photo de profil a été mise à jour avec succès.",
-      );
+        // Déclenchement des événements pour mettre à jour le Header et le reste de l'app en direct
+        window.dispatchEvent(new Event("userAvatarUpdated"));
+        window.dispatchEvent(new Event("storage"));
+
+        triggerPopup(
+          "Succès",
+          "Votre photo de profil a été mise à jour avec succès.",
+        );
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  // Exécution effective de la déconnexion (CORRIGÉE)
+  // --- Suppression propre de la photo ---
+  const handleRemoveAvatar = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // On supprime l'avatar en mettant une chaîne vide
+    const updatedUser = { ...userInfo, avatar: "" };
+    setUserInfo(updatedUser);
+
+    localStorage.setItem("shopflow_user_info", JSON.stringify(updatedUser));
+    localStorage.removeItem("shopflow_user_avatar");
+
+    window.dispatchEvent(new Event("userAvatarUpdated"));
+    window.dispatchEvent(new Event("storage"));
+
+    triggerPopup(
+      "Suppression",
+      "Votre photo de profil a été supprimée. Les initiales s'affichent de nouveau.",
+    );
+  };
+
   const confirmLogout = () => {
     localStorage.removeItem("shopflow_is_logged");
     localStorage.removeItem("shopflow_user_avatar");
-
-    // CORRECTION : Nettoyage des notifications et signalement au Header
     localStorage.removeItem("shopflow_notifications");
     window.dispatchEvent(new Event("notificationUpdated"));
-
     window.dispatchEvent(new Event("storage"));
     navigate("/");
   };
 
+  const getDisplayName = () => {
+    if (!userInfo) return "Utilisateur";
+    if (userInfo.firstName || userInfo.lastName) {
+      return `${userInfo.firstName || ""} ${userInfo.lastName || ""}`.trim();
+    }
+    return userInfo.name || "Utilisateur";
+  };
+
+  const userInitials = getInitials(userInfo);
+
+  // Vérification stricte pour savoir si une vraie image d'avatar est présente
+  const hasValidAvatar =
+    userInfo?.avatar &&
+    typeof userInfo.avatar === "string" &&
+    userInfo.avatar.trim() !== "" &&
+    userInfo.avatar !== "null" &&
+    userInfo.avatar !== "undefined";
+
   return (
     <>
-      {/* Toast de notification unifié en bas à droite */}
       {showPopup && (
         <div
-          className="custom-toast-notification"
+          className="custom-toast-notification page-transition"
           style={{ borderLeftColor: "#1e3a8a" }}
         >
           <div className="toast-icon-wrapper" style={{ color: "#1e3a8a" }}>
@@ -89,26 +144,78 @@ export default function ProfileSidebar({
 
       <div className="profile-sidebar">
         <div className="profile-avatar-section">
-          <label
-            htmlFor="sidebar-avatar-input"
+          <div
             style={{
-              cursor: "pointer",
               position: "relative",
               display: "inline-block",
+              marginBottom: "12px",
             }}
           >
-            <img
-              src={
-                userInfo.avatar ||
-                "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"
-              }
-              alt="Avatar"
-              className="profile-avatar-img"
-            />
-            <div
+            {/* Condition claire : Si l'image existe -> Afficher l'image. Sinon -> Afficher les initiales. */}
+            {hasValidAvatar ? (
+              <label
+                htmlFor="sidebar-avatar-input"
+                style={{ cursor: "pointer", display: "block" }}
+              >
+                <img
+                  src={userInfo.avatar}
+                  alt="Avatar"
+                  className="profile-avatar-img"
+                  style={{
+                    width: "80px",
+                    height: "80px",
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                  }}
+                />
+              </label>
+            ) : userInitials ? (
+              <label
+                htmlFor="sidebar-avatar-input"
+                style={{
+                  cursor: "pointer",
+                  width: "80px",
+                  height: "80px",
+                  borderRadius: "50%",
+                  backgroundColor: "#1e3a8a",
+                  color: "#fff",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontWeight: "700",
+                  fontSize: "1.5rem",
+                  margin: "0 auto",
+                }}
+              >
+                {userInitials}
+              </label>
+            ) : (
+              <label
+                htmlFor="sidebar-avatar-input"
+                style={{
+                  cursor: "pointer",
+                  width: "80px",
+                  height: "80px",
+                  borderRadius: "50%",
+                  backgroundColor: "#e2e8f0",
+                  color: "#64748b",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "2rem",
+                  margin: "0 auto",
+                }}
+              >
+                <FontAwesomeIcon icon={faUser} />
+              </label>
+            )}
+
+            {/* Bouton caméra */}
+            <label
+              htmlFor="sidebar-avatar-input"
               style={{
                 position: "absolute",
-                bottom: "12px",
+                bottom: "0",
                 right: "0",
                 background: "#1e3a8a",
                 color: "white",
@@ -119,11 +226,42 @@ export default function ProfileSidebar({
                 alignItems: "center",
                 justifyContent: "center",
                 boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                cursor: "pointer",
               }}
+              title="Changer la photo"
             >
               <FontAwesomeIcon icon={faCamera} size="xs" />
-            </div>
-          </label>
+            </label>
+
+            {/* Bouton Corbeille (visible uniquement si un avatar valide est présent) */}
+            {hasValidAvatar && (
+              <button
+                type="button"
+                onClick={handleRemoveAvatar}
+                title="Supprimer la photo"
+                style={{
+                  position: "absolute",
+                  top: "0",
+                  right: "0",
+                  background: "#b91c1c",
+                  color: "white",
+                  border: "2px solid white",
+                  borderRadius: "50%",
+                  width: "24px",
+                  height: "24px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                  cursor: "pointer",
+                  fontSize: "10px",
+                }}
+              >
+                <FontAwesomeIcon icon={faTrash} size="xs" />
+              </button>
+            )}
+          </div>
+
           <input
             id="sidebar-avatar-input"
             type="file"
@@ -132,12 +270,11 @@ export default function ProfileSidebar({
             style={{ display: "none" }}
           />
 
-          <h3>
-            {userInfo.firstName} {userInfo.lastName}
-          </h3>
+          <h3>{getDisplayName()}</h3>
           <p>Gérez vos préférences</p>
         </div>
 
+        {/* Le reste de vos onglets de navigation et de déconnexion ... */}
         <nav className="profile-nav-links">
           <button
             className={`nav-link-item ${activeTab === "infos" ? "active" : ""}`}
@@ -156,6 +293,12 @@ export default function ProfileSidebar({
             onClick={() => setActiveTab("notifications")}
           >
             <FontAwesomeIcon icon={faBell} /> Notifications
+          </button>
+          <button
+            className={`nav-link-item ${activeTab === "orders" ? "active" : ""}`}
+            onClick={() => setActiveTab("orders")}
+          >
+            <FontAwesomeIcon icon={faHistory} /> Historique des commandes
           </button>
           <button
             className={`nav-link-item ${activeTab === "payment" ? "active" : ""}`}
@@ -196,8 +339,7 @@ export default function ProfileSidebar({
         </div>
       </div>
 
-      {/* Modale de confirmation personnalisée */}
-      {showLogoutModal && (
+      {showLogoutModal  && ( 
         <div
           style={{
             position: "fixed",

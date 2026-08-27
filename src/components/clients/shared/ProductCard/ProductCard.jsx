@@ -7,7 +7,7 @@ export default function ProductCard({ product, onAddToCart }) {
   if (!product) return null;
 
   return (
-    <div className="product-card">
+    <div className="product-card page-transition">
       <div className="product-image-container">
         {product.badge && (
           <span className="product-badge badge-new">{product.badge}</span>

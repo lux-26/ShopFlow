@@ -4,7 +4,7 @@ import AdminSidebar from "./AdminSidebar";
 export default function AdminLayout() {
   return (
     <div
-      className="admin-layout"
+      className="admin-layout page-transition"
       style={{ display: "flex", minHeight: "100vh" }}
     >
       {/* La barre latérale des menu*/}

@@ -136,7 +136,7 @@ export default function Checkout() {
   };
 
   return (
-    <div className="checkout-page">
+    <div className="checkout-page page-transition">
       {/* Pop-up unifié en bas à droite */}
       {showPopup && (
         <div

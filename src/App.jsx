@@ -4,11 +4,14 @@ import {
   Route,
   useLocation,
 } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 // Composants principaux
+import Loader from "./pages/Loader/Loader";
 import Header from "./components/clients/shared/Header/Header";
 import Footer from "./components/clients/shared/Footer/Footer";
 import WhatsAppButton from "./components/clients/shared/WhatsAppButton/WhatsAppButton";
+import Contact from "./components/clients/shared/Contact/Contact";
 
 // Pages publiques
 import Home from "./pages/clients/Home/Home";
@@ -33,10 +36,23 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
 
-// Composant interne pour gérer l'affichage conditionnel du Header/Footer
 function AppContent() {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith("/admin");
+
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1800);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return <Loader />;
+  }
 
   return (
     <>
@@ -47,6 +63,7 @@ function AppContent() {
           {/* Routes publiques */}
           <Route path="/" element={<Home />} />
           <Route path="/catalog" element={<Catalog />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />

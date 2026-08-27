@@ -1,14 +1,17 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faShoppingCart,
   faBell,
-  faSearch,
   faUser,
   faGift,
   faBox,
   faFire,
+  faHouse,
+  faStore,
+  faStar,
+  faEnvelope,
 } from "@fortawesome/free-solid-svg-icons";
 import "./Header.css";
 
@@ -19,22 +22,26 @@ export default function Header() {
   const [activeTab, setActiveTab] = useState("Tout");
 
   const navigate = useNavigate();
+  const location = useLocation();
 
-  // Fonction utilitaire pour extraire un avatar valide
+  // Fonction pour récupérer l'avatar (renvoie null si déconnecté ou absent)
   const getValidAvatar = () => {
     try {
       const savedUser = localStorage.getItem("shopflow_user_info");
-      if (savedUser) {
-        const parsed = JSON.parse(savedUser);
-        if (
-          parsed &&
-          parsed.avatar &&
-          typeof parsed.avatar === "string" &&
-          parsed.avatar.trim() !== ""
-        ) {
-          return parsed.avatar;
-        }
+      if (!savedUser) return null; // Si plus d'infos utilisateur, pas d'avatar
+
+      const avatar = localStorage.getItem("shopflow_user_avatar");
+      if (
+        avatar &&
+        avatar.trim() !== "" &&
+        avatar !== "null" &&
+        avatar !== "undefined"
+      ) {
+        return avatar;
       }
+
+      const parsed = JSON.parse(savedUser);
+      if (parsed?.avatar && parsed.avatar.trim() !== "") return parsed.avatar;
     } catch (e) {
       console.error(e);
     }
@@ -43,36 +50,129 @@ export default function Header() {
 
   const [profileImage, setProfileImage] = useState(getValidAvatar);
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+  // Fonction pour extraire les initiales (renvoie null si déconnecté ou absent)
+  const getUserInitials = () => {
+    try {
+      const savedUser = localStorage.getItem("shopflow_user_info");
+      if (!savedUser) return null; // Si plus d'infos utilisateur, pas d'initiales
+
+      const parsed = JSON.parse(savedUser);
+      const fullName =
+        parsed?.FullName ||
+        parsed?.name ||
+        parsed?.fullName ||
+        `${parsed?.firstName || ""} ${parsed?.lastName || ""}`;
+
+      if (fullName && fullName.trim() !== "") {
+        const parts = fullName.trim().split(" ");
+        const first = parts[0] ? parts[0].charAt(0) : "";
+        const last = parts.length > 1 ? parts[parts.length - 1].charAt(0) : "";
+        const initials = (first + last).toUpperCase();
+        if (initials) return initials;
+      }
+
+      // Fallback sur d'éventuelles anciennes clés
+      const legacyName =
+        localStorage.getItem("shopflow_user_name") ||
+        localStorage.getItem("shopflow_name") ||
+        localStorage.getItem("user_name");
+
+      if (legacyName && legacyName.trim() !== "") {
+        const parts = legacyName.trim().split(" ");
+        const first = parts[0] ? parts[0].charAt(0) : "";
+        const last = parts.length > 1 ? parts[parts.length - 1].charAt(0) : "";
+        const initials = (first + last).toUpperCase();
+        if (initials) return initials;
+      }
+    } catch (e) {
+      console.error(e);
     }
+    return null;
   };
+
+  const [userInitials, setUserInitials] = useState(getUserInitials);
 
   const notificationRef = useRef(null);
 
-  const updateProfileAvatar = () => {
+  const updateProfileData = () => {
     setProfileImage(getValidAvatar());
+    setUserInitials(getUserInitials());
+  };
+
+  // Chargement des notifications
+  const loadNotifications = () => {
+    const isLoggedIn = localStorage.getItem("shopflow_is_logged") === "true";
+
+    if (!isLoggedIn) {
+      setNotifications([]);
+      return;
+    }
+
+    try {
+      const savedNotifs = JSON.parse(
+        localStorage.getItem("shopflow_notifications"),
+      );
+
+      if (Array.isArray(savedNotifs) && savedNotifs.length > 0) {
+        const formattedNotifs = savedNotifs.map((notif) => {
+          let icon = faBox;
+          let color = "#64748b";
+          let bgColor = "#f1f5f9";
+
+          if (notif.category === "Fidélité") {
+            icon = notif.text?.includes("points") ? faGift : faFire;
+            color = notif.text?.includes("points") ? "#10b981" : "#f59e0b";
+            bgColor = notif.text?.includes("points") ? "#d1fae5" : "#ffedd5";
+          } else if (
+            notif.category === "Commandes" ||
+            notif.text?.includes("commande") ||
+            notif.text?.includes("coupon")
+          ) {
+            icon = notif.text?.includes("coupon") ? faShoppingCart : faBox;
+            color = notif.text?.includes("coupon") ? "#2563eb" : "#64748b";
+            bgColor = notif.text?.includes("coupon") ? "#dbeafe" : "#f1f5f9";
+          }
+
+          return { ...notif, icon, color, bgColor };
+        });
+
+        setNotifications(formattedNotifs);
+      } else {
+        setNotifications([]);
+      }
+    } catch (e) {
+      setNotifications([]);
+    }
+  };
+
+  // Calcul du panier
+  const updateCartCount = () => {
+    try {
+      const savedCart = JSON.parse(localStorage.getItem("shopflow_cart")) || [];
+      const count = savedCart.reduce((sum, item) => sum + item.quantity, 0);
+      setTotalItems(count);
+    } catch (e) {
+      setTotalItems(0);
+    }
   };
 
   useEffect(() => {
     updateCartCount();
     loadNotifications();
-    updateProfileAvatar();
+    updateProfileData();
 
     const handleStorageChange = () => {
-      updateProfileAvatar();
+      updateProfileData();
       updateCartCount();
-      loadNotifications(); // Met aussi à jour les notifs en cas de changement de stockage
+      loadNotifications();
     };
 
     window.addEventListener("storage", handleStorageChange);
     window.addEventListener("cartUpdated", updateCartCount);
     window.addEventListener("notificationUpdated", loadNotifications);
-    window.addEventListener("userAvatarUpdated", updateProfileAvatar);
-    window.addEventListener("userInfoUpdated", updateProfileAvatar);
+    window.addEventListener("userAvatarUpdated", updateProfileData);
+    window.addEventListener("userInfoUpdated", updateProfileData);
+    window.addEventListener("userNameUpdated", updateProfileData);
 
     const handleClickOutside = (event) => {
       if (
@@ -89,127 +189,28 @@ export default function Header() {
       window.removeEventListener("storage", handleStorageChange);
       window.removeEventListener("cartUpdated", updateCartCount);
       window.removeEventListener("notificationUpdated", loadNotifications);
-      window.removeEventListener("userAvatarUpdated", updateProfileAvatar);
-      window.removeEventListener("userInfoUpdated", updateProfileAvatar);
+      window.removeEventListener("userAvatarUpdated", updateProfileData);
+      window.removeEventListener("userInfoUpdated", updateProfileData);
+      window.removeEventListener("userNameUpdated", updateProfileData);
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
-  // Fonction pour gérer le clic sur le profil / compte
   const handleProfileClick = (e) => {
     e.preventDefault();
     const isLoggedIn = localStorage.getItem("shopflow_is_logged") === "true";
+    const savedUser = localStorage.getItem("shopflow_user_info");
 
-    if (isLoggedIn) {
+    if (isLoggedIn || savedUser) {
       navigate("/profile");
     } else {
       navigate("/login");
     }
   };
 
-  // Accès direct au panier sans condition de connexion
   const handleCartClick = (e) => {
     e.preventDefault();
     navigate("/cart");
-  };
-
-  // Calcul du nombre total d'articles dans le panier
-  const updateCartCount = () => {
-    const savedCart = JSON.parse(localStorage.getItem("shopflow_cart")) || [];
-    const count = savedCart.reduce((sum, item) => sum + item.quantity, 0);
-    setTotalItems(count);
-  };
-
-  // Chargement des notifications avec vérification de la connexion
-  const loadNotifications = () => {
-    const isLoggedIn = localStorage.getItem("shopflow_is_logged") === "true";
-
-    // CORRECTION : Si l'utilisateur n'est pas connecté, on vide les notifications pour masquer le badge
-    if (!isLoggedIn) {
-      setNotifications([]);
-      return;
-    }
-
-    const savedNotifs = JSON.parse(
-      localStorage.getItem("shopflow_notifications"),
-    );
-
-    if (savedNotifs && savedNotifs.length > 0) {
-      const formattedNotifs = savedNotifs.map((notif) => {
-        let icon = faBox;
-        let color = "#64748b";
-        let bgColor = "#f1f5f9";
-
-        if (notif.category === "Fidélité") {
-          icon = notif.text.includes("points") ? faGift : faFire;
-          color = notif.text.includes("points") ? "#10b981" : "#f59e0b";
-          bgColor = notif.text.includes("points") ? "#d1fae5" : "#ffedd5";
-        } else if (
-          notif.category === "Commandes" ||
-          notif.text.includes("commande") ||
-          notif.text.includes("coupon")
-        ) {
-          icon = notif.text.includes("coupon") ? faShoppingCart : faBox;
-          color = notif.text.includes("coupon") ? "#2563eb" : "#64748b";
-          bgColor = notif.text.includes("coupon") ? "#dbeafe" : "#f1f5f9";
-        }
-
-        return { ...notif, icon, color, bgColor };
-      });
-
-      setNotifications(formattedNotifs);
-    } else if (savedNotifs === null) {
-      const defaultNotifs = [
-        {
-          id: 1,
-          category: "Fidélité",
-          title: "+500 points ajoutés",
-          text: "Félicitations ! Vos points de fidélité ont été crédités suite à votre dernier achat.",
-          time: "Il y a 2h",
-          icon: faGift,
-          bgColor: "#d1fae5",
-          color: "#10b981",
-        },
-        {
-          id: 2,
-          category: "Fidélité",
-          title: "Niveau Or atteint",
-          text: "Vous êtes désormais membre Or. Profitez de la livraison gratuite sur toutes vos commandes.",
-          time: "Hier",
-          icon: faFire,
-          bgColor: "#ffedd5",
-          color: "#f59e0b",
-        },
-        {
-          id: 3,
-          category: "Commandes",
-          title: "Commande expédiée #1045",
-          text: "Votre commande contenant 3 articles a été remise au transporteur.",
-          time: "Mercredi",
-          icon: faBox,
-          bgColor: "#f1f5f9",
-          color: "#64748b",
-        },
-        {
-          id: 4,
-          category: "Commandes",
-          title: "Nouveau coupon disponible",
-          text: "Profitez de 15% de réduction sur la nouvelle collection. Valable pendant 7 jours.",
-          time: "Lun. dernier",
-          icon: faShoppingCart,
-          bgColor: "#dbeafe",
-          color: "#2563eb",
-        },
-      ];
-
-      setNotifications(defaultNotifs);
-      localStorage.setItem(
-        "shopflow_notifications",
-        JSON.stringify(defaultNotifs),
-      );
-    } else {
-      setNotifications([]);
-    }
   };
 
   const handleClearNotifications = () => {
@@ -223,14 +224,14 @@ export default function Header() {
     if (notif.category === activeTab) return true;
     if (
       activeTab === "Commandes" &&
-      notif.text.toLowerCase().includes("commande")
+      notif.text?.toLowerCase().includes("commande")
     ) {
       return true;
     }
     if (
       activeTab === "Fidélité" &&
-      (notif.text.toLowerCase().includes("fidélité") ||
-        notif.text.toLowerCase().includes("bon de réduction"))
+      (notif.text?.toLowerCase().includes("fidélité") ||
+        notif.text?.toLowerCase().includes("bon de réduction"))
     ) {
       return true;
     }
@@ -238,8 +239,8 @@ export default function Header() {
   });
 
   return (
-    <header className="shopflow-header">
-      {/* 1. Le logo à gauche */}
+    <header className="shopflow-header page-transition">
+      {/* 1. Logo à gauche */}
       <div className="header-left">
         <Link to="/" className="logo-container">
           <img
@@ -251,23 +252,41 @@ export default function Header() {
         </Link>
       </div>
 
-      {/* 2. La barre de recherche au milieu */}
-      <form onSubmit={handleSearchSubmit} className="header-search">
-        <span className="search-icon">
-          <FontAwesomeIcon icon={faSearch} />
-        </span>
-        <input
-          type="text"
-          placeholder="Rechercher des produits..."
-          className="search-input"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-      </form>
+      {/* 2. Barre de navigation dynamique améliorée au milieu */}
+      <nav className="header-pill-nav">
+        <Link
+          to="/"
+          className={`pill-nav-item ${location.pathname === "/" ? "active" : ""}`}
+        >
+          <FontAwesomeIcon icon={faHouse} className="pill-icon" />
+          <span>Accueil</span>
+        </Link>
+        <Link
+          to="/catalog"
+          className={`pill-nav-item ${location.pathname.includes("/catalog") ? "active" : ""}`}
+        >
+          <FontAwesomeIcon icon={faStore} className="pill-icon" />
+          <span>Catalogue</span>
+        </Link>
+        <Link
+          to="/catalog?filter=nouveautes"
+          className={`pill-nav-item ${location.pathname === "/catalog" && location.search.includes("nouveautes") ? "active" : ""}`}
+        >
+          <FontAwesomeIcon icon={faStar} className="pill-icon" />
+          <span>Nouveautés</span>
+        </Link>
+        <Link
+          to="/contact"
+          className={`pill-nav-item ${location.pathname === "/contact" ? "active" : ""}`}
+        >
+          <FontAwesomeIcon icon={faEnvelope} className="pill-icon" />
+          <span>Contact</span>
+        </Link>
+      </nav>
 
-      {/* 3. Les actions à droite (Notifications, Compte, Panier) */}
+      {/* 3. Actions à droite */}
       <div className="header-right">
-        {/* Cloche de notification */}
+        {/* Notifications */}
         <div
           className="notification-container"
           style={{ position: "relative" }}
@@ -315,7 +334,10 @@ export default function Header() {
                   <p className="no-notifs">Aucune notification</p>
                 ) : (
                   filteredNotifications.map((notif) => (
-                    <div key={notif.id} className="notification-item-pro">
+                    <div
+                      key={notif.id || Math.random()}
+                      className="notification-item-pro"
+                    >
                       <div
                         className="notif-icon-circle"
                         style={{
@@ -348,7 +370,7 @@ export default function Header() {
           )}
         </div>
 
-        {/* Compte */}
+        {/* Profil / Avatar en priorité, puis Initiales, puis Icône par défaut */}
         <a
           href="/profile"
           onClick={handleProfileClick}
@@ -358,9 +380,32 @@ export default function Header() {
           {profileImage ? (
             <img
               src={profileImage}
-              alt="Profil"
-              className="header-user-avatar"
+              alt="Avatar"
+              style={{
+                width: "32px",
+                height: "32px",
+                borderRadius: "50%",
+                objectFit: "cover",
+                border: "2px solid #1e3a8a",
+              }}
             />
+          ) : userInitials ? (
+            <div
+              style={{
+                width: "32px",
+                height: "32px",
+                borderRadius: "50%",
+                backgroundColor: "#1e3a8a",
+                color: "#fff",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: "700",
+                fontSize: "0.8rem",
+              }}
+            >
+              {userInitials}
+            </div>
           ) : (
             <>
               <FontAwesomeIcon icon={faUser} /> Compte

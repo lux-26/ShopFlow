@@ -63,7 +63,7 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="admin-content-wrapper">
+    <div className="admin-content-wrapper page-transition">
       <div className="page-header-flex">
         <div>
           <h1>Vue d'ensemble</h1>

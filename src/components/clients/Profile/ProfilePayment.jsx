@@ -32,7 +32,7 @@ export default function ProfilePayment({ triggerPopup }) {
   };
 
   return (
-    <div style={{ padding: "0px" }}>
+    <div style={{ padding: "0px" }} className="page-transition">
       <div
         style={{
           background: "#ffffff",
