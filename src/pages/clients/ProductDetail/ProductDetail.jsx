@@ -10,21 +10,22 @@ import {
   faMicrophone,
   faPlay,
   faHeart,
-  faCircleInfo,
 } from "@fortawesome/free-solid-svg-icons";
 import { faBluetooth } from "@fortawesome/free-brands-svg-icons";
-import { catalogProducts } from "../../clients/catalog/Catalog"; // Ajustez le chemin vers votre fichier de données s'il diffère
+import { catalogProducts } from "../../clients/catalog/Catalog";
 import "../../../components/clients/shared/ProductCard/ProductCard.css";
+import { useToast } from "../../../context/ToastContext";
 import "./ProductDetail.css";
 
 export default function ProductDetail() {
   const { id } = useParams();
   const location = useLocation();
+  const { showToast } = useToast(); // <--- On récupère le Toast global ici
 
   // 1. Récupération prioritaire via le state passé au clic
   let rawProduct = location.state?.product;
 
-  // 2. Si absent du state, on cherche proprement dans le catalogue global et le localStorage
+  // 2. Si absent du state, on cherche dans le catalogue global et le localStorage
   if (!rawProduct) {
     const savedProducts =
       JSON.parse(localStorage.getItem("shopflow_products")) || [];
@@ -54,7 +55,7 @@ export default function ProductDetail() {
     );
   }
 
-  // 3. NORMALISATION : On s'assure d'uniformiser les données peu importe d'où vient le clic
+  // 3. NORMALISATION
   const product = {
     ...rawProduct,
     id: rawProduct.id || id,
@@ -83,8 +84,6 @@ export default function ProductDetail() {
   ];
 
   const [quantity, setQuantity] = useState(1);
-  const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
 
   const [isSaved, setIsSaved] = useState(() => {
     const wishlist =
@@ -110,14 +109,6 @@ export default function ProductDetail() {
     setQuantity(quantity + 1);
   };
 
-  const triggerNotification = (message) => {
-    setToastMessage(message);
-    setShowToast(true);
-    setTimeout(() => {
-      setShowToast(false);
-    }, 3000);
-  };
-
   const handleAddToCart = () => {
     const cart = JSON.parse(localStorage.getItem("shopflow_cart")) || [];
     const existingIndex = cart.findIndex(
@@ -133,7 +124,12 @@ export default function ProductDetail() {
 
     localStorage.setItem("shopflow_cart", JSON.stringify(cart));
     window.dispatchEvent(new Event("storage"));
-    triggerNotification("Produit ajouté au panier avec succès !");
+
+    showToast(
+      "Produit ajouté !",
+      `${product.name} a bien été ajouté à votre panier.`,
+      "success",
+    );
   };
 
   const handleToggleSave = () => {
@@ -145,10 +141,10 @@ export default function ProductDetail() {
       updatedWishlist = wishlist.filter(
         (item) => String(item.id) !== String(product.id),
       );
-      triggerNotification("Retiré de vos favoris.");
+      showToast("Retiré de vos favoris.");
     } else {
       updatedWishlist = [...wishlist, product];
-      triggerNotification("Ajouté à vos favoris avec succès !");
+      showToast("Ajouté à vos favoris avec succès !");
     }
 
     localStorage.setItem("shopflow_wishlist", JSON.stringify(updatedWishlist));
@@ -164,10 +160,10 @@ export default function ProductDetail() {
       updatedComparison = comparison.filter(
         (item) => String(item.id) !== String(product.id),
       );
-      triggerNotification("Retiré de la liste de comparaison.");
+      showToast("Retiré de la liste de comparaison.");
     } else {
       updatedComparison = [...comparison, product];
-      triggerNotification("Ajouté à la comparaison avec succès !");
+      showToast("Ajouté à la comparaison avec succès !");
     }
 
     localStorage.setItem(
@@ -179,17 +175,7 @@ export default function ProductDetail() {
 
   return (
     <div className="product-detail-page">
-      {showToast && (
-        <div className="custom-toast-notification">
-          <div className="toast-icon-wrapper">
-            <FontAwesomeIcon icon={faCircleInfo} />
-          </div>
-          <div className="toast-content">
-            <span className="toast-title">Succès</span>
-            <p className="toast-message">{toastMessage}</p>
-          </div>
-        </div>
-      )}
+      {/* Plus de code HTML de toast ici, le ToastContext global s'en occupe tout seul ! */}
 
       <div className="product-detail-container">
         <div className="product-gallery-section">

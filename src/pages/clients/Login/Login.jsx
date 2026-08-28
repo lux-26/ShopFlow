@@ -1,10 +1,11 @@
 import { useState } from "react";
+import ReactDOM from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faEye,
   faEyeSlash,
-  faCircleInfo,
+  faCircleCheck,
   faCircleExclamation,
 } from "@fortawesome/free-solid-svg-icons";
 import "./Login.css";
@@ -92,32 +93,37 @@ export default function Login() {
 
   return (
     <div className="login-page-wrapper page-transition">
-      {/* Toast de notification moderne et élégant */}
-      {showPopup && (
-        <div
-          className="custom-toast-notification"
-          style={{
-            borderLeftColor: popupData.type === "error" ? "#dc2626" : "#1e3a8a",
-          }}
-        >
+      {/* Toast de notification moderne et élégant injecté via Portal avec la couleur verte pour le succès */}
+      {showPopup &&
+        ReactDOM.createPortal(
           <div
-            className="toast-icon-wrapper"
+            className="custom-toast-notification"
             style={{
-              color: popupData.type === "error" ? "#dc2626" : "#1e3a8a",
+              borderLeftColor:
+                popupData.type === "error" ? "#dc2626" : "#10b981",
             }}
           >
-            <FontAwesomeIcon
-              icon={
-                popupData.type === "error" ? faCircleExclamation : faCircleInfo
-              }
-            />
-          </div>
-          <div className="toast-content">
-            <span className="toast-title">{popupData.title}</span>
-            <p className="toast-message">{popupData.message}</p>
-          </div>
-        </div>
-      )}
+            <div
+              className="toast-icon-wrapper"
+              style={{
+                color: popupData.type === "error" ? "#dc2626" : "#10b981",
+              }}
+            >
+              <FontAwesomeIcon
+                icon={
+                  popupData.type === "error"
+                    ? faCircleExclamation
+                    : faCircleCheck
+                }
+              />
+            </div>
+            <div className="toast-content">
+              <span className="toast-title">{popupData.title}</span>
+              <p className="toast-message">{popupData.message}</p>
+            </div>
+          </div>,
+          document.body,
+        )}
 
       <main className="login-main-container">
         <div className="login-card">

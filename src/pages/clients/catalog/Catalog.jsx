@@ -4,9 +4,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faStar,
   faCartPlus,
-  faCircleInfo,
   faSearch,
 } from "@fortawesome/free-solid-svg-icons";
+import { useToast } from "../../../context/ToastContext";
 import "./Catalog.css";
 
 export const catalogProducts = [
@@ -194,7 +194,6 @@ export const catalogProducts = [
   },
 ];
 
-// Liste complète des 8 catégories compatibles avec la page d'accueil
 const ALL_CATEGORIES = [
   "Électronique",
   "Accessoires",
@@ -210,20 +209,17 @@ export default function Catalog() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const filterParam = searchParams.get("filter");
-  const categoryParam = searchParams.get("category"); // Récupère la catégorie cliquée depuis l'accueil
+  const categoryParam = searchParams.get("category");
+
+  const { showToast } = useToast(); // <-- Utilisation du toast global
 
   const [sortOption, setSortOption] = useState("pertinence");
   const [selectedCategory, setSelectedCategory] = useState("Électronique");
   const [priceRange, setPriceRange] = useState({ min: "", max: "" });
   const [selectedRating, setSelectedRating] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-
-  const [showPopup, setShowPopup] = useState(false);
-  const [addedProductTitle, setAddedProductTitle] = useState("");
-
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Met à jour la catégorie sélectionnée si l'URL contient un paramètre "category"
   useEffect(() => {
     if (categoryParam) {
       setSelectedCategory(categoryParam);
@@ -249,7 +245,6 @@ export default function Catalog() {
     const matchesRating =
       selectedRating === null || product.rating >= selectedRating;
 
-    // Si on est sur la vue Nouveautés
     if (filterParam === "nouveautes") {
       const isNewBadge = product.badge === "Nouveau";
       return isNewBadge && matchesMinPrice && matchesMaxPrice && matchesRating;
@@ -309,32 +304,19 @@ export default function Catalog() {
     }
 
     localStorage.setItem("shopflow_cart", JSON.stringify(currentCart));
-    setAddedProductTitle(product.name);
-    setShowPopup(true);
 
-    setTimeout(() => {
-      setShowPopup(false);
-    }, 3000);
+    // Déclenchement propre du toast global positionné en haut à droite via Portal
+    showToast(
+      "Succès",
+      `${product.name} a bien été ajouté au panier avec succès.`,
+      "success",
+    );
 
     window.dispatchEvent(new Event("cartUpdated"));
   };
 
   return (
     <div className="catalog-page page-transition">
-      {showPopup && (
-        <div className="custom-toast-notification">
-          <div className="toast-icon-wrapper">
-            <FontAwesomeIcon icon={faCircleInfo} />
-          </div>
-          <div className="toast-content">
-            <span className="toast-title">Succès</span>
-            <p className="toast-message">
-              {addedProductTitle} a bien été ajouté au panier avec succès.
-            </p>
-          </div>
-        </div>
-      )}
-
       <div className="catalog-container">
         <div className="catalog-header">
           <h1 className="catalog-title">
@@ -371,7 +353,6 @@ export default function Catalog() {
                       checked={selectedCategory === cat}
                       onChange={() => {
                         setSelectedCategory(cat);
-                        // Nettoie l'URL pour garder une navigation propre si besoin
                         navigate(
                           `/catalog?category=${encodeURIComponent(cat)}`,
                           {

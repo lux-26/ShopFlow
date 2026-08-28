@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import ReactDOM from "react-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate } from "react-router-dom";
 import {
@@ -125,31 +126,36 @@ export default function Cart({ onGoToCheckout }) {
 
   return (
     <div className="cart-page page-transition">
-      {showPopup && (
-        <div
-          className="custom-toast-notification"
-          style={{
-            borderLeftColor: popupData.type === "error" ? "#dc2626" : "#1e3a8a",
-          }}
-        >
+      {showPopup &&
+        ReactDOM.createPortal(
           <div
-            className="toast-icon-wrapper"
+            className="custom-toast-notification"
             style={{
-              color: popupData.type === "error" ? "#dc2626" : "#1e3a8a",
+              borderLeftColor:
+                popupData.type === "error" ? "#dc2626" : "#1e3a8a",
             }}
           >
-            <FontAwesomeIcon
-              icon={
-                popupData.type === "error" ? faCircleExclamation : faCircleInfo
-              }
-            />
-          </div>
-          <div className="toast-content">
-            <span className="toast-title">{popupData.title}</span>
-            <p className="toast-message">{popupData.message}</p>
-          </div>
-        </div>
-      )}
+            <div
+              className="toast-icon-wrapper"
+              style={{
+                color: popupData.type === "error" ? "#dc2626" : "#1e3a8a",
+              }}
+            >
+              <FontAwesomeIcon
+                icon={
+                  popupData.type === "error"
+                    ? faCircleExclamation
+                    : faCircleInfo
+                }
+              />
+            </div>
+            <div className="toast-content">
+              <span className="toast-title">{popupData.title}</span>
+              <p className="toast-message">{popupData.message}</p>
+            </div>
+          </div>,
+          document.body,
+        )}
 
       <div className="cart-container">
         <h1 className="cart-title">Mon Panier</h1>

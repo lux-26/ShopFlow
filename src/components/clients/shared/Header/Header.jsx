@@ -263,14 +263,24 @@ export default function Header() {
         </Link>
         <Link
           to="/catalog"
-          className={`pill-nav-item ${location.pathname.includes("/catalog") ? "active" : ""}`}
+          className={`pill-nav-item ${
+            location.pathname === "/catalog" &&
+            !location.search.includes("nouveautes")
+              ? "active"
+              : ""
+          }`}
         >
           <FontAwesomeIcon icon={faStore} className="pill-icon" />
           <span>Catalogue</span>
         </Link>
         <Link
           to="/catalog?filter=nouveautes"
-          className={`pill-nav-item ${location.pathname === "/catalog" && location.search.includes("nouveautes") ? "active" : ""}`}
+          className={`pill-nav-item ${
+            location.pathname === "/catalog" &&
+            location.search.includes("nouveautes")
+              ? "active"
+              : ""
+          }`}
         >
           <FontAwesomeIcon icon={faStar} className="pill-icon" />
           <span>Nouveautés</span>

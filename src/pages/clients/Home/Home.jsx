@@ -1,10 +1,9 @@
-import { useState, useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleInfo } from "@fortawesome/free-solid-svg-icons";
 import { catalogProducts as PRODUCTS } from "../catalog/Catalog";
 import ProductCard from "../../../components/clients/shared/ProductCard/ProductCard";
 import heroImg from "../../../assets/hero.jpeg";
+import { useToast } from "../../../context/ToastContext";
 import "./Home.css";
 
 const CATEGORIES = [
@@ -61,8 +60,30 @@ const CATEGORIES = [
 export default function Home() {
   const navigate = useNavigate();
   const categoriesRef = useRef(null);
-  const [showPopup, setShowPopup] = useState(false);
-  const [addedProductTitle, setAddedProductTitle] = useState("");
+
+  const { showToast } = useToast();
+  const handleAddToCart = (product) => {
+    const currentCart = JSON.parse(localStorage.getItem("shopflow_cart")) || [];
+    const existingIndex = currentCart.findIndex(
+      (item) => item.id === product.id,
+    );
+
+    if (existingIndex > -1) {
+      currentCart[existingIndex].quantity += 1;
+    } else {
+      currentCart.push({ ...product, quantity: 1 });
+    }
+
+    localStorage.setItem("shopflow_cart", JSON.stringify(currentCart));
+
+    showToast(
+      "Produit ajouté !",
+      `${product.name} a bien été ajouté à votre panier.`,
+      "success",
+    );
+
+    window.dispatchEvent(new Event("cartUpdated"));
+  };
 
   const scrollLeft = () => {
     if (categoriesRef.current) {
@@ -80,29 +101,6 @@ export default function Home() {
     navigate(`/catalog?category=${encodeURIComponent(categoryName)}`);
   };
 
-  const handleAddToCart = (product) => {
-    const currentCart = JSON.parse(localStorage.getItem("shopflow_cart")) || [];
-    const existingIndex = currentCart.findIndex(
-      (item) => item.id === product.id,
-    );
-
-    if (existingIndex > -1) {
-      currentCart[existingIndex].quantity += 1;
-    } else {
-      currentCart.push({ ...product, quantity: 1 });
-    }
-
-    localStorage.setItem("shopflow_cart", JSON.stringify(currentCart));
-    setAddedProductTitle(product.name);
-    setShowPopup(true);
-
-    setTimeout(() => {
-      setShowPopup(false);
-    }, 3000);
-
-    window.dispatchEvent(new Event("cartUpdated"));
-  };
-
   useEffect(() => {
     const isFirstVisit = localStorage.getItem("shopflow_is_logged") === null;
     if (isFirstVisit) {
@@ -118,23 +116,6 @@ export default function Home() {
 
   return (
     <div className="home-page page-transition">
-      {showPopup && (
-        <div
-          className="custom-toast-notification"
-          style={{ borderLeftColor: "#1e3a8a" }}
-        >
-          <div className="toast-icon-wrapper" style={{ color: "#1e3a8a" }}>
-            <FontAwesomeIcon icon={faCircleInfo} />
-          </div>
-          <div className="toast-content">
-            <span className="toast-title">Produit ajouté !</span>
-            <p className="toast-message">
-              {addedProductTitle} a bien été ajouté à votre panier.
-            </p>
-          </div>
-        </div>
-      )}
-
       {/* Bannière Hero */}
       <section
         className="hero-banner"
