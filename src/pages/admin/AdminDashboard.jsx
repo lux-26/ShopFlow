@@ -8,14 +8,12 @@ import {
   faBagShopping,
   faUsers,
   faChartLine,
-  faCircleInfo,
 } from "@fortawesome/free-solid-svg-icons";
+import { useToast } from "../../context/ToastContext";
 
 export default function AdminDashboard() {
   const [period, setPeriod] = useState("Ce mois");
-
-  // État pour gérer le message du Toast
-  const [toastMessage, setToastMessage] = useState(null);
+  const { showToast } = useToast();
 
   const [recentOrders] = useState([
     {
@@ -53,13 +51,11 @@ export default function AdminDashboard() {
   ]);
 
   const handleExport = () => {
-    // Déclenche l'affichage du Toast au lieu de alert()
-    setToastMessage("Exportation des données en cours...");
-
-    // Masque automatiquement le Toast après 3 secondes
-    setTimeout(() => {
-      setToastMessage(null);
-    }, 3000);
+    showToast(
+      "Exportation réussie",
+      "Les données ont été exportées avec succès.",
+      "success",
+    );
   };
 
   return (
@@ -190,56 +186,6 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
-
-      {/* Pop-up Toast Flottant (Design personnalisé) */}
-      {toastMessage && (
-        <div
-          style={{
-            position: "fixed",
-            bottom: "24px",
-            right: "24px",
-            zIndex: 9999,
-            backgroundColor: "#ffffff",
-            color: "#1e293b",
-            padding: "16px 20px",
-            borderRadius: "12px",
-            boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1)",
-            borderLeft: "4px solid #1e3a8a",
-            display: "flex",
-            alignItems: "flex-start",
-            gap: "14px",
-            maxWidth: "380px",
-            animation: "slideIn 0.3s ease-out",
-          }}
-        >
-          <FontAwesomeIcon
-            icon={faCircleInfo}
-            style={{ color: "#1e3a8a", fontSize: "1.2rem", marginTop: "2px" }}
-          />
-          <div>
-            <h4
-              style={{
-                margin: "0 0 4px 0",
-                fontSize: "0.95rem",
-                fontWeight: "700",
-                color: "#0f172a",
-              }}
-            >
-              Information
-            </h4>
-            <p
-              style={{
-                margin: 0,
-                fontSize: "0.85rem",
-                color: "#64748b",
-                lineHeight: "1.4",
-              }}
-            >
-              {toastMessage}
-            </p>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

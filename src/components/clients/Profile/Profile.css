@@ -774,30 +774,84 @@
 }
 
 /* ==========================================
-   10. RESPONSIVE DESIGN (MOBILE & TABLETTE)
+   RESPONSIVE GLOBAL DE LA PAGE PROFIL
    ================================---------- */
-@media (max-width: 900px) {
+@media (max-width: 992px) {
+    .profile-page-container {
+        flex-direction: column !important;
+        padding: 16px !important;
+        gap: 16px !important;
+    }
+
+    .profile-sidebar {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .profile-main-content {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
     .profile-grid-layout {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr !important;
     }
 }
 
 @media (max-width: 768px) {
-    .profile-page-container {
-        flex-direction: column;
-        padding: 16px;
-    }
-
-    .profile-sidebar {
-        width: 100%;
-    }
-
-    .form-grid-profile,
-    .card-inputs-subgrid {
-        grid-template-columns: 1fr;
+    .form-grid-profile {
+        grid-template-columns: 1fr !important;
     }
 
     .name-inputs-row {
-        flex-direction: column;
+        flex-direction: column !important;
+        gap: 16px !important;
+    }
+
+    .card-inputs-subgrid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .session-item-row {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 12px !important;
+    }
+
+    .session-icon {
+        margin-right: 0 !important;
+        margin-bottom: 4px !important;
+    }
+
+    .custom-toast-notification {
+        left: 16px !important;
+        right: 16px !important;
+        bottom: 16px !important;
+        min-width: auto !important;
+    }
+
+    .profile-top-header,
+    .profile-content-header {
+        flex-direction: column !important;
+        gap: 16px !important;
+        align-items: stretch !important;
+    }
+
+    .profile-badge-card {
+        align-self: flex-start !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .profile-page-container {
+        padding: 8px !important;
+    }
+
+    .profile-card {
+        padding: 16px !important;
+    }
+
+    .loyalty-banner-content h2 {
+        font-size: 22px !important;
     }
 }

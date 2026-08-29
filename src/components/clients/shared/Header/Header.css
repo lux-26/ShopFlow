@@ -19,6 +19,7 @@
     align-items: center;
     gap: calc(var(--spacing-unit) * 1);
     text-decoration: none;
+    flex-shrink: 0;
 }
 
 .logo-image {
@@ -55,6 +56,8 @@
     padding: 8px 16px;
     border-radius: 9999px;
     transition: all 0.25s ease-in-out;
+    white-space: nowrap;
+    /* Empêche le texte de se couper sur mobile */
 }
 
 .pill-icon {
@@ -90,6 +93,7 @@
     display: flex;
     align-items: center;
     gap: calc(var(--spacing-unit) * 3);
+    flex-shrink: 0;
 }
 
 /* --- BOUTONS D'ICÔNES ET BADGES UNIFIÉS --- */
@@ -341,12 +345,26 @@
 /* --- RESPONSIVE MOBILE --- */
 @media (max-width: 900px) {
     .shopflow-header {
+        flex-wrap: wrap;
+        /* Permet à la nav de passer proprement à la ligne si besoin */
         padding: 12px 16px;
-        gap: 15px;
+        gap: 12px;
     }
 
+    /* La barre de navigation reste visible, devient scrollable horizontalement */
     .header-pill-nav {
+        order: 3;
+        /* Passe en dessous sur mobile si l'écran est très étroit */
+        width: 100%;
+        overflow-x: auto;
+        justify-content: flex-start;
+        scrollbar-width: none;
+        /* Cache la barre de défilement sur Firefox */
+    }
+
+    .header-pill-nav::-webkit-scrollbar {
         display: none;
+        /* Cache la barre de défilement sur Chrome/Safari */
     }
 
     .header-right {

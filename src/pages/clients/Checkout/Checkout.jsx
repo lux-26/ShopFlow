@@ -8,26 +8,30 @@ import {
   faCheckCircle,
   faChevronRight,
   faDesktop,
-  faCircleInfo,
-  faCircleExclamation,
 } from "@fortawesome/free-solid-svg-icons";
+import { useToast } from "../../../context/ToastContext";
 import "./Checkout.css";
 
 export default function Checkout() {
   const [shippingMode, setShippingMode] = useState("standard");
 
-  // CORRECTION : On initialise le moyen de paiement depuis le localStorage ("shopflow_payment_method")
   const [paymentMethod, setPaymentMethod] = useState(() => {
     const saved = localStorage.getItem("shopflow_payment_method");
-    if (saved === "mobile") return "orange"; // "mobile" dans le profil correspond à orange/wave par défaut
+    if (saved === "mobile") return "orange";
     if (saved === "cash") return "cash";
     if (saved === "card") return "card";
-    return "card"; // Valeur par défaut de secours
+    return "card";
   });
 
-  const [useFidelityPoints, setUseFidelityPoints] = useState(false);
   const [cartItems, setCartItems] = useState([]);
   const [useLoyaltyPoints, setUseLoyaltyPoints] = useState(false);
+
+  // États pour l'adresse de livraison (initialisés à vide)
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [phone, setPhone] = useState("");
 
   // États pour les champs de paiement
   const [cardNumber, setCardNumber] = useState("");
@@ -35,13 +39,7 @@ export default function Checkout() {
   const [cardCvc, setCardCvc] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
 
-  const [showPopup, setShowPopup] = useState(false);
-  const [popupData, setPopupData] = useState({
-    title: "",
-    message: "",
-    type: "success",
-  });
-
+  const { showToast } = useToast();
   const navigate = useNavigate();
 
   const subtotal = cartItems.reduce(
@@ -49,7 +47,6 @@ export default function Checkout() {
     0,
   );
 
-  // Les frais de livraison sont à 0 si le panier est vide, sinon selon le mode
   const shippingFee =
     cartItems.length === 0 ? 0 : shippingMode === "express" ? 2500 : 0;
 
@@ -61,45 +58,47 @@ export default function Checkout() {
     setCartItems(savedCart);
   }, []);
 
-  const triggerPopup = (title, message, type = "success") => {
-    setPopupData({ title, message, type });
-    setShowPopup(true);
-    setTimeout(() => setShowPopup(false), 3000);
-  };
-
-  // Fonction unique et corrigée de confirmation de commande
   const handleConfirmOrder = () => {
     if (cartItems.length === 0) {
-      triggerPopup("Attention", "Votre panier est vide !", "error");
+      showToast("Attention", "Votre panier est vide !", "error");
       return;
     }
 
-    // Vérification pour la Carte Bancaire
+    if (
+      !firstName.trim() ||
+      !lastName.trim() ||
+      !address.trim() ||
+      !city.trim() ||
+      !phone.trim()
+    ) {
+      showToast(
+        "Attention",
+        "Veuillez remplir tous les champs de l'adresse de livraison.",
+        "error",
+      );
+      return;
+    }
+
     if (paymentMethod === "card") {
       if (!cardNumber.trim() || !cardExp.trim() || !cardCvc.trim()) {
-        triggerPopup(
+        showToast(
           "Attention",
           "Veuillez remplir tous les champs de votre carte bancaire.",
           "error",
         );
         return;
       }
+    } else if (paymentMethod === "orange" || paymentMethod === "wave") {
+      if (!phoneNumber.trim()) {
+        showToast(
+          "Attention",
+          "Veuillez entrer votre numéro de téléphone pour le paiement.",
+          "error",
+        );
+        return;
+      }
     }
 
-    // Vérification du numéro pour Orange Money ou Wave
-    if (
-      (paymentMethod === "orange" || paymentMethod === "wave") &&
-      !phoneNumber.trim()
-    ) {
-      triggerPopup(
-        "Attention",
-        "Veuillez entrer votre numéro de téléphone pour le paiement.",
-        "error",
-      );
-      return;
-    }
-
-    // 1. Créer une nouvelle notification de commande validée
     const newNotification = {
       id: Date.now(),
       text: "Votre commande récente a été validée avec succès.",
@@ -115,16 +114,13 @@ export default function Checkout() {
       JSON.stringify(updatedNotifs),
     );
 
-    // 2. Vider le panier dans le localStorage
     localStorage.removeItem("shopflow_cart");
     setCartItems([]);
 
-    // 3. Déclencher les événements de mise à jour pour le reste de l'application
     window.dispatchEvent(new Event("cartUpdated"));
     window.dispatchEvent(new Event("notificationUpdated"));
 
-    // 4. Déclencher le pop-up de succès et rediriger
-    triggerPopup(
+    showToast(
       "Confirmation",
       "Commande validée avec succès ! Merci pour vos achats.",
       "success",
@@ -137,35 +133,7 @@ export default function Checkout() {
 
   return (
     <div className="checkout-page page-transition">
-      {/* Pop-up unifié en bas à droite */}
-      {showPopup && (
-        <div
-          className="custom-toast-notification"
-          style={{
-            borderLeftColor: popupData.type === "error" ? "#dc2626" : "#1e3a8a",
-          }}
-        >
-          <div
-            className="toast-icon-wrapper"
-            style={{
-              color: popupData.type === "error" ? "#dc2626" : "#1e3a8a",
-            }}
-          >
-            <FontAwesomeIcon
-              icon={
-                popupData.type === "error" ? faCircleExclamation : faCircleInfo
-              }
-            />
-          </div>
-          <div className="toast-content">
-            <span className="toast-title">{popupData.title}</span>
-            <p className="toast-message">{popupData.message}</p>
-          </div>
-        </div>
-      )}
-
       <div className="checkout-container">
-        {/* En-tête : Titre + Fil d'Ariane des étapes */}
         <div className="checkout-header-main">
           <h1>Paiement Sécurisé</h1>
           <div className="checkout-steps">
@@ -191,9 +159,7 @@ export default function Checkout() {
         </div>
 
         <div className="checkout-grid-layout">
-          {/* COLONNE DE GAUCHE : Formulaires (Adresse, Livraison, Paiement) */}
           <div className="checkout-left-column">
-            {/* Bloc Adresse de Livraison */}
             <div className="checkout-card">
               <div className="card-section-title">
                 <FontAwesomeIcon icon={faTruck} />
@@ -203,30 +169,51 @@ export default function Checkout() {
               <div className="form-grid-2">
                 <div className="form-group-checkout">
                   <label>Prénom</label>
-                  <input type="text" defaultValue="Jean" />
+                  <input
+                    type="text"
+                    placeholder="Ex: Jean"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                  />
                 </div>
                 <div className="form-group-checkout">
                   <label>Nom</label>
-                  <input type="text" defaultValue="Dupont" />
+                  <input
+                    type="text"
+                    placeholder="Ex: Dupont"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                  />
                 </div>
                 <div className="form-group-checkout full-width">
                   <label>Adresse complète</label>
                   <input
                     type="text"
-                    defaultValue="123 Rue de la République, Quartier des Arts"
+                    placeholder="Ex: 123 Rue de la République"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
                   />
                 </div>
                 <div className="form-group-checkout">
                   <label>Ville</label>
-                  <input type="text" defaultValue="Dakar" />
+                  <input
+                    type="text"
+                    placeholder="Ex: Dakar"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                  />
                 </div>
                 <div className="form-group-checkout">
                   <label>Téléphone</label>
-                  <input type="text" defaultValue="+221 77 123 45 67" />
+                  <input
+                    type="text"
+                    placeholder="+221 77 123 45 67"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                  />
                 </div>
               </div>
 
-              {/* Mode de livraison */}
               <div className="delivery-mode-section mt-24">
                 <label className="section-sub-label">Mode de livraison</label>
 
@@ -268,7 +255,6 @@ export default function Checkout() {
               </div>
             </div>
 
-            {/* Bloc Moyen de Paiement */}
             <div className="checkout-card mt-24">
               <div className="card-section-title">
                 <FontAwesomeIcon icon={faCreditCard} />
@@ -276,7 +262,6 @@ export default function Checkout() {
               </div>
 
               <div className="payment-options-stack">
-                {/* Option 1 : Carte Bancaire */}
                 <div
                   className={`payment-option-card ${paymentMethod === "card" ? "selected" : ""}`}
                 >
@@ -338,7 +323,6 @@ export default function Checkout() {
                   )}
                 </div>
 
-                {/* Option 2 : Orange Money */}
                 <div
                   className={`payment-option-card ${paymentMethod === "orange" ? "selected" : ""}`}
                 >
@@ -373,7 +357,6 @@ export default function Checkout() {
                   )}
                 </div>
 
-                {/* Option 3 : Wave */}
                 <div
                   className={`payment-option-card ${paymentMethod === "wave" ? "selected" : ""}`}
                 >
@@ -409,7 +392,6 @@ export default function Checkout() {
                   )}
                 </div>
 
-                {/* Option 4 : Paiement à la livraison */}
                 <div
                   className={`payment-option-card simple ${paymentMethod === "cash" ? "selected" : ""}`}
                   onClick={() => setPaymentMethod("cash")}
@@ -428,7 +410,6 @@ export default function Checkout() {
             </div>
           </div>
 
-          {/* COLONNE DE DROITE : Résumé de la commande */}
           <div className="checkout-right-column">
             <div className="checkout-card summary-card">
               <h2>Résumé de la commande</h2>
@@ -491,7 +472,10 @@ export default function Checkout() {
                 <span>{subtotal.toLocaleString()} FCFA</span>
               </div>
               <div className="summary-line">
-                <span>Frais de livraison (Express)</span>
+                <span>
+                  Frais de livraison (
+                  {shippingMode === "express" ? "Express" : "Standard"})
+                </span>
                 <span>{shippingFee.toLocaleString()} FCFA</span>
               </div>
 

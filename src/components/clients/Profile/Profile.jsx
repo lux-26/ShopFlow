@@ -73,6 +73,13 @@ export default function Profile() {
   };
 
   useEffect(() => {
+    // VÉRIFICATION DE SÉCURITÉ : Si la clé de connexion n'existe pas, on redirige vers /login
+    const isLogged = localStorage.getItem("shopflow_is_logged");
+    if (!isLogged) {
+      navigate("/login");
+      return;
+    }
+
     loadProfileData();
 
     // Écouter les mises à jour de commandes en temps réel
@@ -87,7 +94,7 @@ export default function Profile() {
       window.removeEventListener("orderUpdated", handleOrderUpdate);
       window.removeEventListener("storage", handleOrderUpdate);
     };
-  }, []);
+  }, [navigate]);
 
   const handleSaveProfile = () => {
     localStorage.setItem("shopflow_user_info", JSON.stringify(userInfo));

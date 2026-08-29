@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCreditCard, faTruck } from "@fortawesome/free-solid-svg-icons";
+import { useToast } from "../../../context/ToastContext";
 
-export default function ProfilePayment({ triggerPopup }) {
+export default function ProfilePayment() {
   const [selectedMethod, setSelectedMethod] = useState("mobile");
+  const { showToast } = useToast();
 
   // Charger la méthode enregistrée au démarrage
   useEffect(() => {
@@ -22,13 +24,12 @@ export default function ProfilePayment({ triggerPopup }) {
     // 2. Déclencher un événement global pour synchroniser les autres pages/onglets
     window.dispatchEvent(new Event("storage"));
 
-    // 3. Afficher ton popup stylé
-    if (triggerPopup) {
-      triggerPopup(
-        "Succès",
-        "Votre méthode de paiement par défaut a été mise à jour !",
-      );
-    }
+    // 3. Afficher le toast global
+    showToast(
+      "Succès",
+      "Votre méthode de paiement par défaut a été mise à jour !",
+      "success",
+    );
   };
 
   return (

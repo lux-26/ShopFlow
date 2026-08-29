@@ -24,79 +24,60 @@ export default function Header() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Fonction pour récupérer l'avatar (renvoie null si déconnecté ou absent)
-  const getValidAvatar = () => {
+  // Fonction pour récupérer les données utilisateur avec vérification stricte de la connexion
+  const getStoredUserData = () => {
     try {
+      const isLoggedIn = localStorage.getItem("shopflow_is_logged") === "true";
       const savedUser = localStorage.getItem("shopflow_user_info");
-      if (!savedUser) return null; // Si plus d'infos utilisateur, pas d'avatar
 
-      const avatar = localStorage.getItem("shopflow_user_avatar");
+      // Si l'utilisateur est déconnecté ou qu'il n'y a pas d'infos, on ne renvoie rien
+      if (!isLoggedIn || !savedUser) {
+        return { avatar: null, userInitials: null };
+      }
+
+      const savedAvatar = localStorage.getItem("shopflow_user_avatar");
+      const parsed = JSON.parse(savedUser);
+
+      let avatar = savedAvatar || parsed?.avatar || "";
+
+      const hasRealAvatarImage =
+        avatar && typeof avatar === "string" && avatar.startsWith("data:image");
+
+      let firstName = parsed.firstName || "";
+      let lastName = parsed.lastName || "";
+
       if (
-        avatar &&
-        avatar.trim() !== "" &&
-        avatar !== "null" &&
-        avatar !== "undefined"
+        !firstName &&
+        !lastName &&
+        (parsed.FullName || parsed.name || parsed.fullName)
       ) {
-        return avatar;
-      }
-
-      const parsed = JSON.parse(savedUser);
-      if (parsed?.avatar && parsed.avatar.trim() !== "") return parsed.avatar;
-    } catch (e) {
-      console.error(e);
-    }
-    return null;
-  };
-
-  const [profileImage, setProfileImage] = useState(getValidAvatar);
-
-  // Fonction pour extraire les initiales (renvoie null si déconnecté ou absent)
-  const getUserInitials = () => {
-    try {
-      const savedUser = localStorage.getItem("shopflow_user_info");
-      if (!savedUser) return null; // Si plus d'infos utilisateur, pas d'initiales
-
-      const parsed = JSON.parse(savedUser);
-      const fullName =
-        parsed?.FullName ||
-        parsed?.name ||
-        parsed?.fullName ||
-        `${parsed?.firstName || ""} ${parsed?.lastName || ""}`;
-
-      if (fullName && fullName.trim() !== "") {
+        const fullName = parsed.FullName || parsed.name || parsed.fullName;
         const parts = fullName.trim().split(" ");
-        const first = parts[0] ? parts[0].charAt(0) : "";
-        const last = parts.length > 1 ? parts[parts.length - 1].charAt(0) : "";
-        const initials = (first + last).toUpperCase();
-        if (initials) return initials;
+        firstName = parts[0] || "";
+        lastName = parts.length > 1 ? parts[parts.length - 1] : "";
       }
 
-      // Fallback sur d'éventuelles anciennes clés
-      const legacyName =
-        localStorage.getItem("shopflow_user_name") ||
-        localStorage.getItem("shopflow_name") ||
-        localStorage.getItem("user_name");
+      const first = firstName ? firstName.charAt(0) : "";
+      const last = lastName && lastName !== firstName ? lastName.charAt(0) : "";
+      const initials = (first + last).toUpperCase();
+      const userInitials = initials !== "" ? initials : null;
 
-      if (legacyName && legacyName.trim() !== "") {
-        const parts = legacyName.trim().split(" ");
-        const first = parts[0] ? parts[0].charAt(0) : "";
-        const last = parts.length > 1 ? parts[parts.length - 1].charAt(0) : "";
-        const initials = (first + last).toUpperCase();
-        if (initials) return initials;
-      }
+      return {
+        avatar: hasRealAvatarImage ? avatar : null,
+        userInitials: userInitials,
+      };
     } catch (e) {
       console.error(e);
+      return { avatar: null, userInitials: null };
     }
-    return null;
   };
 
-  const [userInitials, setUserInitials] = useState(getUserInitials);
+  const [userData, setUserData] = useState(getStoredUserData);
 
   const notificationRef = useRef(null);
 
   const updateProfileData = () => {
-    setProfileImage(getValidAvatar());
-    setUserInitials(getUserInitials());
+    setUserData(getStoredUserData());
   };
 
   // Chargement des notifications
@@ -380,26 +361,31 @@ export default function Header() {
           )}
         </div>
 
-        {/* Profil / Avatar en priorité, puis Initiales, puis Icône par défaut */}
+        {/* Profil : Si déconnecté (pas d'avatar/initiales), affiche l'icône faUser par défaut */}
         <a
           href="/profile"
           onClick={handleProfileClick}
           className="nav-profile-link"
           title="Mon Profil"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            textDecoration: "none",
+          }}
         >
-          {profileImage ? (
+          {userData.avatar ? (
             <img
-              src={profileImage}
+              src={userData.avatar}
               alt="Avatar"
               style={{
                 width: "32px",
                 height: "32px",
                 borderRadius: "50%",
                 objectFit: "cover",
-                border: "2px solid #1e3a8a",
+                border: "1px solid #cbd5e1",
               }}
             />
-          ) : userInitials ? (
+          ) : userData.userInitials ? (
             <div
               style={{
                 width: "32px",
@@ -414,7 +400,7 @@ export default function Header() {
                 fontSize: "0.8rem",
               }}
             >
-              {userInitials}
+              {userData.userInitials}
             </div>
           ) : (
             <>

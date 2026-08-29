@@ -3,6 +3,7 @@ import {
   Routes,
   Route,
   useLocation,
+  Navigate,
 } from "react-router-dom";
 import { useState, useEffect } from "react";
 
@@ -35,6 +36,15 @@ import AdminOrders from "./pages/admin/AdminOrders";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
+
+// Composant de protection pour le profil client
+function ClientProtectedRoute({ children }) {
+  const isLogged = localStorage.getItem("shopflow_is_logged");
+  if (!isLogged) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+}
 
 function AppContent() {
   const location = useLocation();
@@ -71,7 +81,17 @@ function AppContent() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/register" element={<Register />} />
           <Route path="/search" element={<SearchPage />} />
-          <Route path="/profile" element={<Profile />} />
+
+          {/* Route Profil Protégée : Bloque l'accès si non connecté et redirige vers /login */}
+          <Route
+            path="/profile"
+            element={
+              <ClientProtectedRoute>
+                <Profile />
+              </ClientProtectedRoute>
+            }
+          />
+
           <Route path="/loyalty" element={<Loyalty />} />
           <Route path="/produit/:id" element={<ProductDetail />} />
 

@@ -129,9 +129,62 @@
     cursor: pointer;
     color: #334155;
     transition: background-color 0.2s, color 0.2s;
+    flex-shrink: 0;
 }
 
 .btn-add-cart:hover {
     background-color: #002D62;
     color: #ffffff;
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN - CARTE PRODUIT & GRILLE
+   ========================================== */
+
+@media (max-width: 768px) {
+    .product-image-container {
+        height: 190px;
+    }
+
+    .product-info {
+        padding: 14px;
+    }
+
+    .product-title {
+        font-size: 13.5px;
+        margin-bottom: 10px;
+    }
+
+    .product-price {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .product-image-container {
+        height: 160px;
+    }
+
+    .product-info {
+        padding: 12px;
+    }
+
+    .product-category {
+        font-size: 10px;
+    }
+
+    .product-title {
+        font-size: 13px;
+        margin-bottom: 8px;
+    }
+
+    .product-price {
+        font-size: 13.5px;
+    }
+
+    .btn-add-cart {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+    }
 }

@@ -9,10 +9,10 @@ import {
   faSignOutAlt,
   faCamera,
   faTriangleExclamation,
-  faCircleInfo,
   faHistory,
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
+import { useToast } from "../../../context/ToastContext";
 
 export default function ProfileSidebar({
   activeTab,
@@ -21,16 +21,9 @@ export default function ProfileSidebar({
   setUserInfo,
 }) {
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [showPopup, setShowPopup] = useState(false);
-  const [popupData, setPopupData] = useState({ title: "", message: "" });
-
-  const triggerPopup = (title, message) => {
-    setPopupData({ title, message });
-    setShowPopup(true);
-    setTimeout(() => setShowPopup(false), 3000);
-  };
 
   const getInitials = (user) => {
     if (!user) return "";
@@ -49,7 +42,6 @@ export default function ProfileSidebar({
     return initials !== "" ? initials : null;
   };
 
-  // --- Gestion propre de l'ajout d'image (conversion Base64 pour persistance fiable) ---
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -60,29 +52,26 @@ export default function ProfileSidebar({
 
         setUserInfo(updatedUser);
 
-        // Sauvegarde unifiée
         localStorage.setItem("shopflow_user_info", JSON.stringify(updatedUser));
         localStorage.setItem("shopflow_user_avatar", base64Image);
 
-        // Déclenchement des événements pour mettre à jour le Header et le reste de l'app en direct
         window.dispatchEvent(new Event("userAvatarUpdated"));
         window.dispatchEvent(new Event("storage"));
 
-        triggerPopup(
+        showToast(
           "Succès",
           "Votre photo de profil a été mise à jour avec succès.",
+          "success",
         );
       };
       reader.readAsDataURL(file);
     }
   };
 
-  // --- Suppression propre de la photo ---
   const handleRemoveAvatar = (e) => {
     e.preventDefault();
     e.stopPropagation();
 
-    // On supprime l'avatar en mettant une chaîne vide
     const updatedUser = { ...userInfo, avatar: "" };
     setUserInfo(updatedUser);
 
@@ -92,16 +81,26 @@ export default function ProfileSidebar({
     window.dispatchEvent(new Event("userAvatarUpdated"));
     window.dispatchEvent(new Event("storage"));
 
-    triggerPopup(
+    showToast(
       "Suppression",
       "Votre photo de profil a été supprimée. Les initiales s'affichent de nouveau.",
+      "success",
     );
   };
 
   const confirmLogout = () => {
+    // 1. Suppression de toutes les données sensibles et d'authentification
     localStorage.removeItem("shopflow_is_logged");
+    localStorage.removeItem("shopflow_user_info");
     localStorage.removeItem("shopflow_user_avatar");
     localStorage.removeItem("shopflow_notifications");
+
+    // 2. Réinitialisation de l'état utilisateur global dans le composant parent
+    if (typeof setUserInfo === "function") {
+      setUserInfo(null);
+    }
+
+    // 3. Déclenchement des événements et redirection vers le login
     window.dispatchEvent(new Event("notificationUpdated"));
     window.dispatchEvent(new Event("storage"));
     navigate("/");
@@ -117,31 +116,14 @@ export default function ProfileSidebar({
 
   const userInitials = getInitials(userInfo);
 
-  // Vérification stricte pour savoir si une vraie image d'avatar est présente
-  const hasValidAvatar =
+  // Vraie vérification : une image valide doit impérativement commencer par "data:image" (provenant du FileReader)
+  const hasRealAvatarImage =
     userInfo?.avatar &&
     typeof userInfo.avatar === "string" &&
-    userInfo.avatar.trim() !== "" &&
-    userInfo.avatar !== "null" &&
-    userInfo.avatar !== "undefined";
+    userInfo.avatar.startsWith("data:image");
 
   return (
     <>
-      {showPopup && (
-        <div
-          className="custom-toast-notification page-transition"
-          style={{ borderLeftColor: "#1e3a8a" }}
-        >
-          <div className="toast-icon-wrapper" style={{ color: "#1e3a8a" }}>
-            <FontAwesomeIcon icon={faCircleInfo} />
-          </div>
-          <div className="toast-content">
-            <span className="toast-title">{popupData.title}</span>
-            <p className="toast-message">{popupData.message}</p>
-          </div>
-        </div>
-      )}
-
       <div className="profile-sidebar">
         <div className="profile-avatar-section">
           <div
@@ -151,8 +133,8 @@ export default function ProfileSidebar({
               marginBottom: "12px",
             }}
           >
-            {/* Condition claire : Si l'image existe -> Afficher l'image. Sinon -> Afficher les initiales. */}
-            {hasValidAvatar ? (
+            {/* Cas 2 : Une vraie image encodée existe -> On l'affiche */}
+            {hasRealAvatarImage ? (
               <label
                 htmlFor="sidebar-avatar-input"
                 style={{ cursor: "pointer", display: "block" }}
@@ -170,6 +152,7 @@ export default function ProfileSidebar({
                 />
               </label>
             ) : userInitials ? (
+              /* Cas 1 & 3 : Pas de vraie image -> On affiche les initiales dans le rond bleu identique au header */
               <label
                 htmlFor="sidebar-avatar-input"
                 style={{
@@ -233,8 +216,8 @@ export default function ProfileSidebar({
               <FontAwesomeIcon icon={faCamera} size="xs" />
             </label>
 
-            {/* Bouton Corbeille (visible uniquement si un avatar valide est présent) */}
-            {hasValidAvatar && (
+            {/* Bouton Corbeille (visible uniquement si une vraie image d'avatar est présente) */}
+            {hasRealAvatarImage && (
               <button
                 type="button"
                 onClick={handleRemoveAvatar}
@@ -274,7 +257,6 @@ export default function ProfileSidebar({
           <p>Gérez vos préférences</p>
         </div>
 
-        {/* Le reste de vos onglets de navigation et de déconnexion ... */}
         <nav className="profile-nav-links">
           <button
             className={`nav-link-item ${activeTab === "infos" ? "active" : ""}`}
@@ -339,7 +321,7 @@ export default function ProfileSidebar({
         </div>
       </div>
 
-      {showLogoutModal  && ( 
+      {showLogoutModal && (
         <div
           style={{
             position: "fixed",
@@ -392,7 +374,7 @@ export default function ProfileSidebar({
             >
               Voulez-vous vraiment vous déconnecter de votre compte ShopFlow ?
             </p>
-            <div style={{ display: "flex", gap: "12px" }}>
+            <div style={{ design: "flex", gap: "12px", display: "flex" }}>
               <button
                 onClick={() => setShowLogoutModal(false)}
                 style={{

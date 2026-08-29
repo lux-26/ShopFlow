@@ -98,18 +98,6 @@
     gap: 24px;
 }
 
-@media (max-width: 768px) {
-    .contact-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .about-features-grid {
-        flex-direction: column;
-        gap: 10px;
-        align-items: center;
-    }
-}
-
 .contact-info-card,
 .contact-form-card {
     background: #ffffff;
@@ -244,4 +232,65 @@ textarea {
     font-size: 0.85rem;
     font-weight: 400;
     border: 1px solid #bbf7d0;
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN - PAGE CONTACT
+   ================================---------- */
+
+@media (max-width: 768px) {
+    .contact-page {
+        padding: 16px 12px;
+    }
+
+    .about-shopflow-card {
+        padding: 20px 16px;
+        margin-bottom: 20px;
+    }
+
+    .about-shopflow-card h2 {
+        font-size: 1.2rem;
+    }
+
+    .about-text {
+        font-size: 0.875rem;
+    }
+
+    .about-features-grid {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+        padding-top: 15px;
+    }
+
+    .contact-header h1 {
+        font-size: 1.35rem;
+    }
+
+    .contact-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .contact-info-card,
+    .contact-form-card {
+        padding: 20px 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .info-item {
+        align-items: flex-start;
+    }
+
+    .icon-box {
+        width: 34px;
+        height: 34px;
+        font-size: 0.85rem;
+    }
+
+    .btn-submit-contact {
+        padding: 10px;
+        font-size: 0.825rem;
+    }
 }

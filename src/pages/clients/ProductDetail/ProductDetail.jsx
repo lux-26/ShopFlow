@@ -141,10 +141,18 @@ export default function ProductDetail() {
       updatedWishlist = wishlist.filter(
         (item) => String(item.id) !== String(product.id),
       );
-      showToast("Retiré de vos favoris.");
+      showToast(
+        "Retiré des favoris",
+        `${product.name} a été retiré de vos favoris.`,
+        "info",
+      );
     } else {
       updatedWishlist = [...wishlist, product];
-      showToast("Ajouté à vos favoris avec succès !");
+      showToast(
+        "Favoris mis à jour",
+        `${product.name} a été ajouté à vos favoris avec succès !`,
+        "success",
+      );
     }
 
     localStorage.setItem("shopflow_wishlist", JSON.stringify(updatedWishlist));
@@ -160,10 +168,18 @@ export default function ProductDetail() {
       updatedComparison = comparison.filter(
         (item) => String(item.id) !== String(product.id),
       );
-      showToast("Retiré de la liste de comparaison.");
+      showToast(
+        "Comparaison",
+        `${product.name} a été retiré de la liste de comparaison.`,
+        "info",
+      );
     } else {
       updatedComparison = [...comparison, product];
-      showToast("Ajouté à la comparaison avec succès !");
+      showToast(
+        "Comparaison",
+        `${product.name} a été ajouté à la comparaison avec succès !`,
+        "success",
+      );
     }
 
     localStorage.setItem(
@@ -175,8 +191,6 @@ export default function ProductDetail() {
 
   return (
     <div className="product-detail-page">
-      {/* Plus de code HTML de toast ici, le ToastContext global s'en occupe tout seul ! */}
-
       <div className="product-detail-container">
         <div className="product-gallery-section">
           <div className="main-image-wrapper">

@@ -8,10 +8,12 @@ import {
   faChevronLeft,
   faChevronRight,
 } from "@fortawesome/free-solid-svg-icons";
+import { useToast } from "../../context/ToastContext"; // Ajustez le chemin selon votre structure
 
 export default function AdminUsers() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRole, setSelectedRole] = useState("Tous");
+  const { showToast } = useToast();
 
   const [users, setUsers] = useState([
     {
@@ -55,6 +57,19 @@ export default function AdminUsers() {
       statusType: "success",
     },
   ]);
+
+  const handleDeleteUser = (id, name) => {
+    setUsers(users.filter((item) => item.id !== id));
+    showToast({
+      title: "Utilisateur supprimé",
+      message: `L'utilisateur ${name} a bien été supprimé`,
+      type: "success",
+    });
+  };
+
+  const handleEditUser = (name) => {
+    showToast(`Modification de l'utilisateur ${name}`, "info");
+  };
 
   const filteredUsers = users.filter((u) => {
     const matchesSearch =
@@ -122,7 +137,6 @@ export default function AdminUsers() {
             </thead>
             <tbody>
               {filteredUsers.map((u) => {
-                // Génération des initiales pour l'avatar stylé
                 const initials = u.name
                   .split(" ")
                   .map((n) => n[0])
@@ -170,15 +184,17 @@ export default function AdminUsers() {
                       </span>
                     </td>
                     <td style={{ textAlign: "right" }}>
-                      <button className="btn-icon" title="Modifier">
+                      <button
+                        className="btn-icon"
+                        title="Modifier"
+                        onClick={() => handleEditUser(u.name)}
+                      >
                         <FontAwesomeIcon icon={faPenToSquare} />
                       </button>
                       <button
                         className="btn-icon text-danger"
                         title="Supprimer"
-                        onClick={() =>
-                          setUsers(users.filter((item) => item.id !== u.id))
-                        }
+                        onClick={() => handleDeleteUser(u.id, u.name)}
                       >
                         <FontAwesomeIcon icon={faTrashCan} />
                       </button>

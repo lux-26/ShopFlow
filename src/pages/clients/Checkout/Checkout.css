@@ -5,11 +5,14 @@
     padding: 40px 20px;
     font-family: 'Inter', sans-serif;
     color: #1e293b;
+    box-sizing: border-box;
 }
 
 .checkout-container {
     max-width: 1200px;
     margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .checkout-header-main {
@@ -35,6 +38,7 @@
     gap: 12px;
     font-size: 14px;
     color: #64748b;
+    flex-wrap: wrap;
 }
 
 .step-item {
@@ -61,6 +65,7 @@
     align-items: center;
     justify-content: center;
     font-size: 12px;
+    flex-shrink: 0;
 }
 
 .step-circle.number {
@@ -97,6 +102,7 @@
     padding: 24px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     border: 1px solid #e2e8f0;
+    box-sizing: border-box;
 }
 
 .mt-24 {
@@ -125,14 +131,27 @@
     gap: 16px;
 }
 
+@media (max-width: 576px) {
+    .form-grid-2 {
+        grid-template-columns: 1fr;
+    }
+}
+
 .form-group-checkout {
     display: flex;
     flex-direction: column;
     gap: 6px;
+    min-width: 0;
 }
 
 .form-group-checkout.full-width {
     grid-column: span 2;
+}
+
+@media (max-width: 576px) {
+    .form-group-checkout.full-width {
+        grid-column: span 1;
+    }
 }
 
 .form-group-checkout label {
@@ -148,6 +167,9 @@
     font-size: 14px;
     outline: none;
     transition: border-color 0.2s;
+    width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
 }
 
 .form-group-checkout input:focus {
@@ -173,6 +195,8 @@
     margin-bottom: 12px;
     cursor: pointer;
     transition: all 0.2s;
+    box-sizing: border-box;
+    gap: 12px;
 }
 
 .delivery-option-box.selected {
@@ -184,6 +208,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
+    min-width: 0;
 }
 
 .delivery-option-info strong {
@@ -201,6 +226,7 @@
     font-weight: 600;
     font-size: 14px;
     color: #1e293b;
+    flex-shrink: 0;
 }
 
 .price-tag.free {
@@ -220,6 +246,7 @@
     padding: 16px;
     cursor: pointer;
     transition: all 0.2s;
+    box-sizing: border-box;
 }
 
 .payment-option-card.selected {
@@ -233,6 +260,7 @@
     gap: 12px;
     font-weight: 500;
     color: #0f172a;
+    min-width: 0;
 }
 
 .payment-option-card.simple {
@@ -244,12 +272,14 @@
 .card-brand-icon {
     font-size: 18px;
     color: #64748b;
+    flex-shrink: 0;
 }
 
 .operators-hint {
     font-size: 12px;
     color: #64748b;
     margin-left: auto;
+    flex-shrink: 0;
 }
 
 .card-sub-form {
@@ -262,23 +292,33 @@
     position: relative;
     display: flex;
     align-items: center;
+    width: 100%;
 }
 
 .input-with-icon input {
     width: 100%;
     padding-right: 36px;
+    box-sizing: border-box;
+    min-width: 0;
 }
 
 .field-icon {
     position: absolute;
     right: 12px;
     color: #94a3b8;
+    pointer-events: none;
 }
 
 .form-row-2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
+}
+
+@media (max-width: 480px) {
+    .form-row-2 {
+        grid-template-columns: 1fr;
+    }
 }
 
 .mb-12 {
@@ -319,12 +359,14 @@
     align-items: center;
     padding: 8px 0;
     border-bottom: 1px solid #f1f5f9;
+    gap: 12px;
 }
 
 .checkout-item-info {
     display: flex;
     align-items: center;
     gap: 10px;
+    min-width: 0;
 }
 
 .checkout-item-img {
@@ -333,6 +375,7 @@
     border-radius: 6px;
     object-fit: cover;
     background-color: #f1f5f9;
+    flex-shrink: 0;
 }
 
 .checkout-item-info h4 {
@@ -340,6 +383,9 @@
     font-weight: 500;
     color: #0f172a;
     margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .checkout-item-variant {
@@ -351,6 +397,7 @@
     font-size: 13px;
     font-weight: 600;
     color: #0f172a;
+    flex-shrink: 0;
 }
 
 /* Boîte de fidélité */
@@ -362,18 +409,22 @@
     padding: 12px;
     border-radius: 8px;
     margin-bottom: 16px;
+    gap: 12px;
+    box-sizing: border-box;
 }
 
 .loyalty-info {
     display: flex;
     align-items: flex-start;
     gap: 10px;
+    min-width: 0;
 }
 
 .loyalty-icon {
     font-size: 16px;
     color: #1e3a8a;
     margin-top: 2px;
+    flex-shrink: 0;
 }
 
 .loyalty-info strong {
@@ -392,6 +443,7 @@
     flex-direction: column;
     align-items: flex-end;
     gap: 4px;
+    flex-shrink: 0;
 }
 
 .loyalty-action label {
@@ -427,11 +479,13 @@
     font-weight: 600;
     color: #0f172a;
     margin-bottom: 20px;
+    gap: 12px;
 }
 
 .total-price {
     font-size: 18px;
     color: #1e3a8a;
+    flex-shrink: 0;
 }
 
 .btn-confirm-pay {
@@ -450,6 +504,7 @@
     cursor: pointer;
     transition: background-color 0.2s;
     margin-bottom: 12px;
+    box-sizing: border-box;
 }
 
 .btn-confirm-pay:hover {
@@ -465,6 +520,7 @@
     justify-content: center;
     gap: 6px;
     margin: 0;
+    flex-wrap: wrap;
 }
 
 /* --- Style du Toast de Notification Unifié (Bas à droite) --- */
@@ -481,27 +537,33 @@
     gap: 12px;
     z-index: 9999;
     border-left: 4px solid #1e3a8a;
-    /* Modifié dynamiquement selon le type (succès/erreur) */
     min-width: 300px;
     max-width: 400px;
     animation: slideInRight 0.3s ease-out forwards;
+    box-sizing: border-box;
 }
 
 .toast-icon-wrapper {
     font-size: 18px;
     margin-top: 2px;
+    flex-shrink: 0;
 }
 
 .toast-content {
     display: flex;
     flex-direction: column;
     gap: 4px;
+    min-width: 0;
 }
 
 .toast-title {
     font-weight: 600;
     font-size: 14px;
     color: #1e293b;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .toast-message {
@@ -521,5 +583,33 @@
     to {
         transform: translateX(0);
         opacity: 1;
+    }
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN - PAGE CHECKOUT
+   ========================================== */
+
+@media (max-width: 768px) {
+    .checkout-page {
+        padding: 20px 12px;
+    }
+
+    .checkout-card {
+        padding: 16px;
+    }
+
+    .checkout-header-main {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .custom-toast-notification {
+        left: 16px;
+        right: 16px;
+        bottom: 16px;
+        min-width: auto;
+        max-width: none;
+        width: auto;
     }
 }

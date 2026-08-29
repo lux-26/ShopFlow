@@ -6,11 +6,14 @@
     padding: 30px 40px;
     background-color: #f8fafc;
     min-height: 85vh;
+    box-sizing: border-box;
 }
 
 .catalog-container {
     max-width: 1200px;
     margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .catalog-header {
@@ -18,10 +21,12 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 25px;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
 .catalog-title {
-    margin-bottom: 1.1rem;
+    margin-bottom: 0;
     font-size: 24px;
     font-weight: 700;
     color: #1e293b;
@@ -59,6 +64,7 @@
     border-radius: 12px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     height: fit-content;
+    box-sizing: border-box;
 }
 
 .filters-sidebar h2 {
@@ -102,6 +108,7 @@
     border-radius: 6px;
     font-size: 13px;
     outline: none;
+    min-width: 0;
 }
 
 .stars {
@@ -130,6 +137,7 @@
     display: flex;
     flex-direction: column;
     gap: 24px;
+    min-width: 0;
 }
 
 /* Barre de recherche propre au-dessus des produits */
@@ -143,6 +151,7 @@
     width: 100%;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
     transition: all 0.2s ease;
+    box-sizing: border-box;
 }
 
 .catalog-search-bar:focus-within {
@@ -154,6 +163,7 @@
     color: #64748b;
     font-size: 16px;
     margin-right: 12px;
+    flex-shrink: 0;
 }
 
 .catalog-search-input {
@@ -163,6 +173,7 @@
     width: 100%;
     font-size: 14px;
     color: #1e293b;
+    min-width: 0;
 }
 
 .catalog-search-input::placeholder {
@@ -170,7 +181,7 @@
 }
 
 /* ==========================================
-   STYLE DES CARTES PRODUITS (Inspiré de l'image)
+   STYLE DES CARTES PRODUITS
    ========================================== */
 
 .catalog-grid {
@@ -181,7 +192,6 @@
 
 .catalog-product-card {
     background: #f1f5f9;
-    /* Fond gris clair comme sur votre modèle */
     border-radius: 12px;
     overflow: hidden;
     padding: 16px;
@@ -190,6 +200,7 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
     transition: transform 0.2s, box-shadow 0.2s;
     border: 1px solid #e2e8f0;
+    box-sizing: border-box;
 }
 
 .catalog-product-card:hover {
@@ -229,18 +240,17 @@
 
 .badge-new {
     background-color: #047857;
-    /* Vert foncé élégant pour 'Nouveau' */
 }
 
 .badge-discount {
     background-color: #991b1b;
-    /* Rouge foncé pour les soldes */
 }
 
 .product-card-body {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
+    min-width: 0;
 }
 
 .product-rating {
@@ -276,6 +286,10 @@
 .product-title-link {
     color: #0f172a;
     text-decoration: none;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .product-title-link:hover {
@@ -328,7 +342,6 @@
 
 .btn-add-cart-catalog {
     background-color: #07163c;
-    /* Bleu très sombre / marine exact de votre modèle */
     color: white;
     border: none;
     padding: 12px;
@@ -341,6 +354,8 @@
     gap: 10px;
     cursor: pointer;
     transition: background-color 0.2s, transform 0.1s;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .btn-add-cart-catalog:hover {
@@ -358,6 +373,7 @@
     align-items: center;
     gap: 6px;
     margin-top: 20px;
+    flex-wrap: wrap;
 }
 
 .page-btn {
@@ -409,24 +425,30 @@
     border-left: 4px solid #0f172a;
     animation: slideInUp 0.3s ease-out;
     max-width: 380px;
+    box-sizing: border-box;
 }
 
 .toast-icon-wrapper {
     font-size: 22px;
     color: #0f172a;
     display: flex;
+    flex-shrink: 0;
 }
 
 .toast-content {
     display: flex;
     flex-direction: column;
     gap: 2px;
+    min-width: 0;
 }
 
 .toast-title {
     font-weight: 700;
     font-size: 15px;
     color: #0f172a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .toast-message {
@@ -434,6 +456,9 @@
     font-size: 13px;
     color: #475569;
     line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 @keyframes slideInUp {
@@ -445,5 +470,78 @@
     to {
         transform: translateY(0);
         opacity: 1;
+    }
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN - PAGE CATALOGUE
+   ========================================== */
+
+@media (max-width: 992px) {
+    .catalog-layout {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .filters-sidebar {
+        /* Optionnel : peut être replié si nécessaire, ici empilé proprement */
+        margin-bottom: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .catalog-page {
+        padding: 20px 16px;
+    }
+
+    .catalog-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .catalog-sort {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .catalog-sort select {
+        flex-grow: 1;
+    }
+
+    .catalog-grid {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 16px;
+    }
+
+    .custom-toast-notification {
+        left: 16px;
+        right: 16px;
+        bottom: 16px;
+        max-width: none;
+        width: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .catalog-page {
+        padding: 16px 12px;
+    }
+
+    .catalog-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .product-image-container {
+        height: 200px;
+    }
+
+    .price-inputs {
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .price-inputs input {
+        width: 100%;
     }
 }

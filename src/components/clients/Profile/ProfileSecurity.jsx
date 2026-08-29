@@ -12,6 +12,7 @@ import {
   faTimes,
   faCircleInfo,
 } from "@fortawesome/free-solid-svg-icons";
+import { useToast } from "../../../context/ToastContext";
 
 export default function ProfileSecurity() {
   // États pour le changement de mot de passe
@@ -49,35 +50,42 @@ export default function ProfileSecurity() {
     },
   ]);
 
-  // État pour les toasts de notification locaux
-  const [toast, setToast] = useState(null);
-
-  const showToast = (title, message) => {
-    setToast({ title, message });
-    setTimeout(() => setToast(null), 3000);
-  };
+  const { showToast } = useToast();
 
   // Gestion de la modification du mot de passe
   const handlePasswordUpdate = (e) => {
     e.preventDefault();
     if (!passwords.current || !passwords.newPass || !passwords.confirmPass) {
-      showToast("Erreur", "Veuillez remplir tous les champs du mot de passe.");
+      showToast(
+        "Erreur",
+        "Veuillez remplir tous les champs du mot de passe.",
+        "error",
+      );
       return;
     }
     if (passwords.newPass !== passwords.confirmPass) {
-      showToast("Erreur", "Les nouveaux mots de passe ne correspondent pas.");
+      showToast(
+        "Erreur",
+        "Les nouveaux mots de passe ne correspondent pas.",
+        "error",
+      );
       return;
     }
     if (passwords.newPass.length < 6) {
       showToast(
         "Sécurité",
         "Le mot de passe doit contenir au moins 6 caractères.",
+        "warning",
       );
       return;
     }
 
     // Simulation de succès
-    showToast("Succès", "Votre mot de passe a été mis à jour avec succès.");
+    showToast(
+      "Succès",
+      "Votre mot de passe a été mis à jour avec succès.",
+      "success",
+    );
     setPasswords({ current: "", newPass: "", confirmPass: "" });
   };
 
@@ -91,6 +99,7 @@ export default function ProfileSecurity() {
       newState
         ? "Authentification à deux facteurs activée."
         : "Authentification à deux facteurs désactivée.",
+      "success",
     );
   };
 
@@ -98,14 +107,22 @@ export default function ProfileSecurity() {
   const handleRemoveSession = (id) => {
     const updated = sessions.filter((s) => s.id !== id);
     setSessions(updated);
-    showToast("Sessions", "La session a été déconnectée avec succès.");
+    showToast(
+      "Sessions",
+      "La session a été déconnectée avec succès.",
+      "success",
+    );
   };
 
   // Déconnexion de toutes les autres sessions
   const handleTerminateAll = () => {
     const currentOnly = sessions.filter((s) => s.current);
     setSessions(currentOnly);
-    showToast("Sessions", "Toutes les autres sessions ont été fermées.");
+    showToast(
+      "Sessions",
+      "Toutes les autres sessions ont été fermées.",
+      "success",
+    );
   };
 
   return (
@@ -497,27 +514,6 @@ export default function ProfileSecurity() {
           </div>
         </div>
       </div>
-
-      {/* Toast de notification local */}
-      {toast && (
-        <div
-          className="shopflow-toast-popup"
-          style={{
-            position: "fixed",
-            bottom: "20px",
-            right: "20px",
-            zIndex: 1100,
-          }}
-        >
-          <div className="toast-icon-wrapper">
-            <FontAwesomeIcon icon={faCircleInfo} />
-          </div>
-          <div className="toast-text-content">
-            <strong>{toast.title}</strong>
-            <p>{toast.message}</p>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

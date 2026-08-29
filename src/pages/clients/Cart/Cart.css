@@ -5,11 +5,14 @@
     padding: 40px 20px;
     font-family: 'Inter', sans-serif;
     color: #1e293b;
+    box-sizing: border-box;
 }
 
 .cart-container {
     max-width: 1200px;
     margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .cart-title {
@@ -23,12 +26,6 @@
     display: grid;
     grid-template-columns: 1fr 380px;
     gap: 24px;
-}
-
-@media (max-width: 968px) {
-    .cart-layout {
-        grid-template-columns: 1fr;
-    }
 }
 
 /* --- Liste des articles --- */
@@ -47,6 +44,7 @@
     gap: 16px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     border: 1px solid #e2e8f0;
+    box-sizing: border-box;
 }
 
 .cart-item-img-wrapper {
@@ -81,6 +79,7 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
+    min-width: 0;
 }
 
 .cart-item-details h3 {
@@ -88,6 +87,9 @@
     font-weight: 600;
     color: #0f172a;
     margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .cart-item-variant {
@@ -137,6 +139,7 @@
     align-items: flex-end;
     justify-content: space-between;
     height: 80px;
+    flex-shrink: 0;
 }
 
 .delete-btn {
@@ -183,6 +186,7 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     border: 1px solid #e2e8f0;
     height: fit-content;
+    box-sizing: border-box;
 }
 
 .cart-summary-card h2 {
@@ -255,6 +259,7 @@
     border-radius: 8px;
     font-size: 13px;
     outline: none;
+    min-width: 0;
 }
 
 .promo-box input:focus {
@@ -271,6 +276,7 @@
     font-weight: 500;
     cursor: pointer;
     transition: background 0.2s;
+    flex-shrink: 0;
 }
 
 .apply-promo-btn:hover {
@@ -311,6 +317,7 @@
     cursor: pointer;
     transition: background 0.2s;
     margin-bottom: 20px;
+    box-sizing: border-box;
 }
 
 .btn-continue:hover {
@@ -342,27 +349,30 @@
     gap: 12px;
     z-index: 9999;
     border-left: 4px solid #1e3a8a;
-    /* Modifié dynamiquement selon le type (succès/erreur) */
     min-width: 300px;
     max-width: 400px;
     animation: slideInRight 0.3s ease-out forwards;
+    box-sizing: border-box;
 }
 
 .toast-icon-wrapper {
     font-size: 18px;
     margin-top: 2px;
+    flex-shrink: 0;
 }
 
 .toast-content {
     display: flex;
     flex-direction: column;
     gap: 4px;
+    min-width: 0;
 }
 
 .toast-title {
     font-weight: 600;
     font-size: 14px;
     color: #1e293b;
+    margin: 0;
 }
 
 .toast-message {
@@ -382,5 +392,85 @@
     to {
         transform: translateX(0);
         opacity: 1;
+    }
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN - PAGE PANIER
+   ========================================== */
+
+@media (max-width: 968px) {
+    .cart-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .cart-page {
+        padding: 20px 12px;
+    }
+
+    .cart-title {
+        font-size: 20px;
+        margin-bottom: 16px;
+    }
+
+    .cart-item-card {
+        padding: 12px;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .cart-item-img-wrapper {
+        width: 64px;
+        height: 64px;
+    }
+
+    .cart-item-pricing {
+        width: 100%;
+        height: auto;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 8px;
+        border-top: 1px solid #f1f5f9;
+        padding-top: 8px;
+    }
+
+    .prices {
+        align-items: flex-start;
+    }
+
+    .cart-summary-card {
+        padding: 16px;
+    }
+
+    .custom-toast-notification {
+        left: 16px;
+        right: 16px;
+        bottom: 16px;
+        min-width: auto;
+        max-width: none;
+        width: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .cart-item-card {
+        align-items: flex-start;
+    }
+
+    .cart-item-details h3 {
+        font-size: 14px;
+        white-space: normal;
+    }
+
+    .promo-box {
+        flex-direction: column;
+    }
+
+    .apply-promo-btn {
+        width: 100%;
+        padding: 10px;
     }
 }

@@ -14,10 +14,12 @@ import {
   faChevronLeft,
   faChevronRight,
 } from "@fortawesome/free-solid-svg-icons";
+import { useToast } from "../../context/ToastContext";
 
 export default function AdminOrders() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const { showToast } = useToast();
 
   const [orders, setOrders] = useState([
     {
@@ -65,6 +67,15 @@ export default function AdminOrders() {
       dotClass: "badge-dot",
     },
   ]);
+
+  const handleDelete = (id) => {
+    setOrders(orders.filter((item) => item.id !== id));
+    showToast(
+      "Commande supprimée",
+      `La commande ${id} a bien été supprimée.`,
+      "success",
+    );
+  };
 
   const filteredOrders = orders.filter(
     (o) =>
@@ -229,9 +240,7 @@ export default function AdminOrders() {
                       <button
                         className="btn-icon text-danger"
                         title="Supprimer"
-                        onClick={() =>
-                          setOrders(orders.filter((item) => item.id !== o.id))
-                        }
+                        onClick={() => handleDelete(o.id)}
                       >
                         <FontAwesomeIcon icon={faTrashCan} />
                       </button>

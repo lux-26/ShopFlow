@@ -12,6 +12,7 @@ import {
   faImage,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
+import { useToast } from "../../context/ToastContext";
 import "../../styles/admin.css";
 
 export default function AdminProducts() {
@@ -19,6 +20,7 @@ export default function AdminProducts() {
   const [selectedCategory, setSelectedCategory] = useState("Toutes");
   const [selectedStock, setSelectedStock] = useState("Tous");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { showToast } = useToast();
 
   // Exemple de données conformes à l'image
   const [products, setProducts] = useState([
@@ -100,6 +102,20 @@ export default function AdminProducts() {
       price: "",
       stock: 10,
     });
+    showToast(
+      "Produit ajouté !",
+      `Le produit "${created.name}" a été créé avec succès.`,
+      "success",
+    );
+  };
+
+  const handleDeleteProduct = (id, name) => {
+    setProducts(products.filter((p) => p.id !== id));
+    showToast(
+      "Produit supprimé",
+      `Le produit "${name}" a été supprimé.`,
+      "success",
+    );
   };
 
   const filteredProducts = products.filter((p) => {
@@ -239,9 +255,7 @@ export default function AdminProducts() {
                     <button
                       className="btn-icon text-danger"
                       title="Supprimer"
-                      onClick={() =>
-                        setProducts(products.filter((p) => p.id !== item.id))
-                      }
+                      onClick={() => handleDeleteProduct(item.id, item.name)}
                     >
                       <FontAwesomeIcon icon={faTrashCan} />
                     </button>

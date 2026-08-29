@@ -211,7 +211,7 @@ export default function Catalog() {
   const filterParam = searchParams.get("filter");
   const categoryParam = searchParams.get("category");
 
-  const { showToast } = useToast(); // <-- Utilisation du toast global
+  const { showToast } = useToast(); 
 
   const [sortOption, setSortOption] = useState("pertinence");
   const [selectedCategory, setSelectedCategory] = useState("Électronique");

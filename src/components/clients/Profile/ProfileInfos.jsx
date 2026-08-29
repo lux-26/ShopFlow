@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faUser,
@@ -14,6 +14,7 @@ import {
   faLocationDot,
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";
+import { useToast } from "../../../context/ToastContext";
 
 export default function ProfileInfos({
   userInfo,
@@ -24,65 +25,98 @@ export default function ProfileInfos({
   setActiveTab,
 }) {
   const [isEditing, setIsEditing] = useState(false);
-  const fileInputRef = useRef(null);
+  const [showAdvantagesModal, setShowAdvantagesModal] = useState(false);
+  const { showToast } = useToast();
 
-  // Récupération sécurisée depuis le state ou le localStorage
-  const savedUser =
-    JSON.parse(localStorage.getItem("shopflow_user_info")) || {};
+  const [savedUser, setSavedUser] = useState(
+    () => JSON.parse(localStorage.getItem("shopflow_user_info")) || {},
+  );
+
+  useEffect(() => {
+    const syncUserData = () => {
+      const data = JSON.parse(localStorage.getItem("shopflow_user_info")) || {};
+      setSavedUser(data);
+    };
+
+    window.addEventListener("storage", syncUserData);
+    window.addEventListener("userInfoUpdated", syncUserData);
+    window.addEventListener("userAvatarUpdated", syncUserData);
+
+    return () => {
+      window.removeEventListener("storage", syncUserData);
+      window.removeEventListener("userInfoUpdated", syncUserData);
+      window.removeEventListener("userAvatarUpdated", syncUserData);
+    };
+  }, []);
 
   const currentInfo = {
-    firstName: userInfo?.firstName || savedUser.firstName || "Abdoulaye",
-    lastName: userInfo?.lastName || savedUser.lastName || "Tamba",
-    email: userInfo?.email || savedUser.email || "abdoulaye.tamba@example.com",
-    phone: userInfo?.phone || savedUser.phone || "+221 77 000 00 00",
-    address: userInfo?.address || savedUser.address || "Dakar, Sénégal",
+    firstName: userInfo?.firstName || savedUser.firstName || "",
+    lastName: userInfo?.lastName || savedUser.lastName || "",
+    email: userInfo?.email || savedUser.email || "",
+    phone: userInfo?.phone || savedUser.phone || "",
+    address: userInfo?.address || savedUser.address || "",
     avatar: userInfo?.avatar || savedUser.avatar || "",
   };
 
-  // Fonction pour extraire les initiales (ex: "Abdoulaye Tamba" -> "AT")
-  const getInitials = (firstName, lastName) => {
+  const getInitials = (user) => {
+    if (!user) return "";
+    let firstName = user.firstName || "";
+    let lastName = user.lastName || "";
+
+    if (
+      !firstName &&
+      !lastName &&
+      (user.FullName || user.name || user.fullName)
+    ) {
+      const fullName = user.FullName || user.name || user.fullName;
+      const parts = fullName.trim().split(" ");
+      firstName = parts[0] || "";
+      lastName = parts.length > 1 ? parts[parts.length - 1] : "";
+    }
+
     const first = firstName ? firstName.charAt(0) : "";
-    const last = lastName ? lastName.charAt(0) : "";
-    return (first + last).toUpperCase() || "AT";
+    const last = lastName && lastName !== firstName ? lastName.charAt(0) : "";
+    const initials = (first + last).toUpperCase();
+    return initials !== "" ? initials : null;
   };
 
-  // État local pour les notifications (Toast)
-  const [toast, setToast] = useState({
-    show: false,
-    title: "",
-    message: "",
-  });
+  const userInitials = getInitials(currentInfo);
 
-  const showToast = (title, message) => {
-    setToast({ show: true, title, message });
-    setTimeout(() => {
-      setToast((prev) => ({ ...prev, show: false }));
-    }, 4000);
-  };
+  // Logique stricte identique à la sidebar : vérifie si l'avatar est une vraie image encodée Base64
+  const hasRealAvatarImage =
+    currentInfo?.avatar &&
+    typeof currentInfo.avatar === "string" &&
+    currentInfo.avatar.startsWith("data:image");
 
   const onSaveClick = () => {
     setIsEditing(false);
-    handleSaveProfile();
+
+    if (typeof setUserInfo === "function") {
+      setUserInfo(currentInfo);
+    }
+
+    localStorage.setItem("shopflow_user_info", JSON.stringify(currentInfo));
+
+    if (typeof handleSaveProfile === "function") {
+      handleSaveProfile(currentInfo);
+    }
+
+    window.dispatchEvent(new Event("userInfoUpdated"));
+    window.dispatchEvent(new Event("storage"));
+
     showToast(
       "Succès",
       "Vos informations personnelles ont été mises à jour avec succès.",
+      "success",
     );
   };
 
-  const handleOpenAdvantages = () => {
-    showToast(
-      "Avantages Membre Or",
-      "-10% sur vos commandes | Livraison gratuite dès 2 articles | Support prioritaire",
-    );
-  };
-
-  const maxPoints = 2500;
+  const maxPoints = 20000;
   const pointsNeeded = Math.max(0, maxPoints - loyaltyPoints);
   const progressPercentage = Math.min(100, (loyaltyPoints / maxPoints) * 100);
 
   return (
     <div style={{ position: "relative" }} className="page-transition">
-      {/* En-tête avec Avatar / Initiales (Sans icônes superflues) */}
       <div
         className="profile-top-header"
         style={{
@@ -101,6 +135,7 @@ export default function ProfileInfos({
           </p>
         </div>
 
+        {/* BADGE HAUT DROITE - Aligné strictement sur la logique de la Sidebar */}
         <div
           className="profile-badge-card"
           style={{
@@ -113,9 +148,8 @@ export default function ProfileInfos({
             boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
           }}
         >
-          {/* Bloc Avatar / Initiales simple et épuré */}
-          <div style={{ width: "48px", height: "48px" }}>
-            {currentInfo.avatar && currentInfo.avatar.trim() !== "" ? (
+          <div style={{ width: "48px", height: "48px", flexShrink: 0 }}>
+            {hasRealAvatarImage ? (
               <img
                 src={currentInfo.avatar}
                 alt="Avatar"
@@ -127,7 +161,7 @@ export default function ProfileInfos({
                   border: "2px solid #e2e8f0",
                 }}
               />
-            ) : (
+            ) : userInitials ? (
               <div
                 style={{
                   width: "100%",
@@ -139,18 +173,37 @@ export default function ProfileInfos({
                   alignItems: "center",
                   justifyContent: "center",
                   fontWeight: "700",
-                  fontSize: "0.95rem",
+                  fontSize: "1rem",
                   border: "2px solid #e2e8f0",
                 }}
               >
-                {getInitials(currentInfo.firstName, currentInfo.lastName)}
+                {userInitials}
+              </div>
+            ) : (
+              <div
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  borderRadius: "50%",
+                  backgroundColor: "#e2e8f0",
+                  color: "#64748b",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "1.2rem",
+                  border: "2px solid #e2e8f0",
+                }}
+              >
+                <FontAwesomeIcon icon={faUser} />
               </div>
             )}
           </div>
 
           <div>
             <strong style={{ display: "block", color: "#1e293b" }}>
-              {currentInfo.firstName} {currentInfo.lastName}
+              {currentInfo.firstName || currentInfo.lastName
+                ? `${currentInfo.firstName} ${currentInfo.lastName}`.trim()
+                : "Utilisateur"}
             </strong>
             <span
               className="gold-badge"
@@ -177,7 +230,6 @@ export default function ProfileInfos({
           gap: "24px",
         }}
       >
-        {/* Colonne Gauche : Coordonnées & Fidélité */}
         <div
           className="profile-left-col"
           style={{ display: "flex", flexDirection: "column", gap: "24px" }}
@@ -273,7 +325,6 @@ export default function ProfileInfos({
               className="form-grid-profile"
               style={{ display: "flex", flexDirection: "column", gap: "16px" }}
             >
-              {/* Nom Complet */}
               <div className="input-group">
                 <label
                   style={{
@@ -331,7 +382,10 @@ export default function ProfileInfos({
                       padding: "12px 14px",
                       background: "#f8fafc",
                       borderRadius: "8px",
-                      color: "#1e293b",
+                      color:
+                        currentInfo.firstName || currentInfo.lastName
+                          ? "#1e293b"
+                          : "#94a3b8",
                       fontWeight: "500",
                       border: "1px solid #e2e8f0",
                       display: "flex",
@@ -343,12 +397,13 @@ export default function ProfileInfos({
                       icon={faUser}
                       style={{ color: "#94a3b8" }}
                     />
-                    {currentInfo.firstName} {currentInfo.lastName}
+                    {currentInfo.firstName || currentInfo.lastName
+                      ? `${currentInfo.firstName} ${currentInfo.lastName}`.trim()
+                      : "Aucun nom renseigné"}
                   </div>
                 )}
               </div>
 
-              {/* Adresse Email */}
               <div className="input-group">
                 <label
                   style={{
@@ -368,6 +423,7 @@ export default function ProfileInfos({
                     onChange={(e) =>
                       setUserInfo({ ...userInfo, email: e.target.value })
                     }
+                    placeholder="exemple@email.com"
                     style={{
                       width: "100%",
                       padding: "10px",
@@ -383,7 +439,7 @@ export default function ProfileInfos({
                       padding: "12px 14px",
                       background: "#f8fafc",
                       borderRadius: "8px",
-                      color: "#1e293b",
+                      color: currentInfo.email ? "#1e293b" : "#94a3b8",
                       fontWeight: "500",
                       border: "1px solid #e2e8f0",
                       display: "flex",
@@ -395,12 +451,11 @@ export default function ProfileInfos({
                       icon={faEnvelope}
                       style={{ color: "#94a3b8" }}
                     />
-                    {currentInfo.email}
+                    {currentInfo.email || "Aucun email renseigné"}
                   </div>
                 )}
               </div>
 
-              {/* Numéro de Téléphone */}
               <div className="input-group">
                 <label
                   style={{
@@ -420,6 +475,7 @@ export default function ProfileInfos({
                     onChange={(e) =>
                       setUserInfo({ ...userInfo, phone: e.target.value })
                     }
+                    placeholder="+221 77 000 00 00"
                     style={{
                       width: "100%",
                       padding: "10px",
@@ -435,7 +491,7 @@ export default function ProfileInfos({
                       padding: "12px 14px",
                       background: "#f8fafc",
                       borderRadius: "8px",
-                      color: "#1e293b",
+                      color: currentInfo.phone ? "#1e293b" : "#94a3b8",
                       fontWeight: "500",
                       border: "1px solid #e2e8f0",
                       display: "flex",
@@ -447,12 +503,11 @@ export default function ProfileInfos({
                       icon={faPhone}
                       style={{ color: "#94a3b8" }}
                     />
-                    {currentInfo.phone}
+                    {currentInfo.phone || "Aucun numéro de téléphone renseigné"}
                   </div>
                 )}
               </div>
 
-              {/* Adresse de Livraison */}
               <div className="input-group">
                 <label
                   style={{
@@ -471,6 +526,7 @@ export default function ProfileInfos({
                     onChange={(e) =>
                       setUserInfo({ ...userInfo, address: e.target.value })
                     }
+                    placeholder="Entrez votre adresse complète..."
                     rows="2"
                     style={{
                       width: "100%",
@@ -488,7 +544,7 @@ export default function ProfileInfos({
                       padding: "12px 14px",
                       background: "#f8fafc",
                       borderRadius: "8px",
-                      color: "#1e293b",
+                      color: currentInfo.address ? "#1e293b" : "#94a3b8",
                       fontWeight: "500",
                       border: "1px solid #e2e8f0",
                       display: "flex",
@@ -500,14 +556,13 @@ export default function ProfileInfos({
                       icon={faLocationDot}
                       style={{ color: "#94a3b8" }}
                     />
-                    {currentInfo.address}
+                    {currentInfo.address || "Aucune adresse renseignée"}
                   </div>
                 )}
               </div>
             </div>
           </div>
 
-          {/* Programme de Fidélité */}
           <div
             className="loyalty-banner-card"
             style={{
@@ -541,14 +596,14 @@ export default function ProfileInfos({
                     letterSpacing: "0.5px",
                   }}
                 >
-                  PROGRAMME DE FIDÉLITÉ
+                  PROGRAMME DE FIDÉLITÉ (MEMBRE OR)
                 </span>
                 <h2 style={{ fontSize: "1.8rem", margin: "8px 0 4px 0" }}>
                   {loyaltyPoints.toLocaleString()} pts
                 </h2>
                 <p style={{ margin: 0, fontSize: "0.9rem", opacity: "0.9" }}>
                   {pointsNeeded > 0 ? (
-                    `Plus que ${pointsNeeded.toLocaleString()} points pour le palier Platine.`
+                    `Plus que ${pointsNeeded.toLocaleString()} points pour atteindre le palier Platine.`
                   ) : (
                     <span
                       className="loyalty-achieved-text"
@@ -569,7 +624,7 @@ export default function ProfileInfos({
               </div>
               <button
                 className="btn-loyalty-advantages"
-                onClick={handleOpenAdvantages}
+                onClick={() => setShowAdvantagesModal(true)}
                 style={{
                   background: "#fff",
                   color: "#1e3a8a",
@@ -610,7 +665,6 @@ export default function ProfileInfos({
           </div>
         </div>
 
-        {/* Colonne Droite : Commandes Récentes */}
         <div className="profile-right-col">
           <div
             className="profile-card orders-card"
@@ -750,53 +804,78 @@ export default function ProfileInfos({
         </div>
       </div>
 
-      {/* Pop-up / Toast de notification intégré */}
-      {toast.show && (
+      {showAdvantagesModal && (
         <div
-          className="custom-toast-notification"
           style={{
             position: "fixed",
-            bottom: "20px",
-            right: "20px",
-            background: "#fff",
-            padding: "16px",
-            borderRadius: "12px",
-            boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            background: "rgba(0, 0, 0, 0.5)",
             display: "flex",
             alignItems: "center",
-            gap: "12px",
-            borderLeft: "4px solid #166534",
-            zIndex: 1100,
+            justifyContent: "center",
+            zIndex: 1000,
           }}
         >
           <div
-            className="toast-icon-wrapper"
             style={{
-              background: "#dcfce7",
-              color: "#166534",
-              width: "32px",
-              height: "32px",
-              borderRadius: "50%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
+              background: "#fff",
+              padding: "24px",
+              borderRadius: "16px",
+              width: "90%",
+              maxWidth: "400px",
+              boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+              position: "relative",
             }}
           >
-            <FontAwesomeIcon icon={faCheck} />
-          </div>
-          <div className="toast-content">
-            <span
-              className="toast-title"
-              style={{ fontWeight: "700", color: "#1e293b", display: "block" }}
+            <h3
+              style={{
+                color: "#1e3a8a",
+                marginTop: 0,
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+              }}
             >
-              {toast.title}
-            </span>
-            <p
-              className="toast-message"
-              style={{ margin: 0, fontSize: "0.85rem", color: "#64748b" }}
+              <FontAwesomeIcon icon={faAward} style={{ color: "#d97706" }} />{" "}
+              Vos Avantages Membre Or
+            </h3>
+            <ul
+              style={{
+                paddingLeft: "20px",
+                color: "#334155",
+                lineHeight: "1.6",
+                margin: "16px 0",
+              }}
             >
-              {toast.message}
-            </p>
+              <li>
+                <strong>-10% de réduction</strong> sur toutes vos commandes
+              </li>
+              <li>
+                <strong>Livraison gratuite</strong> dès 2 articles achetés
+              </li>
+              <li>
+                <strong>Support client prioritaire</strong> 7j/7
+              </li>
+              <li>Accès en avant-première aux nouvelles collections</li>
+            </ul>
+            <button
+              onClick={() => setShowAdvantagesModal(false)}
+              style={{
+                width: "100%",
+                padding: "10px",
+                background: "#1e3a8a",
+                color: "#fff",
+                border: "none",
+                borderRadius: "8px",
+                fontWeight: "600",
+                cursor: "pointer",
+              }}
+            >
+              J'ai compris
+            </button>
           </div>
         </div>
       )}

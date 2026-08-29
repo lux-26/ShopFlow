@@ -1,7 +1,7 @@
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { catalogProducts } from "../catalog/Catalog";
-import "../Register/SearchPage.css";
+import "../SearchPage/SearchPage";
 
 export default function SearchPage() {
   const [searchParams] = useSearchParams();

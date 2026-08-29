@@ -8,10 +8,11 @@ import {
   faShoppingBag,
 } from "@fortawesome/free-solid-svg-icons";
 import { addNotification } from "../../../utils/notifications";
+import { useToast } from "../../../context/ToastContext";
 import "./Loyalty.css";
 
 export default function Loyalty() {
-  const [popupMessage, setPopupMessage] = useState(null);
+  const { showToast } = useToast();
 
   // 1. Gestion dynamique du solde et des données via localStorage
   const [currentPoints, setCurrentPoints] = useState(() => {
@@ -92,11 +93,17 @@ export default function Loyalty() {
 
       setHistoryItems([newEntry, ...historyItems]);
 
-      setPopupMessage(
+      showToast(
+        "Succès",
         `Félicitations ! Votre bon de réduction de ${amount} a été généré avec succès.`,
+        "success",
       );
     } else {
-      setPopupMessage("Points insuffisants pour obtenir cette récompense.");
+      showToast(
+        "Attention",
+        "Points insuffisants pour obtenir cette récompense.",
+        "error",
+      );
     }
 
     addNotification(
@@ -124,6 +131,12 @@ export default function Loyalty() {
     };
 
     setHistoryItems([newEntry, ...historyItems]);
+
+    showToast(
+      "Points ajoutés",
+      "Simulation réussie : +500 points ajoutés à votre solde.",
+      "success",
+    );
   };
 
   return (
@@ -295,22 +308,6 @@ export default function Loyalty() {
           </div>
         </section>
       </div>
-
-      {/* Popup personnalisée */}
-      {popupMessage && (
-        <div className="loyalty-popup-overlay">
-          <div className="loyalty-popup-card">
-            <h3>Notification ShopFlow</h3>
-            <p>{popupMessage}</p>
-            <button
-              className="btn-primary-blue"
-              onClick={() => setPopupMessage(null)}
-            >
-              Compris
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
