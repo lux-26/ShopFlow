@@ -66,8 +66,8 @@ export default function Header() {
         avatar: hasRealAvatarImage ? avatar : null,
         userInitials: userInitials,
       };
-    } catch (e) {
-      console.error(e);
+    } catch (error) {
+      console.error(error);
       return { avatar: null, userInitials: null };
     }
   };
@@ -121,7 +121,7 @@ export default function Header() {
       } else {
         setNotifications([]);
       }
-    } catch (e) {
+    } catch {
       setNotifications([]);
     }
   };
@@ -132,15 +132,19 @@ export default function Header() {
       const savedCart = JSON.parse(localStorage.getItem("shopflow_cart")) || [];
       const count = savedCart.reduce((sum, item) => sum + item.quantity, 0);
       setTotalItems(count);
-    } catch (e) {
+    } catch {
       setTotalItems(0);
     }
   };
 
   useEffect(() => {
-    updateCartCount();
-    loadNotifications();
-    updateProfileData();
+    // L'état initial est affiché immédiatement, puis cette synchronisation
+    // s'exécute après le premier rendu sans provoquer de rendu en cascade.
+    const initialLoadId = window.setTimeout(() => {
+      updateCartCount();
+      loadNotifications();
+      updateProfileData();
+    }, 0);
 
     const handleStorageChange = () => {
       updateProfileData();
@@ -167,6 +171,7 @@ export default function Header() {
     document.addEventListener("mousedown", handleClickOutside);
 
     return () => {
+      window.clearTimeout(initialLoadId);
       window.removeEventListener("storage", handleStorageChange);
       window.removeEventListener("cartUpdated", updateCartCount);
       window.removeEventListener("notificationUpdated", loadNotifications);
@@ -175,6 +180,8 @@ export default function Header() {
       window.removeEventListener("userNameUpdated", updateProfileData);
       document.removeEventListener("mousedown", handleClickOutside);
     };
+  // Les écouteurs sont volontairement enregistrés une fois au montage.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleProfileClick = (e) => {
@@ -324,9 +331,9 @@ export default function Header() {
                 {filteredNotifications.length === 0 ? (
                   <p className="no-notifs">Aucune notification</p>
                 ) : (
-                  filteredNotifications.map((notif) => (
+                  filteredNotifications.map((notif, index) => (
                     <div
-                      key={notif.id || Math.random()}
+                      key={notif.id ?? `${notif.category ?? "notification"}-${index}`}
                       className="notification-item-pro"
                     >
                       <div

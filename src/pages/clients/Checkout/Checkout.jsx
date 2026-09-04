@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -23,7 +23,9 @@ export default function Checkout() {
     return "card";
   });
 
-  const [cartItems, setCartItems] = useState([]);
+  const [cartItems, setCartItems] = useState(
+    () => JSON.parse(localStorage.getItem("shopflow_cart")) || [],
+  );
   const [useLoyaltyPoints, setUseLoyaltyPoints] = useState(false);
 
   // États pour l'adresse de livraison (initialisés à vide)
@@ -52,11 +54,6 @@ export default function Checkout() {
 
   const loyaltyDiscount = useLoyaltyPoints ? 5000 : 0;
   const finalTotal = subtotal + shippingFee - loyaltyDiscount;
-
-  useEffect(() => {
-    const savedCart = JSON.parse(localStorage.getItem("shopflow_cart")) || [];
-    setCartItems(savedCart);
-  }, []);
 
   const handleConfirmOrder = () => {
     if (cartItems.length === 0) {

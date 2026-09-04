@@ -11,9 +11,10 @@ import {
   faStore,
   faRightFromBracket,
   faTriangleExclamation,
+  faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 
-export default function AdminSidebar() {
+export default function AdminSidebar({ isOpen = false, onClose = () => {} }) {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -34,38 +35,46 @@ export default function AdminSidebar() {
 
   return (
     <>
-      <aside className="admin-sidebar page-transition">
+      <aside className={`admin-sidebar${isOpen ? " open" : ""}`}>
         <div className="sidebar-brand">
           <FontAwesomeIcon icon={faShop} className="brand-icon" />
           <div>
             <h2>ShopFlow Admin</h2>
             <span>Management Portal</span>
           </div>
+          <button
+            type="button"
+            className="sidebar-close-btn"
+            aria-label="Fermer le menu"
+            onClick={onClose}
+          >
+            <FontAwesomeIcon icon={faXmark} />
+          </button>
         </div>
 
         <ul className="sidebar-menu">
           <li className={isActive("/admin") || isActive("/admin/dashboard")}>
-            <Link to="dashboard">
+            <Link to="dashboard" onClick={onClose}>
               <FontAwesomeIcon icon={faChartPie} /> Dashboard
             </Link>
           </li>
           <li className={isActive("/admin/products")}>
-            <Link to="products">
+            <Link to="products" onClick={onClose}>
               <FontAwesomeIcon icon={faBoxArchive} /> Product Management
             </Link>
           </li>
           <li className={isActive("/admin/orders")}>
-            <Link to="orders">
+            <Link to="orders" onClick={onClose}>
               <FontAwesomeIcon icon={faBagShopping} /> Orders
             </Link>
           </li>
           <li className={isActive("/admin/users")}>
-            <Link to="users">
+            <Link to="users" onClick={onClose}>
               <FontAwesomeIcon icon={faUsers} /> Users
             </Link>
           </li>
           <li className={isActive("/admin/settings")}>
-            <Link to="settings">
+            <Link to="settings" onClick={onClose}>
               <FontAwesomeIcon icon={faGear} /> Settings
             </Link>
           </li>

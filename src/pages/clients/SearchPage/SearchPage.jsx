@@ -1,5 +1,5 @@
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useMemo } from "react";
 import { catalogProducts } from "../catalog/Catalog";
 import "../SearchPage/SearchPage";
 
@@ -7,24 +7,7 @@ export default function SearchPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const query = searchParams.get("q") || "";
-  const [filteredProducts, setFilteredProducts] = useState([]);
-
-  // useEffect(() => {
-  //   const savedProducts =
-  //     JSON.parse(localStorage.getItem("shopflow_products")) || catalogProducts;
-
-  //   const results = savedProducts.filter(
-  //     (product) =>
-  //       (product.name &&
-  //         product.name.toLowerCase().includes(query.toLowerCase())) ||
-  //       (product.category &&
-  //         product.category.toLowerCase().includes(query.toLowerCase())),
-  //   );
-
-  //   setFilteredProducts(results);
-  // }, [query]);
-
-  useEffect(() => {
+  const filteredProducts = useMemo(() => {
     const savedProducts =
       JSON.parse(localStorage.getItem("shopflow_products")) || catalogProducts;
 
@@ -42,7 +25,7 @@ export default function SearchPage() {
       return name.includes(searchTerm) || category.includes(searchTerm);
     });
 
-    setFilteredProducts(results);
+    return results;
   }, [query]);
 
   // CORRECTION : On passe l'objet product complet dans le state de la navigation

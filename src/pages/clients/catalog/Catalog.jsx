@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -9,6 +9,9 @@ import {
 import { useToast } from "../../../context/ToastContext";
 import "./Catalog.css";
 
+// Ce catalogue de démonstration est aussi consommé par les pages d'accueil,
+// recherche et détail ; il est volontairement conservé à côté de son affichage.
+// eslint-disable-next-line react-refresh/only-export-components
 export const catalogProducts = [
   {
     id: 1,
@@ -220,15 +223,7 @@ export default function Catalog() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
 
-  useEffect(() => {
-    if (categoryParam) {
-      setSelectedCategory(categoryParam);
-    }
-  }, [categoryParam]);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [filterParam, selectedCategory, priceRange, selectedRating, searchQuery]);
+  const displayedCategory = categoryParam || selectedCategory;
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -263,7 +258,7 @@ export default function Catalog() {
       );
     }
 
-    const matchesCategory = product.category === selectedCategory;
+    const matchesCategory = product.category === displayedCategory;
     return (
       matchesCategory && matchesMinPrice && matchesMaxPrice && matchesRating
     );
@@ -322,7 +317,7 @@ export default function Catalog() {
           <h1 className="catalog-title">
             {filterParam === "nouveautes"
               ? "✨ Nouveautés"
-              : `Catalogue : ${selectedCategory}`}
+              : `Catalogue : ${displayedCategory}`}
           </h1>
           <div className="catalog-sort">
             <label htmlFor="sort-select">Trier par : </label>
@@ -350,9 +345,10 @@ export default function Catalog() {
                     <input
                       type="radio"
                       name="category"
-                      checked={selectedCategory === cat}
+                      checked={displayedCategory === cat}
                       onChange={() => {
                         setSelectedCategory(cat);
+                        setCurrentPage(1);
                         navigate(
                           `/catalog?category=${encodeURIComponent(cat)}`,
                           {
@@ -375,7 +371,7 @@ export default function Catalog() {
                   placeholder="Min"
                   value={priceRange.min}
                   onChange={(e) =>
-                    setPriceRange({ ...priceRange, min: e.target.value })
+                    { setPriceRange({ ...priceRange, min: e.target.value }); setCurrentPage(1); }
                   }
                 />
                 <span>-</span>
@@ -384,7 +380,7 @@ export default function Catalog() {
                   placeholder="Max"
                   value={priceRange.max}
                   onChange={(e) =>
-                    setPriceRange({ ...priceRange, max: e.target.value })
+                    { setPriceRange({ ...priceRange, max: e.target.value }); setCurrentPage(1); }
                   }
                 />
               </div>
@@ -398,7 +394,7 @@ export default function Catalog() {
                   name="rating"
                   checked={selectedRating === 4}
                   onChange={() =>
-                    setSelectedRating(selectedRating === 4 ? null : 4)
+                    { setSelectedRating(selectedRating === 4 ? null : 4); setCurrentPage(1); }
                   }
                 />
                 <span className="stars">★★★★☆</span> & up
@@ -409,7 +405,7 @@ export default function Catalog() {
                   name="rating"
                   checked={selectedRating === 3}
                   onChange={() =>
-                    setSelectedRating(selectedRating === 3 ? null : 3)
+                    { setSelectedRating(selectedRating === 3 ? null : 3); setCurrentPage(1); }
                   }
                 />
                 <span className="stars">★★★☆☆</span> & up
@@ -425,6 +421,7 @@ export default function Catalog() {
                 setSelectedRating(null);
                 setSortOption("pertinence");
                 setSearchQuery("");
+                setCurrentPage(1);
               }}
             >
               Réinitialiser
@@ -446,7 +443,10 @@ export default function Catalog() {
                   placeholder="Rechercher un produit dans cette catégorie..."
                   className="catalog-search-input"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setCurrentPage(1);
+                  }}
                 />
               </form>
             )}

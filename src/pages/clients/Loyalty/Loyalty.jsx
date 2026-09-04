@@ -80,7 +80,7 @@ export default function Loyalty() {
       setCurrentPoints(newPoints);
 
       const newEntry = {
-        id: Date.now(),
+        id: crypto.randomUUID(),
         date: new Date().toLocaleDateString("fr-FR", {
           day: "numeric",
           month: "long",
@@ -119,7 +119,7 @@ export default function Loyalty() {
     setCurrentPoints((prev) => prev + addedPoints);
 
     const newEntry = {
-      id: Date.now(),
+      id: crypto.randomUUID(),
       date: new Date().toLocaleDateString("fr-FR", {
         day: "numeric",
         month: "long",

@@ -1,19 +1,13 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCreditCard, faTruck } from "@fortawesome/free-solid-svg-icons";
 import { useToast } from "../../../context/ToastContext";
 
 export default function ProfilePayment() {
-  const [selectedMethod, setSelectedMethod] = useState("mobile");
+  const [selectedMethod, setSelectedMethod] = useState(
+    () => localStorage.getItem("shopflow_payment_method") || "mobile",
+  );
   const { showToast } = useToast();
-
-  // Charger la méthode enregistrée au démarrage
-  useEffect(() => {
-    const savedMethod = localStorage.getItem("shopflow_payment_method");
-    if (savedMethod) {
-      setSelectedMethod(savedMethod);
-    }
-  }, []);
 
   const handleSavePayment = (e) => {
     e.preventDefault();

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleInfo } from "@fortawesome/free-solid-svg-icons";
@@ -57,7 +57,7 @@ export default function Profile() {
     if (savedOrders) {
       try {
         setRecentOrders(JSON.parse(savedOrders));
-      } catch (e) {
+      } catch {
         setRecentOrders([]);
       }
     } else {
@@ -80,7 +80,9 @@ export default function Profile() {
       return;
     }
 
-    loadProfileData();
+    // Chargement différé pour éviter une mise à jour d'état synchrone dans
+    // l'effet tout en gardant la synchronisation avec le stockage local.
+    const initialLoadId = window.setTimeout(loadProfileData, 0);
 
     // Écouter les mises à jour de commandes en temps réel
     const handleOrderUpdate = () => {
@@ -91,6 +93,7 @@ export default function Profile() {
     window.addEventListener("storage", handleOrderUpdate);
 
     return () => {
+      window.clearTimeout(initialLoadId);
       window.removeEventListener("orderUpdated", handleOrderUpdate);
       window.removeEventListener("storage", handleOrderUpdate);
     };

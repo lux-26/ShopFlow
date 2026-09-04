@@ -1,4 +1,3 @@
-import React from "react";
 import "./WhatsAppButton.css";
 
 export default function WhatsAppButton() {

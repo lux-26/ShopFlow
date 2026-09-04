@@ -54,9 +54,11 @@ html {
 /* ==========================================================
    1. LAYOUT ADMIN — MOBILE FIRST
    ========================================================== */
-.admin-dashboard-layout {
+.admin-layout {
     display: flex;
-    min-height: 100vh;
+    flex-direction: column;
+    /* topbar mobile au-dessus du contenu ; sans effet quand la topbar est display:none */
+    min-height: 100dvh;
     background-color: var(--color-bg);
     font-family: 'Inter', sans-serif;
     color: var(--color-text);
@@ -81,25 +83,46 @@ html {
     box-shadow: var(--shadow-md);
 }
 
-/* Classe pilotée en JS (ex: bouton hamburger) pour ouvrir la sidebar sur mobile */
-.admin-dashboard-layout.sidebar-open .admin-sidebar {
+/* Classe 'open' posée par React (state) directement sur .admin-sidebar quand le menu mobile est ouvert */
+.admin-sidebar.open {
     transform: translateX(0);
 }
 
-/* Overlay derrière la sidebar quand elle est ouverte (mobile) */
+/* Overlay derrière la sidebar, affiché par React uniquement quand le menu est ouvert (pas besoin de le cacher en CSS) */
 .sidebar-overlay {
-    display: none;
     position: fixed;
     inset: 0;
     background: rgba(15, 23, 42, 0.5);
     z-index: 1050;
 }
 
-.admin-dashboard-layout.sidebar-open .sidebar-overlay {
-    display: block;
+/* Barre supérieure mobile : contient le bouton hamburger + le nom de la boutique.
+   Cachée par défaut (desktop) ; affichée uniquement < 768px, voir media query plus bas. */
+.mobile-topbar {
+    display: none;
+    align-items: center;
+    gap: var(--space-3);
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    padding: 10px 14px;
+    position: sticky;
+    top: 0;
+    z-index: 900;
 }
 
-/* Bouton hamburger, visible uniquement < 1024px */
+.mobile-topbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    color: #1e293b;
+    font-size: 0.95rem;
+}
+
+.mobile-topbar-brand .brand-icon {
+    font-size: 1.2rem;
+}
+
 .sidebar-toggle-btn {
     display: none;
     align-items: center;
@@ -112,6 +135,27 @@ html {
     color: var(--color-text-secondary);
     cursor: pointer;
     font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+/* Bouton de fermeture (X) affiché en haut de la sidebar, uniquement sur mobile */
+.sidebar-close-btn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    margin-left: auto;
+    border: none;
+    background: transparent;
+    color: var(--color-text-muted);
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+}
+
+.sidebar-close-btn:hover {
+    background: #f1f5f9;
 }
 
 .sidebar-brand {
@@ -985,7 +1029,15 @@ html {
 
 /* Mobile / petite tablette : sidebar en tiroir (off-canvas) */
 @media (max-width: 767px) {
+    .mobile-topbar {
+        display: flex;
+    }
+
     .sidebar-toggle-btn {
+        display: inline-flex;
+    }
+
+    .sidebar-close-btn {
         display: inline-flex;
     }
 
@@ -1039,23 +1091,6 @@ html {
         margin-left: var(--sidebar-width);
         width: calc(100% - var(--sidebar-width));
         padding: var(--space-8);
-    }
-}
-
-/* Correction de l'affichage du bouton hamburger et de l'espace en haut sur mobile */
-@media (max-width: 1023px) {
-    .mobile-top-bar {
-        display: flex !important;
-        align-items: center;
-        margin-bottom: 15px !important;
-    }
-
-    .sidebar-toggle-btn {
-        display: inline-flex !important;
-    }
-
-    .admin-main-content {
-        padding-top: 15px !important;
     }
 }
 

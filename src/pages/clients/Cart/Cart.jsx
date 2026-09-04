@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import ReactDOM from "react-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate } from "react-router-dom";
@@ -13,7 +13,9 @@ import {
 import "./Cart.css";
 
 export default function Cart({ onGoToCheckout }) {
-  const [cartItems, setCartItems] = useState([]);
+  const [cartItems, setCartItems] = useState(
+    () => JSON.parse(localStorage.getItem("shopflow_cart")) || [],
+  );
   const [promoCode, setPromoCode] = useState("");
   const [discount, setDiscount] = useState(0);
   const [showPopup, setShowPopup] = useState(false);
@@ -24,11 +26,6 @@ export default function Cart({ onGoToCheckout }) {
   });
 
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const savedCart = JSON.parse(localStorage.getItem("shopflow_cart")) || [];
-    setCartItems(savedCart);
-  }, []);
 
   const updateCartStorage = (updatedItems) => {
     setCartItems(updatedItems);

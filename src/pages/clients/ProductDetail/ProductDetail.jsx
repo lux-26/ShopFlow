@@ -39,24 +39,8 @@ export default function ProductDetail() {
     });
   }
 
-  // S'il est vraiment introuvable
-  if (!rawProduct) {
-    return (
-      <div
-        className="product-not-found page-transition"
-        style={{ padding: "80px 20px", textAlign: "center" }}
-      >
-        <h2>Produit introuvable</h2>
-        <p>Désolé, ce produit n'existe pas ou a été supprimé.</p>
-        <Link to="/" className="btn-back">
-          Retour à l'accueil
-        </Link>
-      </div>
-    );
-  }
-
   // 3. NORMALISATION
-  const product = {
+  const product = rawProduct && {
     ...rawProduct,
     id: rawProduct.id || id,
     name:
@@ -77,29 +61,50 @@ export default function ProductDetail() {
     description: rawProduct.description || rawProduct.desc || "",
   };
 
-  const productImages = [
+  const productImages = product ? [
     product.image,
     "https://images.unsplash.com/photo-1484704849700-f032a568e944?w=500&auto=format&fit=crop&q=60",
     "https://images.unsplash.com/photo-1524678606370-a47ad25cb82a?w=500&auto=format&fit=crop&q=60",
-  ];
+  ] : [];
 
   const [quantity, setQuantity] = useState(1);
 
   const [isSaved, setIsSaved] = useState(() => {
     const wishlist =
       JSON.parse(localStorage.getItem("shopflow_wishlist")) || [];
-    return wishlist.some((item) => String(item.id) === String(product.id));
+    return product
+      ? wishlist.some((item) => String(item.id) === String(product.id))
+      : false;
   });
 
   const [isCompared, setIsCompared] = useState(() => {
     const comparison =
       JSON.parse(localStorage.getItem("shopflow_comparison")) || [];
-    return comparison.some((item) => String(item.id) === String(product.id));
+    return product
+      ? comparison.some((item) => String(item.id) === String(product.id))
+      : false;
   });
 
   const [activeImage, setActiveImage] = useState(productImages[0]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isVideoActive, setIsVideoActive] = useState(false);
+
+  // Les hooks doivent toujours être appelés dans le même ordre, y compris si
+  // l'URL pointe vers un produit qui n'existe plus.
+  if (!product) {
+    return (
+      <div
+        className="product-not-found page-transition"
+        style={{ padding: "80px 20px", textAlign: "center" }}
+      >
+        <h2>Produit introuvable</h2>
+        <p>Désolé, ce produit n'existe pas ou a été supprimé.</p>
+        <Link to="/" className="btn-back">
+          Retour à l'accueil
+        </Link>
+      </div>
+    );
+  }
 
   const handleDecrease = () => {
     if (quantity > 1) setQuantity(quantity - 1);

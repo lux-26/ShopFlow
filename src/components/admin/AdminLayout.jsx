@@ -1,53 +1,56 @@
-import React, { useState } from "react";
-import { Outlet } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Outlet, useLocation } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBars, faShop } from "@fortawesome/free-solid-svg-icons";
 import AdminSidebar from "./AdminSidebar";
 
 export default function AdminLayout() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const location = useLocation();
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
+  // Ferme automatiquement le menu mobile à chaque changement de page
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [location.pathname]);
 
   return (
-    <div
-      className={`admin-dashboard-layout page-transition ${isSidebarOpen ? "sidebar-open" : ""}`}
-      style={{
-        display: "flex",
-        minHeight: "100vh",
-        position: "relative",
-        overflow: "hidden",
-      }}
-    >
-      {/* Fond sombre (overlay) lorsqu'on ouvre le menu sur mobile */}
-      <div className="sidebar-overlay" onClick={toggleSidebar}></div>
+    <div className="admin-layout page-transition">
+      {/* Barre supérieure visible uniquement sur mobile/tablette (<768px) */}
+      <div className="mobile-topbar">
+        <button
+          type="button"
+          className="sidebar-toggle-btn"
+          aria-label="Ouvrir le menu"
+          aria-expanded={sidebarOpen}
+          onClick={() => setSidebarOpen((prev) => !prev)}
+        >
+          <FontAwesomeIcon icon={faBars} />
+        </button>
+        <div className="mobile-topbar-brand">
+          <FontAwesomeIcon icon={faShop} className="brand-icon" />
+          <span>ShopFlow Admin</span>
+        </div>
+      </div>
 
       {/* La barre latérale des menus */}
-      <aside className="admin-sidebar">
-        <AdminSidebar />
-      </aside>
+      <AdminSidebar
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
 
-      {/* Le conteneur principal */}
-      <main className="admin-main-content">
-        {/* Barre d'en-tête mobile intégrée proprement au flux pour contenir le bouton hamburger */}
+      {/* Overlay affiché derrière le menu quand il est ouvert sur mobile */}
+      {sidebarOpen && (
         <div
-          className="mobile-top-bar"
-          style={{ display: "none", marginBottom: "15px" }}
-        >
-          <button
-            className="sidebar-toggle-btn"
-            onClick={toggleSidebar}
-            aria-label="Ouvrir le menu"
-          >
-            <i className="fa-solid fa-bars"></i>
-          </button>
-        </div>
+          className="sidebar-overlay"
+          onClick={() => setSidebarOpen(false)}
+          aria-hidden="true"
+        />
+      )}
 
-        <div className="admin-content-wrapper">
-          <Outlet />
-        </div>
+      {/* Le conteneur principal où vont s'afficher dynamiquement les pages admin */}
+      <main className="admin-main-content">
+        <Outlet />
       </main>
     </div>
   );
 }
---0
