@@ -1,0 +1,142 @@
+/* ==========================================
+   STYLE DE LA PAGE DES RÉSULTATS DE RECHERCHE
+   ========================================== */
+.search-results-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 40px 24px;
+    min-height: 70vh;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.search-results-container h2 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 24px;
+    word-break: break-word;
+}
+
+/* Grille des produits */
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+/* Carte de produit individuelle */
+.product-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 20px;
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    box-sizing: border-box;
+    min-width: 0;
+}
+
+.product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+    border-color: #cbd5e1;
+}
+
+.product-card h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0 0 12px 0;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+.product-card p {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1e3a8a;
+    margin: 0 0 16px 0;
+    word-break: break-word;
+}
+
+/* Message aucun résultat */
+.search-results-container>p {
+    font-size: 15px;
+    color: #64748b;
+    text-align: center;
+    grid-column: 1 / -1;
+    padding: 48px 20px;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 1px dashed #cbd5e1;
+    box-sizing: border-box;
+    margin: 0;
+}
+
+/* Conteneur et style de l'image dans la carte */
+.product-image-container {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    background-color: #f1f5f9;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+.product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+    box-sizing: border-box;
+}
+
+.product-card:hover .product-image {
+    transform: scale(1.05);
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN - SEARCH RESULTS PAGE
+   ========================================== */
+
+@media (max-width: 768px) {
+    .search-results-container {
+        padding: 24px 16px;
+    }
+
+    .search-results-container h2 {
+        font-size: 20px;
+        margin-bottom: 16px;
+    }
+
+    .products-grid {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 16px;
+    }
+
+    .product-card {
+        padding: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .search-results-container {
+        padding: 16px 12px;
+    }
+
+    .products-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .product-image-container {
+        height: 180px;
+    }
+}

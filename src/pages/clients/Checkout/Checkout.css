@@ -1,0 +1,615 @@
+/* --- Styles globaux de la page Checkout --- */
+.checkout-page {
+    background-color: #f8fafc;
+    min-height: 100vh;
+    padding: 40px 20px;
+    font-family: 'Inter', sans-serif;
+    color: #1e293b;
+    box-sizing: border-box;
+}
+
+.checkout-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.checkout-header-main {
+    margin-bottom: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.checkout-header-main h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+}
+
+/* Fil d'Ariane des étapes */
+.checkout-steps {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    color: #64748b;
+    flex-wrap: wrap;
+}
+
+.step-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+}
+
+.step-item.completed {
+    color: #10b981;
+}
+
+.step-item.active {
+    color: #1e3a8a;
+    font-weight: 600;
+}
+
+.step-circle {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+}
+
+.step-circle.number {
+    background-color: #e2e8f0;
+    color: #475569;
+}
+
+.step-item.active .step-circle.number {
+    background-color: #1e3a8a;
+    color: #ffffff;
+}
+
+.step-separator {
+    color: #cbd5e1;
+}
+
+/* Grille principale */
+.checkout-grid-layout {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 24px;
+}
+
+@media (max-width: 968px) {
+    .checkout-grid-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Cartes de contenu */
+.checkout-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+    box-sizing: border-box;
+}
+
+.mt-24 {
+    margin-top: 24px;
+}
+
+.card-section-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    color: #1e3a8a;
+}
+
+.card-section-title h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #0f172a;
+    margin: 0;
+}
+
+/* Formulaires */
+.form-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+@media (max-width: 576px) {
+    .form-grid-2 {
+        grid-template-columns: 1fr;
+    }
+}
+
+.form-group-checkout {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.form-group-checkout.full-width {
+    grid-column: span 2;
+}
+
+@media (max-width: 576px) {
+    .form-group-checkout.full-width {
+        grid-column: span 1;
+    }
+}
+
+.form-group-checkout label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #475569;
+}
+
+.form-group-checkout input {
+    padding: 10px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
+}
+
+.form-group-checkout input:focus {
+    border-color: #1e3a8a;
+}
+
+/* Options de livraison */
+.section-sub-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 12px;
+}
+
+.delivery-option-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-sizing: border-box;
+    gap: 12px;
+}
+
+.delivery-option-box.selected {
+    border-color: #1e3a8a;
+    background-color: #f8fafc;
+}
+
+.delivery-option-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.delivery-option-info strong {
+    font-size: 14px;
+    color: #0f172a;
+}
+
+.delivery-option-info p {
+    font-size: 12px;
+    color: #64748b;
+    margin: 0;
+}
+
+.price-tag {
+    font-weight: 600;
+    font-size: 14px;
+    color: #1e293b;
+    flex-shrink: 0;
+}
+
+.price-tag.free {
+    color: #10b981;
+}
+
+/* Moyens de paiement */
+.payment-options-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.payment-option-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-sizing: border-box;
+}
+
+.payment-option-card.selected {
+    border-color: #1e3a8a;
+    background-color: #f8fafc;
+}
+
+.payment-option-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 500;
+    color: #0f172a;
+    min-width: 0;
+}
+
+.payment-option-card.simple {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-brand-icon {
+    font-size: 18px;
+    color: #64748b;
+    flex-shrink: 0;
+}
+
+.operators-hint {
+    font-size: 12px;
+    color: #64748b;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.card-sub-form {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.input-with-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.input-with-icon input {
+    width: 100%;
+    padding-right: 36px;
+    box-sizing: border-box;
+    min-width: 0;
+}
+
+.field-icon {
+    position: absolute;
+    right: 12px;
+    color: #94a3b8;
+    pointer-events: none;
+}
+
+.form-row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+@media (max-width: 480px) {
+    .form-row-2 {
+        grid-template-columns: 1fr;
+    }
+}
+
+.mb-12 {
+    margin-bottom: 12px;
+}
+
+.form-hint {
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 4px;
+}
+
+/* Colonne de droite : Résumé */
+.summary-card h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 16px;
+}
+
+.checkout-items-list {
+    max-height: 220px;
+    overflow-y: auto;
+    margin-bottom: 16px;
+    padding-right: 4px;
+}
+
+.empty-checkout-text {
+    font-size: 13px;
+    color: #64748b;
+    text-align: center;
+    padding: 12px 0;
+}
+
+.checkout-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #f1f5f9;
+    gap: 12px;
+}
+
+.checkout-item-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.checkout-item-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    object-fit: cover;
+    background-color: #f1f5f9;
+    flex-shrink: 0;
+}
+
+.checkout-item-info h4 {
+    font-size: 13px;
+    font-weight: 500;
+    color: #0f172a;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.checkout-item-variant {
+    font-size: 11px;
+    color: #64748b;
+}
+
+.checkout-item-price {
+    font-size: 13px;
+    font-weight: 600;
+    color: #0f172a;
+    flex-shrink: 0;
+}
+
+/* Boîte de fidélité */
+.loyalty-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f1f5f9;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    gap: 12px;
+    box-sizing: border-box;
+}
+
+.loyalty-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    min-width: 0;
+}
+
+.loyalty-icon {
+    font-size: 16px;
+    color: #1e3a8a;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.loyalty-info strong {
+    font-size: 12px;
+    color: #0f172a;
+}
+
+.loyalty-info p {
+    font-size: 11px;
+    color: #64748b;
+    margin: 0;
+}
+
+.loyalty-action {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.loyalty-action label {
+    font-size: 11px;
+    font-weight: 500;
+    color: #475569;
+    cursor: pointer;
+}
+
+.summary-line {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #64748b;
+    margin-bottom: 8px;
+}
+
+.summary-line.discount {
+    color: #10b981;
+}
+
+.summary-divider {
+    border: none;
+    border-top: 1px solid #e2e8f0;
+    margin: 12px 0;
+}
+
+.summary-total-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 16px;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 20px;
+    gap: 12px;
+}
+
+.total-price {
+    font-size: 18px;
+    color: #1e3a8a;
+    flex-shrink: 0;
+}
+
+.btn-confirm-pay {
+    width: 100%;
+    background-color: #166534;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 14px;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-bottom: 12px;
+    box-sizing: border-box;
+}
+
+.btn-confirm-pay:hover {
+    background-color: #14532d;
+}
+
+.secure-text {
+    text-align: center;
+    font-size: 11px;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin: 0;
+    flex-wrap: wrap;
+}
+
+/* --- Style du Toast de Notification Unifié (Bas à droite) --- */
+.custom-toast-notification {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background-color: #ffffff;
+    padding: 16px 20px;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    z-index: 9999;
+    border-left: 4px solid #1e3a8a;
+    min-width: 300px;
+    max-width: 400px;
+    animation: slideInRight 0.3s ease-out forwards;
+    box-sizing: border-box;
+}
+
+.toast-icon-wrapper {
+    font-size: 18px;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.toast-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.toast-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: #1e293b;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.toast-message {
+    font-size: 13px;
+    color: #64748b;
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* Animation d'apparition fluide du Toast */
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN - PAGE CHECKOUT
+   ========================================== */
+
+@media (max-width: 768px) {
+    .checkout-page {
+        padding: 20px 12px;
+    }
+
+    .checkout-card {
+        padding: 16px;
+    }
+
+    .checkout-header-main {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .custom-toast-notification {
+        left: 16px;
+        right: 16px;
+        bottom: 16px;
+        min-width: auto;
+        max-width: none;
+        width: auto;
+    }
+}

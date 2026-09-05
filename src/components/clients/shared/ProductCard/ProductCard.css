@@ -1,0 +1,156 @@
+/* ==========================================
+   CARTE PRODUIT (CATALOGUE)
+   ========================================== */
+.product-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    font-family: 'Poppins', sans-serif;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.product-card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    transform: translateY(-2px);
+}
+
+/* Conteneur de l'image du produit */
+.product-image-container {
+    width: 100%;
+    height: 220px;
+    position: relative;
+    background-color: #f8fafc;
+    overflow: hidden;
+}
+
+.product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-image {
+    transform: scale(1.03);
+}
+
+/* Les styles de couleur des badges (.product-badge, .badge-new, etc.) vivent
+   désormais uniquement dans src/index.css — source unique pour tout le site. */
+
+/* Contenu textuel de la carte */
+.product-info {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    justify-content: space-between;
+}
+
+.product-category {
+    font-size: 11px;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+    font-weight: 500;
+}
+
+.product-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 12px;
+    line-height: 1.4;
+}
+
+/* Ligne du prix et du bouton panier */
+.product-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+}
+
+.product-price {
+    font-size: 15px;
+    font-weight: 700;
+    color: #002D62;
+}
+
+/* Bouton panier circulaire */
+.btn-add-cart {
+    background-color: #f1f5f9;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #334155;
+    transition: background-color 0.2s, color 0.2s;
+    flex-shrink: 0;
+}
+
+.btn-add-cart:hover {
+    background-color: #002D62;
+    color: #ffffff;
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN - CARTE PRODUIT & GRILLE
+   ========================================== */
+
+@media (max-width: 768px) {
+    .product-image-container {
+        height: 190px;
+    }
+
+    .product-info {
+        padding: 14px;
+    }
+
+    .product-title {
+        font-size: 13.5px;
+        margin-bottom: 10px;
+    }
+
+    .product-price {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .product-image-container {
+        height: 160px;
+    }
+
+    .product-info {
+        padding: 12px;
+    }
+
+    .product-category {
+        font-size: 10px;
+    }
+
+    .product-title {
+        font-size: 13px;
+        margin-bottom: 8px;
+    }
+
+    .product-price {
+        font-size: 13.5px;
+    }
+
+    .btn-add-cart {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+    }
+}

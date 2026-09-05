@@ -1,0 +1,296 @@
+.contact-page {
+    padding: 30px 20px;
+    background-color: #f8fafc;
+    min-height: calc(100vh - 80px);
+}
+
+.contact-container {
+    max-width: 1050px;
+    margin: 0 auto;
+}
+
+/* Bloc À propos / Histoire */
+.about-shopflow-card {
+    background: #ffffff;
+    padding: 35px;
+    border-radius: 14px;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.02), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
+    text-align: center;
+    margin-bottom: 35px;
+    border: 1px solid #f1f5f9;
+}
+
+.about-header-icon {
+    width: 44px;
+    height: 44px;
+    background-color: #f0f6ff;
+    color: #2563eb;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    margin: 0 auto 14px auto;
+}
+
+.about-shopflow-card h2 {
+    font-size: 1.4rem;
+    color: #0f172a;
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+
+.about-text {
+    color: #475569;
+    font-size: 0.925rem;
+    line-height: 1.6;
+    max-width: 780px;
+    margin: 0 auto 24px auto;
+    font-weight: 400;
+}
+
+.about-features-grid {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+    border-top: 1px solid #f8fafc;
+    padding-top: 20px;
+}
+
+.about-feature {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #475569;
+    font-size: 0.85rem;
+    font-weight: 400;
+}
+
+.feat-icon {
+    color: #2563eb;
+    font-size: 0.95rem;
+}
+
+/* En-tête contact */
+.contact-header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.contact-header h1 {
+    font-size: 1.6rem;
+    color: #0f172a;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.contact-header p {
+    color: #64748b;
+    font-size: 0.925rem;
+    font-weight: 400;
+}
+
+/* Grille */
+.contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 24px;
+}
+
+.contact-info-card,
+.contact-form-card {
+    background: #ffffff;
+    padding: 28px;
+    border-radius: 14px;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.02), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
+    border: 1px solid #f1f5f9;
+}
+
+.contact-info-card h2,
+.contact-form-card h2 {
+    font-size: 1.2rem;
+    color: #0f172a;
+    font-weight: 500;
+    margin-bottom: 12px;
+}
+
+.info-desc {
+    color: #64748b;
+    font-size: 0.875rem;
+    margin-bottom: 22px;
+    line-height: 1.5;
+    font-weight: 400;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.icon-box {
+    width: 38px;
+    height: 38px;
+    background-color: #f0f6ff;
+    color: #2563eb;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+}
+
+.info-item h3 {
+    font-size: 0.775rem;
+    color: #64748b;
+    font-weight: 400;
+    margin-bottom: 2px;
+}
+
+.info-item p {
+    font-size: 0.875rem;
+    color: #0f172a;
+    font-weight: 500;
+}
+
+/* Formulaire */
+.contact-form .form-group {
+    margin-bottom: 14px;
+}
+
+.contact-form label {
+    display: block;
+    font-size: 0.825rem;
+    font-weight: 500;
+    color: #475569;
+    margin-bottom: 5px;
+}
+
+.contact-form input,
+.contact-form textarea {
+    width: 100%;
+    padding: 9px 13px;
+    background-color: #fafafa;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: #0f172a;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.contact-form input:hover,
+.contact-form textarea:hover {
+    border-color: #cbd5e1;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+    background-color: #ffffff;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.06);
+}
+
+textarea {
+    resize: none;
+}
+
+.btn-submit-contact {
+    width: 100%;
+    background-color: #2563eb;
+    color: #ffffff;
+    border: none;
+    padding: 11px;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background-color 0.2s ease;
+    margin-top: 4px;
+}
+
+.btn-submit-contact:hover {
+    background-color: #1d4ed8;
+}
+
+.success-banner {
+    background-color: #f0fdf4;
+    color: #166534;
+    padding: 10px 12px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    font-size: 0.85rem;
+    font-weight: 400;
+    border: 1px solid #bbf7d0;
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN - PAGE CONTACT
+   ================================---------- */
+
+@media (max-width: 768px) {
+    .contact-page {
+        padding: 16px 12px;
+    }
+
+    .about-shopflow-card {
+        padding: 20px 16px;
+        margin-bottom: 20px;
+    }
+
+    .about-shopflow-card h2 {
+        font-size: 1.2rem;
+    }
+
+    .about-text {
+        font-size: 0.875rem;
+    }
+
+    .about-features-grid {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+        padding-top: 15px;
+    }
+
+    .contact-header h1 {
+        font-size: 1.35rem;
+    }
+
+    .contact-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .contact-info-card,
+    .contact-form-card {
+        padding: 20px 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .info-item {
+        align-items: flex-start;
+    }
+
+    .icon-box {
+        width: 34px;
+        height: 34px;
+        font-size: 0.85rem;
+    }
+
+    .btn-submit-contact {
+        padding: 10px;
+        font-size: 0.825rem;
+    }
+}

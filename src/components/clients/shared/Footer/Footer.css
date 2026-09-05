@@ -1,0 +1,136 @@
+.shopflow-footer {
+    background-color: var(--inverse-surface);
+    color: var(--inverse-on-surface);
+    padding-top: calc(var(--spacing-unit) * 6);
+    margin-top: auto;
+}
+
+.footer-container {
+    max-width: var(--container-max);
+    margin: 0 auto;
+    padding: 0 var(--gutter);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    /* 4 colonnes côte à côte */
+    gap: calc(var(--spacing-unit) * 4);
+    padding-bottom: calc(var(--spacing-unit) * 5);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-col h3 {
+    font-size: var(--font-size-body-lg);
+    font-weight: 600;
+    margin-bottom: calc(var(--spacing-unit) * 2);
+    color: var(--inverse-on-surface);
+}
+
+.footer-logo .logo-text {
+    font-size: var(--font-size-headline-md);
+    font-weight: 700;
+    color: var(--inverse-on-surface);
+}
+
+.footer-desc {
+    font-size: var(--font-size-body-md);
+    color: var(--outline-variant);
+    margin: calc(var(--spacing-unit) * 2) 0;
+    line-height: 1.5;
+}
+
+.footer-col ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-col ul li {
+    margin-bottom: calc(var(--spacing-unit) * 1.5);
+}
+
+.footer-col ul li a,
+.footer-col p {
+    color: var(--outline-variant);
+    text-decoration: none;
+    font-size: var(--font-size-body-md);
+    transition: color 0.2s ease;
+}
+
+.footer-col ul li a:hover {
+    color: var(--inverse-on-surface);
+}
+
+.footer-col p {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing-unit) * 1);
+    margin-bottom: calc(var(--spacing-unit) * 1.5);
+}
+
+/* Réseaux sociaux */
+.social-links {
+    display: flex;
+    gap: calc(var(--spacing-unit) * 2);
+    margin-top: calc(var(--spacing-unit) * 2);
+}
+
+.social-links a {
+    color: var(--inverse-on-surface);
+    background-color: rgba(255, 255, 255, 0.1);
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-full);
+    transition: background-color 0.2s ease;
+}
+
+.social-links a:hover {
+    background-color: var(--primary-container);
+    color: var(--on-primary);
+}
+
+/* Copyright bas de page */
+.footer-bottom {
+    text-align: center;
+    padding: calc(var(--spacing-unit) * 2.5) 0;
+    font-size: var(--font-size-label-md);
+    color: var(--outline);
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN - FOOTER
+   ================================---------- */
+@media (max-width: 992px) {
+    .footer-container {
+        grid-template-columns: repeat(2, 1fr);
+        /* 2 colonnes sur tablettes */
+    }
+}
+
+@media (max-width: 768px) {
+    .footer-container {
+        grid-template-columns: 1fr;
+        /* Passage à une seule colonne sur mobile */
+        gap: calc(var(--spacing-unit) * 3);
+        padding-bottom: calc(var(--spacing-unit) * 3);
+    }
+
+    .shopflow-footer {
+        padding-top: calc(var(--spacing-unit) * 4);
+    }
+
+    .footer-col {
+        text-align: left;
+    }
+}
+
+@media (max-width: 480px) {
+    .footer-container {
+        padding: 0 16px;
+    }
+
+    .social-links {
+        justify-content: flex-start;
+    }
+}

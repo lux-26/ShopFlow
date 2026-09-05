@@ -1,0 +1,246 @@
+/* --- index.css : Variables globales du Design System ShopFlow Professional --- */
+
+@import url('[https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap](https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap)');
+
+:root {
+  /* 1. Couleurs */
+  --surface: #f8f9ff;
+  --surface-dim: #cbdbf5;
+  --surface-bright: #f8f9ff;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #eff4ff;
+  --surface-container: #e5eeff;
+  --surface-container-high: #dce9ff;
+  --surface-container-highest: #d3e4fe;
+  --on-surface: #0b1c30;
+  --on-surface-variant: #444651;
+  --inverse-surface: #213145;
+  --inverse-on-surface: #eaf1ff;
+  --outline: #757682;
+  --outline-variant: #c5c5d3;
+  --surface-tint: #4059aa;
+
+  --primary: #00236f;
+  --on-primary: #ffffff;
+  --primary-container: #00236F;
+  --on-primary-container: #90a8ff;
+  --inverse-primary: #b6c4ff;
+
+  --secondary: #006c49;
+  --on-secondary: #ffffff;
+  --secondary-container: #6cf8bb;
+  --on-secondary-container: #00714d;
+
+  --tertiary: #272b2d;
+  --on-tertiary: #ffffff;
+  --tertiary-container: #3d4143;
+  --on-tertiary-container: #aaadaf;
+
+  --error: #f12525;
+  --on-error: #ffffff;
+  --error-container: #ffdad6;
+  --on-error-container: #93000a;
+
+  --background: #f8f9ff;
+  --on-background: #0b1c30;
+  --surface-variant: #d3e4fe;
+
+  /* 2. Typographie (Inter) */
+  --font-main: 'Inter', sans-serif;
+  --font-size-display-lg: 48px;
+  --font-size-headline-lg: 32px;
+  --font-size-headline-md: 24px;
+  --font-size-body-lg: 18px;
+  --font-size-body-md: 16px;
+  --font-size-label-md: 14px;
+  --font-size-label-sm: 12px;
+
+  /* 3. Spacing (Unité de 8px) */
+  --spacing-unit: 8px;
+  --container-max: 1280px;
+  --gutter: 24px;
+
+  /* 4. Shapes & Radius */
+  --radius-sm: 0.125rem;
+  --radius-default: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-full: 9999px;
+
+  /* 5. Badges produits — SOURCE UNIQUE de couleur, tendance e-commerce 2026.
+     Chaque type a une version "solid" (pastille pleine sur photo produit)
+     et une version "soft" (pastille douce fond clair + texte, ex: back-office).
+     -> Pour changer une couleur de badge partout dans le site, on ne touche qu'ICI. */
+  --badge-new: #2563eb;
+  /* Nouveau : bleu électrique, signal de fraîcheur/confiance */
+  --badge-new-soft-bg: #dbeafe;
+  --badge-new-soft-text: #1d4ed8;
+
+  --badge-promo: #f97316;
+  /* Promo générique : orange vif, incitatif sans alarmisme */
+  --badge-promo-soft-bg: #ffedd5;
+  --badge-promo-soft-text: #c2410c;
+
+  --badge-discount: #dc2626;
+  /* Réduction chiffrée (-20%) : rouge, urgence classique du e-commerce */
+  --badge-discount-soft-bg: #fee2e2;
+  --badge-discount-soft-text: #b91c1c;
+
+  --badge-tendance: #7c3aed;
+  /* Tendance : violet, couleur "hype" très utilisée en 2025-2026 */
+  --badge-tendance-soft-bg: #ede9fe;
+  --badge-tendance-soft-text: #6d28d9;
+
+  --badge-populaire: #d97706;
+  /* Populaire : ambre doré, connotation "best-seller" */
+  --badge-populaire-soft-bg: #fef3c7;
+  --badge-populaire-soft-text: #92400e;
+
+  --badge-stock: #e11d48;
+  /* Stock limité : rose-rouge, distinct du rouge réduction */
+  --badge-stock-soft-bg: #ffe4e6;
+  --badge-stock-soft-text: #be123c;
+
+  --badge-default: #334155;
+  /* Repli neutre si le badge ne correspond à aucun type connu */
+  --badge-default-soft-bg: #f1f5f9;
+  --badge-default-soft-text: #475569;
+}
+
+/* ==========================================================
+   BADGES PRODUITS — styles partagés (site + back-office)
+   ========================================================== */
+
+/* --- Variante "solid" : pastille pleine posée sur une photo produit --- */
+.product-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 4px 10px;
+  border-radius: var(--radius-md);
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffffff;
+  z-index: 2;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.product-badge.badge-new {
+  background-color: var(--badge-new);
+}
+
+.product-badge.badge-promo {
+  background-color: var(--badge-promo);
+}
+
+.product-badge.badge-discount {
+  background-color: var(--badge-discount);
+}
+
+.product-badge.badge-tendance {
+  background-color: var(--badge-tendance);
+}
+
+.product-badge.badge-populaire {
+  background-color: var(--badge-populaire);
+}
+
+.product-badge.badge-stock {
+  background-color: var(--badge-stock);
+}
+
+.product-badge.badge-default {
+  background-color: var(--badge-default);
+}
+
+/* --- Variante "soft" : pastille douce fond clair + texte (back-office, listes) --- */
+.pill-badge.badge-new {
+  background-color: var(--badge-new-soft-bg);
+  color: var(--badge-new-soft-text);
+}
+
+.pill-badge.badge-new .badge-dot {
+  background-color: var(--badge-new);
+}
+
+.pill-badge.badge-promo {
+  background-color: var(--badge-promo-soft-bg);
+  color: var(--badge-promo-soft-text);
+}
+
+.pill-badge.badge-promo .badge-dot {
+  background-color: var(--badge-promo);
+}
+
+.pill-badge.badge-discount {
+  background-color: var(--badge-discount-soft-bg);
+  color: var(--badge-discount-soft-text);
+}
+
+.pill-badge.badge-discount .badge-dot {
+  background-color: var(--badge-discount);
+}
+
+.pill-badge.badge-tendance {
+  background-color: var(--badge-tendance-soft-bg);
+  color: var(--badge-tendance-soft-text);
+}
+
+.pill-badge.badge-tendance .badge-dot {
+  background-color: var(--badge-tendance);
+}
+
+.pill-badge.badge-populaire {
+  background-color: var(--badge-populaire-soft-bg);
+  color: var(--badge-populaire-soft-text);
+}
+
+.pill-badge.badge-populaire .badge-dot {
+  background-color: var(--badge-populaire);
+}
+
+.pill-badge.badge-stock {
+  background-color: var(--badge-stock-soft-bg);
+  color: var(--badge-stock-soft-text);
+}
+
+.pill-badge.badge-stock .badge-dot {
+  background-color: var(--badge-stock);
+}
+
+.pill-badge.badge-default {
+  background-color: var(--badge-default-soft-bg);
+  color: var(--badge-default-soft-text);
+}
+
+.pill-badge.badge-default .badge-dot {
+  background-color: var(--badge-default);
+}
+
+/* Styles de base de l'application */
+body {
+  margin: 0;
+  font-family: var(--font-main);
+  background-color: var(--background);
+  color: var(--on-background);
+}
+
+/* Animation de transition fluide pour l'arrivée sur les pages */
+@keyframes fadeInPage {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-transition {
+  animation: fadeInPage 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}

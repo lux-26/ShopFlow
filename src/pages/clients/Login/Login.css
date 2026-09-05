@@ -1,0 +1,385 @@
+/* Conteneur principal de la page de connexion */
+.login-page-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: #f8fafc;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.login-main-container {
+    width: 100%;
+    max-width: 440px;
+    box-sizing: border-box;
+}
+
+/* Carte de connexion */
+.login-card {
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+/* En-tête de la carte */
+.login-card-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.mini-logo-box {
+    display: inline-block;
+    background: #eff6ff;
+    color: #1e3a8a;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    margin-bottom: 16px;
+    box-sizing: border-box;
+    max-width: 100%;
+}
+
+.login-card-header h1 {
+    font-size: 1.5rem;
+    color: #0f172a;
+    margin-bottom: 8px;
+    font-weight: 700;
+    word-break: break-word;
+}
+
+.login-card-header p {
+    color: #64748b;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+/* Formulaire */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.form-group label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #334155;
+}
+
+.label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.forgot-password-link {
+    font-size: 0.8rem;
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 500;
+    flex-shrink: 0;
+}
+
+.forgot-password-link:hover {
+    text-decoration: underline;
+}
+
+/* Styles communs pour les champs de texte */
+.form-group input[type="email"],
+.form-group input[type="password"],
+.form-group input[type="text"] {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    color: #0f172a;
+    background-color: #f8fafc;
+    transition: all 0.2s ease;
+    outline: none;
+    box-sizing: border-box;
+    min-width: 0;
+}
+
+.form-group input:focus {
+    border-color: #2563eb;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Conteneur spécifique pour le champ mot de passe (Fix de l'œil) */
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.password-input-wrapper input {
+    padding-right: 45px !important;
+    /* Laisse de la place pour ne pas masquer le texte sous l'icône */
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+}
+
+/* Bouton œil (Afficher / Masquer le mot de passe) */
+.toggle-password-btn {
+    position: absolute;
+    right: 12px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #64748b;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    flex-shrink: 0;
+}
+
+.toggle-password-btn:hover {
+    color: #0f172a;
+}
+
+/* Case à cocher "Se souvenir de moi" */
+.form-checkbox-row {
+    display: flex;
+    align-items: center;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.875rem;
+    color: #475569;
+    cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #2563eb;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+/* Bouton de soumission principal */
+.submit-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #1e3a8a;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    margin-top: 4px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.submit-btn:hover {
+    background-color: #1d4ed8;
+}
+
+/* Séparateur OU */
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 24px 0;
+}
+
+.divider::before,
+.divider::after {
+    content: "";
+    flex: 1;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.divider span {
+    padding: 0 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #94a3b8;
+    letter-spacing: 0.05em;
+}
+
+/* Connexion sociale (Google / Apple) */
+.social-login-row {
+    display: flex;
+    gap: 12px;
+}
+
+.social-btn {
+    flex: 1;
+    padding: 10px;
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #334155;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.15s ease, box-shadow 0.15s ease;
+    box-sizing: border-box;
+    min-width: 0;
+}
+
+.social-btn:hover {
+    background-color: #f8fafc;
+    border-color: #94a3b8;
+    color: #0f172a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.social-btn:active {
+    transform: translateY(0px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Redirection vers l'inscription */
+.register-redirect-text {
+    text-align: center;
+    margin-top: 24px;
+    font-size: 0.875rem;
+    color: #64748b;
+}
+
+.register-redirect-text a {
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.register-redirect-text a:hover {
+    text-decoration: underline;
+}
+
+.shopflow-toast-popup {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: #ffffff;
+    padding: 16px 20px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #1e3a8a;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    z-index: 1000;
+    animation: slideIn 0.3s ease;
+    box-sizing: border-box;
+    max-width: 400px;
+    min-width: 300px;
+}
+
+.toast-icon-wrapper {
+    color: #1e3a8a;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.toast-text-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.toast-text-content strong {
+    display: block;
+    font-size: 0.9rem;
+    color: #0f172a;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.toast-text-content p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #64748b;
+    line-height: 1.4;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(100px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN - LOGIN PAGE
+   ========================================== */
+
+@media (max-width: 480px) {
+    .login-page-wrapper {
+        padding: 12px;
+    }
+
+    .login-card {
+        padding: 24px 16px;
+        border-radius: 12px;
+    }
+
+    .login-card-header h1 {
+        font-size: 1.35rem;
+    }
+
+    .login-card-header p,
+    .form-group label,
+    .checkbox-label,
+    .register-redirect-text {
+        font-size: 0.85rem;
+    }
+
+    .social-login-row {
+        flex-direction: column;
+    }
+
+    .shopflow-toast-popup {
+        left: 16px;
+        right: 16px;
+        bottom: 16px;
+        min-width: auto;
+        max-width: none;
+        width: auto;
+    }
+}

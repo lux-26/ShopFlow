@@ -1,0 +1,1176 @@
+/* ==========================================================
+   0. VARIABLES GLOBALES (Design Tokens)
+   ========================================================== */
+:root {
+    --color-bg: #f8fafc;
+    --color-surface: #ffffff;
+    --color-border: #e2e8f0;
+    --color-border-light: #f1f5f9;
+    --color-text: #0f172a;
+    --color-text-secondary: #475569;
+    --color-text-muted: #64748b;
+    --color-primary: #1e3a8a;
+    --color-primary-dark: #172554;
+    --color-success: #16a34a;
+    --color-success-bg: #dcfce7;
+    --color-success-text: #166534;
+    --color-danger: #dc2626;
+    --color-danger-bg: #fee2e2;
+    --color-danger-text: #991b1b;
+    --color-warning-bg: #fef9c3;
+    --color-warning-text: #854d0e;
+
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+
+    --sidebar-width: 260px;
+    --sidebar-width-collapsed: 76px;
+
+    --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06);
+    --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+    --shadow-modal: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
+
+    --transition-fast: 0.18s ease;
+    --transition-base: 0.25s ease;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+}
+
+/* ==========================================================
+   1. LAYOUT ADMIN — MOBILE FIRST
+   ========================================================== */
+.admin-layout {
+    display: flex;
+    flex-direction: column;
+    /* topbar mobile au-dessus du contenu ; sans effet quand la topbar est display:none */
+    min-height: 100dvh;
+    background-color: var(--color-bg);
+    font-family: 'Inter', sans-serif;
+    color: var(--color-text);
+    overflow-x: hidden;
+    width: 100%;
+}
+
+/* --- Sidebar : off-canvas sur mobile/tablette, fixe sur desktop --- */
+.admin-sidebar {
+    width: min(80vw, 280px);
+    background: var(--color-surface);
+    border-right: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: fixed;
+    inset: 0 auto 0 0;
+    height: 100dvh;
+    z-index: 1100;
+    transform: translateX(-100%);
+    transition: transform var(--transition-base);
+    box-shadow: var(--shadow-md);
+}
+
+/* Classe 'open' posée par React (state) directement sur .admin-sidebar quand le menu mobile est ouvert */
+.admin-sidebar.open {
+    transform: translateX(0);
+}
+
+/* Overlay derrière la sidebar, affiché par React uniquement quand le menu est ouvert (pas besoin de le cacher en CSS) */
+.sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.5);
+    z-index: 1050;
+}
+
+/* Barre supérieure mobile : contient le bouton hamburger + le nom de la boutique.
+   Cachée par défaut (desktop) ; affichée uniquement < 768px, voir media query plus bas. */
+.mobile-topbar {
+    display: none;
+    align-items: center;
+    gap: var(--space-3);
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    padding: 10px 14px;
+    position: sticky;
+    top: 0;
+    z-index: 900;
+}
+
+.mobile-topbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    color: #1e293b;
+    font-size: 0.95rem;
+}
+
+.mobile-topbar-brand .brand-icon {
+    font-size: 1.2rem;
+}
+
+.sidebar-toggle-btn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+/* Bouton de fermeture (X) affiché en haut de la sidebar, uniquement sur mobile */
+.sidebar-close-btn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    margin-left: auto;
+    border: none;
+    background: transparent;
+    color: var(--color-text-muted);
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+}
+
+.sidebar-close-btn:hover {
+    background: #f1f5f9;
+}
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-6);
+}
+
+.sidebar-brand h2 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+.sidebar-brand span {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+}
+
+.brand-icon {
+    font-size: 1.5rem;
+    color: var(--color-primary);
+    flex-shrink: 0;
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0 var(--space-4);
+    margin: 0;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.sidebar-menu li a {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    color: var(--color-text-muted);
+    text-decoration: none;
+    font-weight: 500;
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-1);
+    transition: background var(--transition-fast), color var(--transition-fast);
+    min-height: 44px;
+    /* zone tactile confortable */
+}
+
+.sidebar-menu li.active a,
+.sidebar-menu li a:hover {
+    background-color: var(--color-primary);
+    color: #ffffff;
+}
+
+.sidebar-footer {
+    padding: var(--space-4);
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.view-store-btn,
+.logout-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px var(--space-4);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: var(--radius-sm);
+    min-height: 44px;
+}
+
+.view-store-btn {
+    color: var(--color-primary);
+    background-color: #f1f5f9;
+}
+
+.logout-btn {
+    color: #ef4444;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+/* --- Contenu principal --- */
+.admin-main-content {
+    margin-left: 0;
+    /* mobile : sidebar en off-canvas, pas de décalage */
+    width: 100%;
+    flex-grow: 1;
+    padding: var(--space-4);
+    min-width: 0;
+    /* évite le débordement des enfants (tableaux, flex) */
+    overflow-x: hidden;
+}
+
+.admin-content-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* ==========================================================
+   2. EN-TÊTES, KPI ET COMPOSANTS DE BASE
+   ========================================================== */
+.page-header-flex {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-5);
+}
+
+.page-title {
+    font-size: clamp(1.25rem, 1.05rem + 0.9vw, 1.75rem);
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: 4px;
+}
+
+.page-subtitle {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+}
+
+.header-actions,
+.header-right-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+}
+
+.btn-icon-bell {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: var(--color-text-secondary);
+    position: relative;
+    cursor: pointer;
+    min-width: 40px;
+    min-height: 40px;
+}
+
+.bell-badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 7px;
+    height: 7px;
+    background-color: #ef4444;
+    border-radius: 50%;
+}
+
+/* Grille KPI — fluide, s'adapte sans breakpoints figés */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+}
+
+.kpi-card {
+    background: var(--color-surface);
+    padding: var(--space-5);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    min-width: 0;
+}
+
+.kpi-info {
+    min-width: 0;
+}
+
+.kpi-info span {
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+}
+
+.kpi-info h2 {
+    font-size: clamp(1.1rem, 0.95rem + 0.6vw, 1.75rem);
+    color: var(--color-text);
+    margin: 8px 0;
+    font-weight: 700;
+}
+
+.kpi-info h2 small {
+    font-size: 0.85em;
+    color: var(--color-text-muted);
+    font-weight: 600;
+}
+
+.kpi-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    background-color: #f1f5f9;
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.trend {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.trend.positive {
+    color: var(--color-success);
+}
+
+.trend.negative {
+    color: #ef4444;
+}
+
+/* ==========================================================
+   3. TABLEAUX ET BADGES DE STATUT
+   ========================================================== */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border-light);
+}
+
+.shopflow-table {
+    width: 100%;
+    min-width: 640px;
+    /* garde la lisibilité, scroll horizontal contrôlé au lieu d'écraser le contenu */
+    border-collapse: collapse;
+    background: white;
+}
+
+.shopflow-table th,
+.shopflow-table td {
+    padding: var(--space-4);
+    text-align: left;
+    border-bottom: 1px solid var(--color-border-light);
+    white-space: nowrap;
+}
+
+.shopflow-table th {
+    background: var(--color-bg);
+    color: var(--color-text-secondary);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+    position: sticky;
+    top: 0;
+}
+
+.product-item-cell {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    white-space: normal;
+}
+
+.product-thumb {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-md);
+    background-color: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.product-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.thumb-placeholder {
+    color: #cbd5e1;
+    font-size: 1.2rem;
+}
+
+.product-info-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.product-name {
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.product-sku {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+}
+
+.stock-text-normal {
+    color: #334155;
+}
+
+.stock-text-low {
+    color: var(--color-danger);
+    font-weight: 600;
+}
+
+.stock-text-out {
+    color: #94a3b8;
+}
+
+/* Pilles de Statuts modernes */
+.pill-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.badge-success {
+    background-color: var(--color-success-bg);
+    color: var(--color-success-text);
+}
+
+.badge-success .badge-dot {
+    background-color: var(--color-success);
+}
+
+.badge-warning {
+    background-color: var(--color-danger-bg);
+    color: var(--color-danger-text);
+}
+
+.badge-warning .badge-dot {
+    background-color: var(--color-danger);
+}
+
+.badge-danger {
+    background-color: #f1f5f9;
+    color: var(--color-text-secondary);
+}
+
+.badge-danger .badge-dot {
+    background-color: var(--color-text-muted);
+}
+
+.badge-status {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.badge-status.success {
+    background: var(--color-success-bg);
+    color: var(--color-success-text);
+}
+
+.badge-status.warning {
+    background: var(--color-warning-bg);
+    color: var(--color-warning-text);
+}
+
+.badge-status.danger {
+    background: var(--color-danger-bg);
+    color: var(--color-danger-text);
+}
+
+/* ==========================================================
+   4. BOUTONS ET FORMULAIRES
+   ========================================================== */
+.btn {
+    padding: 10px var(--space-4);
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    min-height: 40px;
+}
+
+.btn-primary,
+.btn-primary-dark {
+    background-color: var(--color-primary);
+    color: #ffffff;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 40px;
+}
+
+.btn-primary {
+    padding: 8px var(--space-4);
+}
+
+.btn-primary-dark {
+    padding: 0.6rem 1.2rem;
+}
+
+.btn-primary:hover,
+.btn-primary-dark:hover {
+    background-color: var(--color-primary-dark);
+}
+
+.btn-icon {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 6px;
+    border-radius: 4px;
+    transition: background var(--transition-fast);
+    color: var(--color-text-secondary);
+    min-width: 36px;
+    min-height: 36px;
+}
+
+.btn-icon:hover {
+    background: #f1f5f9;
+}
+
+.text-danger {
+    color: #ef4444 !important;
+}
+
+.form-group {
+    margin-bottom: var(--space-4);
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-text-secondary);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.form-control,
+.form-control-sm {
+    width: 100%;
+    border: 1px solid #cbd5e1;
+    border-radius: var(--radius-md);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    outline: none;
+    font-size: 16px;
+    /* évite le zoom automatique sur iOS */
+}
+
+.form-control {
+    padding: 10px 14px;
+}
+
+.form-control-sm {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+}
+
+.form-control:focus,
+.form-control-sm:focus {
+    border-color: var(--color-primary);
+    background-color: #ffffff;
+}
+
+/* ==========================================================
+   5. FILTRES ET RECHERCHE
+   ========================================================== */
+.filters-container-card {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    margin-bottom: var(--space-5);
+    border: 1px solid var(--color-border);
+}
+
+.search-box-large {
+    position: relative;
+    margin-bottom: var(--space-3);
+}
+
+.search-box-large .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-muted);
+}
+
+.search-box-large input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: 16px;
+    outline: none;
+}
+
+.search-box-large input:focus {
+    border-color: var(--color-primary);
+    background-color: #fff;
+}
+
+.filters-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    align-items: center;
+}
+
+.filter-select {
+    background-color: #f1f5f9;
+    border: none;
+    padding: 0.6rem 1rem;
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    color: #334155;
+    font-weight: 500;
+    cursor: pointer;
+    outline: none;
+    flex: 1 1 140px;
+    min-height: 40px;
+}
+
+.btn-filter-action {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    padding: 0.6rem 1rem;
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    color: #334155;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 40px;
+}
+
+/* ==========================================================
+   6. PAGINATION & MODAL
+   ========================================================== */
+.table-footer-pagination {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-5);
+    border-top: 1px solid var(--color-border-light);
+    background: var(--color-surface);
+    border-bottom-left-radius: var(--radius-lg);
+    border-bottom-right-radius: var(--radius-lg);
+}
+
+.pagination-info {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+}
+
+.pagination-buttons {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.btn-page-num,
+.btn-page-nav {
+    min-width: 36px;
+    height: 36px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: #334155;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+}
+
+.btn-page-num.active {
+    background-color: var(--color-primary);
+    color: #ffffff;
+    border-color: var(--color-primary);
+}
+
+.btn-page-num:hover:not(.active),
+.btn-page-nav:hover:not(:disabled) {
+    background-color: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+.btn-page-nav:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+}
+
+/* Modale — plein écran sur mobile, centrée sur desktop */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(15, 23, 42, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: var(--space-4);
+}
+
+.modal-content {
+    width: 100%;
+    max-width: 450px;
+    max-height: 90dvh;
+    overflow-y: auto;
+    background: var(--color-surface);
+    padding: var(--space-6);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-modal);
+}
+
+.modal-actions-right {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: var(--space-5);
+}
+
+/* ==========================================================
+   7. CARTES & CONTENEURS (Dashboard & Produits)
+   ========================================================== */
+.card {
+    background: var(--color-surface);
+    padding: var(--space-6);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    min-width: 0;
+}
+
+.card-header-flex {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-4);
+}
+
+.card-header-flex h3 {
+    font-size: 1.05rem;
+    color: var(--color-text);
+    margin: 0;
+    font-weight: 700;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    gap: var(--space-5);
+}
+
+.badge-light {
+    background-color: #f1f5f9;
+    color: var(--color-text-secondary);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.mockup-chart-container {
+    height: 220px;
+    display: flex;
+    align-items: flex-end;
+    padding-top: 10px;
+}
+
+.chart-bars {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
+    gap: var(--space-3);
+}
+
+.chart-bars .bar {
+    flex: 1;
+    background-color: var(--color-border);
+    border-radius: 6px 6px 0 0;
+    transition: height 0.3s ease;
+}
+
+.chart-bars .bar.active {
+    background-color: var(--color-primary);
+}
+
+.recent-orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.order-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--color-border-light);
+}
+
+.order-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.order-client-avatar {
+    width: 36px;
+    height: 36px;
+    background-color: var(--color-border);
+    color: #334155;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: var(--space-3);
+    flex-shrink: 0;
+}
+
+.order-details {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.order-details strong {
+    font-size: 0.9rem;
+    color: var(--color-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.order-details span {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+}
+
+.order-amount-status {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.order-amount-status .amount {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--color-text);
+}
+
+.link-primary {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.link-primary:hover {
+    text-decoration: underline;
+}
+
+.text-muted {
+    color: var(--color-text-muted);
+}
+
+.font-bold {
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+/* ==========================================================
+   8. BREAKPOINTS — DESKTOP D'ABORD À PARTIR D'ICI
+   Approche : mobile = styles de base ci-dessus,
+   on "ajoute" la mise en page desktop dès 1024px.
+   ========================================================== */
+
+/* Tablette large / petit desktop : sidebar fixe et réduite (icônes) */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .sidebar-toggle-btn {
+        display: none;
+    }
+
+    .admin-sidebar {
+        width: var(--sidebar-width-collapsed);
+        transform: translateX(0);
+        position: fixed;
+    }
+
+    .admin-sidebar .sidebar-brand span,
+    .admin-sidebar .sidebar-brand h2,
+    .admin-sidebar .sidebar-footer span,
+    .admin-sidebar .view-store-btn span,
+    .admin-sidebar .logout-btn span {
+        display: none !important;
+    }
+
+    .admin-sidebar .sidebar-menu li a {
+        justify-content: center;
+        padding: 14px 0;
+        gap: 0;
+    }
+
+    .admin-sidebar .sidebar-menu li a span {
+        display: none;
+    }
+
+    .admin-sidebar .sidebar-brand {
+        padding: 20px 0;
+        justify-content: center;
+    }
+
+    .admin-sidebar .view-store-btn,
+    .admin-sidebar .logout-btn {
+        justify-content: center;
+        padding: 12px 0;
+    }
+
+    .admin-main-content {
+        margin-left: var(--sidebar-width-collapsed);
+        width: calc(100% - var(--sidebar-width-collapsed));
+        padding: var(--space-6);
+    }
+}
+
+/* Mobile / petite tablette : sidebar en tiroir (off-canvas) */
+@media (max-width: 767px) {
+    .mobile-topbar {
+        display: flex;
+    }
+
+    .sidebar-toggle-btn {
+        display: inline-flex;
+    }
+
+    .sidebar-close-btn {
+        display: inline-flex;
+    }
+
+    .admin-main-content {
+        margin-left: 0;
+        width: 100%;
+        padding: var(--space-3);
+    }
+
+    .page-header-flex {
+        gap: var(--space-2);
+    }
+
+    .header-right-actions,
+    .header-actions {
+        gap: var(--space-2);
+    }
+
+    .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-3);
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: var(--space-3);
+    }
+
+    .mockup-chart-container {
+        height: 160px;
+    }
+}
+
+/* Desktop : sidebar fixe, pleine largeur, contenu décalé */
+@media (min-width: 1024px) {
+    .sidebar-toggle-btn {
+        display: none;
+    }
+
+    .sidebar-overlay {
+        display: none !important;
+    }
+
+    .admin-sidebar {
+        width: var(--sidebar-width);
+        transform: translateX(0);
+        position: fixed;
+    }
+
+    .admin-main-content {
+        margin-left: var(--sidebar-width);
+        width: calc(100% - var(--sidebar-width));
+        padding: var(--space-8);
+    }
+}
+
+/* Très petits mobiles (< 480px) : on resserre encore un peu */
+@media (max-width: 480px) {
+    .admin-main-content {
+        padding: var(--space-2);
+    }
+
+    .kpi-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .kpi-card {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--space-3);
+    }
+
+    .kpi-card .kpi-icon {
+        position: static;
+    }
+
+    .page-title {
+        font-size: 1.15rem;
+    }
+
+    .page-subtitle {
+        display: none;
+    }
+
+    .shopflow-table th,
+    .shopflow-table td {
+        padding: 8px 6px;
+        font-size: 0.75rem;
+    }
+
+    .modal-content {
+        padding: var(--space-4);
+        border-radius: var(--radius-md);
+    }
+}
+
+/* Grands écrans (>1440px) : on limite l'étalement du contenu */
+@media (min-width: 1440px) {
+    .admin-content-wrapper {
+        max-width: 1320px;
+    }
+
+    .kpi-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* Accessibilité : respecte la préférence de réduction de mouvement */
+@media (prefers-reduced-motion: reduce) {
+
+    .admin-sidebar,
+    .chart-bars .bar,
+    .sidebar-menu li a,
+    .btn-icon {
+        transition: none !important;
+    }
+}
