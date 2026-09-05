@@ -5,14 +5,13 @@ import {
   faMagnifyingGlass,
   faSliders,
   faBell,
-  faChevronLeft,
-  faChevronRight,
   faPenToSquare,
   faTrashCan,
   faImage,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { useToast } from "../../context/ToastContext";
+import Pagination from "../../components/admin/Pagination";
 import "../../styles/admin.css";
 
 export default function AdminProducts() {
@@ -20,6 +19,7 @@ export default function AdminProducts() {
   const [selectedCategory, setSelectedCategory] = useState("Toutes");
   const [selectedStock, setSelectedStock] = useState("Tous");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const { showToast } = useToast();
 
   // Exemple de données conformes à l'image
@@ -124,8 +124,23 @@ export default function AdminProducts() {
       p.sku.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCat =
       selectedCategory === "Toutes" || p.category === selectedCategory;
-    return matchesSearch && matchesCat;
+    const matchesStock =
+      selectedStock === "Tous" ||
+      (selectedStock === "in_stock" && p.stock > 5) ||
+      (selectedStock === "low_stock" && p.stock > 0 && p.stock <= 5) ||
+      (selectedStock === "out_of_stock" && p.stock === 0);
+    return matchesSearch && matchesCat && matchesStock;
   });
+
+  const pageSize = 4;
+  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / pageSize));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+  const paginatedProducts = filteredProducts.slice(
+    (safeCurrentPage - 1) * pageSize,
+    safeCurrentPage * pageSize,
+  );
+
+  const resetPagination = () => setCurrentPage(1);
 
   return (
     <div className="admin-content-wrapper page-transition">
@@ -159,7 +174,10 @@ export default function AdminProducts() {
             type="text"
             placeholder="Rechercher un produit..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              resetPagination();
+            }}
           />
         </div>
 
@@ -167,7 +185,10 @@ export default function AdminProducts() {
           <select
             className="filter-select"
             value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
+            onChange={(e) => {
+              setSelectedCategory(e.target.value);
+              resetPagination();
+            }}
           >
             <option value="Toutes">Toutes les Catégories</option>
             <option value="Électronique">Électronique</option>
@@ -178,7 +199,10 @@ export default function AdminProducts() {
           <select
             className="filter-select"
             value={selectedStock}
-            onChange={(e) => setSelectedStock(e.target.value)}
+            onChange={(e) => {
+              setSelectedStock(e.target.value);
+              resetPagination();
+            }}
           >
             <option value="Tous">Tous les Stocks</option>
             <option value="in_stock">En Stock</option>
@@ -207,13 +231,16 @@ export default function AdminProducts() {
               </tr>
             </thead>
             <tbody>
-              {filteredProducts.map((item) => (
+              {paginatedProducts.map((item) => (
                 <tr key={item.id}>
                   <td>
                     <div className="product-item-cell">
                       <div className="product-thumb">
                         {item.image ? (
-                          <img src={item.image} alt={item.name} />
+                          <img
+                            src={item.image}
+                            alt={`Aperçu du produit ${item.name}`}
+                          />
                         ) : (
                           <FontAwesomeIcon
                             icon={faImage}
@@ -266,22 +293,13 @@ export default function AdminProducts() {
           </table>
         </div>
 
-        {/* Pied de tableau / Pagination */}
-        <div className="table-footer-pagination">
-          <span className="pagination-info">Affichage 1-3 sur 24 produits</span>
-
-          <div className="pagination-buttons">
-            <button className="btn-page-nav" disabled>
-              <FontAwesomeIcon icon={faChevronLeft} />
-            </button>
-            <button className="btn-page-num active">1</button>
-            <button className="btn-page-num">2</button>
-            <button className="btn-page-num">3</button>
-            <button className="btn-page-nav">
-              <FontAwesomeIcon icon={faChevronRight} />
-            </button>
-          </div>
-        </div>
+        <Pagination
+          currentPage={safeCurrentPage}
+          totalItems={filteredProducts.length}
+          pageSize={pageSize}
+          itemLabel="produits"
+          onPageChange={setCurrentPage}
+        />
       </div>
 
       {/* Modal d'ajout de produit */}

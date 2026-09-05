@@ -30,7 +30,7 @@ export default function SearchPage() {
 
   // CORRECTION : On passe l'objet product complet dans le state de la navigation
   const handleProductClick = (product) => {
-    navigate(`/product/${product.id}`, { state: { product } });
+    navigate(`/produit/${product.id}`, { state: { product } });
   };
 
   return (
@@ -50,7 +50,7 @@ export default function SearchPage() {
                 <div className="product-image-container">
                   <img
                     src={product.image || product.imageUrl}
-                    alt={product.name}
+                    alt={`Photo du produit ${product.name}`}
                     className="product-image"
                   />
                 </div>

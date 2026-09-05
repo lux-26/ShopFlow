@@ -233,7 +233,7 @@ export default function Header() {
         <Link to="/" className="logo-container">
           <img
             src="/ShopFlow Logo.svg"
-            alt="Logo Shopflow"
+            alt="Logo ShopFlow"
             className="logo-image"
           />
           <span className="logo-text">ShopFlow</span>
@@ -383,7 +383,7 @@ export default function Header() {
           {userData.avatar ? (
             <img
               src={userData.avatar}
-              alt="Avatar"
+              alt="Photo de profil de l'utilisateur"
               style={{
                 width: "32px",
                 height: "32px",

@@ -152,7 +152,7 @@ export default function ProfileInfos({
             {hasRealAvatarImage ? (
               <img
                 src={currentInfo.avatar}
-                alt="Avatar"
+                alt="Photo de profil de l'utilisateur"
                 style={{
                   width: "100%",
                   height: "100%",

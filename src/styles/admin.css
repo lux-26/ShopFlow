@@ -783,6 +783,17 @@ html {
     border-color: var(--color-primary);
 }
 
+.btn-page-num:hover:not(.active),
+.btn-page-nav:hover:not(:disabled) {
+    background-color: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+.btn-page-nav:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+}
+
 /* Modale — plein écran sur mobile, centrée sur desktop */
 .modal-overlay {
     position: fixed;

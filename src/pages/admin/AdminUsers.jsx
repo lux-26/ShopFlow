@@ -5,14 +5,14 @@ import {
   faPenToSquare,
   faTrashCan,
   faSliders,
-  faChevronLeft,
-  faChevronRight,
 } from "@fortawesome/free-solid-svg-icons";
 import { useToast } from "../../context/ToastContext"; // Ajustez le chemin selon votre structure
+import Pagination from "../../components/admin/Pagination";
 
 export default function AdminUsers() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRole, setSelectedRole] = useState("Tous");
+  const [currentPage, setCurrentPage] = useState(1);
   const { showToast } = useToast();
 
   const [users, setUsers] = useState([
@@ -79,6 +79,14 @@ export default function AdminUsers() {
     return matchesSearch && matchesRole;
   });
 
+  const pageSize = 4;
+  const totalPages = Math.max(1, Math.ceil(filteredUsers.length / pageSize));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+  const paginatedUsers = filteredUsers.slice(
+    (safeCurrentPage - 1) * pageSize,
+    safeCurrentPage * pageSize,
+  );
+
   return (
     <div className="admin-content-wrapper page-transition">
       {/* En-tête de la page */}
@@ -103,13 +111,19 @@ export default function AdminUsers() {
               type="text"
               placeholder="Rechercher par nom ou email..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
             />
           </div>
           <select
             className="filter-select"
             value={selectedRole}
-            onChange={(e) => setSelectedRole(e.target.value)}
+            onChange={(e) => {
+              setSelectedRole(e.target.value);
+              setCurrentPage(1);
+            }}
           >
             <option value="Tous">Tous les rôles</option>
             <option value="Client">Client</option>
@@ -136,7 +150,7 @@ export default function AdminUsers() {
               </tr>
             </thead>
             <tbody>
-              {filteredUsers.map((u) => {
+              {paginatedUsers.map((u) => {
                 const initials = u.name
                   .split(" ")
                   .map((n) => n[0])
@@ -206,22 +220,13 @@ export default function AdminUsers() {
           </table>
         </div>
 
-        {/* Pied de tableau / Pagination */}
-        <div className="table-footer-pagination">
-          <span className="pagination-info">
-            Affichage 1-{filteredUsers.length} sur {users.length} utilisateurs
-          </span>
-
-          <div className="pagination-buttons">
-            <button className="btn-page-nav" disabled>
-              <FontAwesomeIcon icon={faChevronLeft} />
-            </button>
-            <button className="btn-page-num active">1</button>
-            <button className="btn-page-nav">
-              <FontAwesomeIcon icon={faChevronRight} />
-            </button>
-          </div>
-        </div>
+        <Pagination
+          currentPage={safeCurrentPage}
+          totalItems={filteredUsers.length}
+          pageSize={pageSize}
+          itemLabel="utilisateurs"
+          onPageChange={setCurrentPage}
+        />
       </div>
     </div>
   );

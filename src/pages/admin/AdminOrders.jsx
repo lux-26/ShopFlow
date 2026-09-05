@@ -11,14 +11,14 @@ import {
   faWallet,
   faArrowTrendUp,
   faSliders,
-  faChevronLeft,
-  faChevronRight,
 } from "@fortawesome/free-solid-svg-icons";
 import { useToast } from "../../context/ToastContext";
+import Pagination from "../../components/admin/Pagination";
 
 export default function AdminOrders() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const { showToast } = useToast();
 
   const [orders, setOrders] = useState([
@@ -81,6 +81,14 @@ export default function AdminOrders() {
     (o) =>
       o.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       o.client.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
+
+  const pageSize = 4;
+  const totalPages = Math.max(1, Math.ceil(filteredOrders.length / pageSize));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+  const paginatedOrders = filteredOrders.slice(
+    (safeCurrentPage - 1) * pageSize,
+    safeCurrentPage * pageSize,
   );
 
   return (
@@ -165,7 +173,10 @@ export default function AdminOrders() {
               type="text"
               placeholder="Rechercher par ID ou nom du client..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
             />
           </div>
           <select className="filter-select">
@@ -196,7 +207,7 @@ export default function AdminOrders() {
               </tr>
             </thead>
             <tbody>
-              {filteredOrders.map((o) => {
+              {paginatedOrders.map((o) => {
                 // Initiales pour l'avatar
                 const initials = o.client
                   .split(" ")
@@ -252,30 +263,13 @@ export default function AdminOrders() {
           </table>
         </div>
 
-        {/* Pied de tableau avec pagination */}
-        <div className="table-footer-pagination">
-          <div className="pagination-info">
-            Affichage 1 à {filteredOrders.length} sur 1,248 commandes
-          </div>
-          <div className="pagination-buttons">
-            <button className="btn-page-nav" disabled>
-              <FontAwesomeIcon icon={faChevronLeft} />
-            </button>
-            <button className="btn-page-num active">1</button>
-            <button className="btn-page-num">2</button>
-            <button className="btn-page-num">3</button>
-            <button
-              className="btn-page-num"
-              style={{ border: "none", background: "transparent" }}
-            >
-              …
-            </button>
-            <button className="btn-page-num">125</button>
-            <button className="btn-page-nav">
-              <FontAwesomeIcon icon={faChevronRight} />
-            </button>
-          </div>
-        </div>
+        <Pagination
+          currentPage={safeCurrentPage}
+          totalItems={filteredOrders.length}
+          pageSize={pageSize}
+          itemLabel="commandes"
+          onPageChange={setCurrentPage}
+        />
       </div>
 
       {/* Modale des détails */}

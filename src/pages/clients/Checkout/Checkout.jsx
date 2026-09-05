@@ -420,7 +420,7 @@ export default function Checkout() {
                       <div className="checkout-item-info">
                         <img
                           src={item.image}
-                          alt={item.name}
+                          alt={`Photo du produit ${item.name}`}
                           className="checkout-item-img"
                         />
                         <div>

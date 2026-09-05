@@ -171,7 +171,7 @@ export default function Cart({ onGoToCheckout }) {
                     )}
                     <img
                       src={item.image}
-                      alt={item.name}
+                      alt={`Photo du produit ${item.name}`}
                       className="cart-item-img"
                     />
                   </div>

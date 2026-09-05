@@ -39,8 +39,8 @@ export default function AdminSidebar({ isOpen = false, onClose = () => {} }) {
         <div className="sidebar-brand">
           <FontAwesomeIcon icon={faShop} className="brand-icon" />
           <div>
-            <h2>ShopFlow Admin</h2>
-            <span>Management Portal</span>
+            <h2>Administration ShopFlow</h2>
+            <span>Portail d'administration</span>
           </div>
           <button
             type="button"
@@ -55,27 +55,27 @@ export default function AdminSidebar({ isOpen = false, onClose = () => {} }) {
         <ul className="sidebar-menu">
           <li className={isActive("/admin") || isActive("/admin/dashboard")}>
             <Link to="dashboard" onClick={onClose}>
-              <FontAwesomeIcon icon={faChartPie} /> Dashboard
+              <FontAwesomeIcon icon={faChartPie} /> Tableau de bord
             </Link>
           </li>
           <li className={isActive("/admin/products")}>
             <Link to="products" onClick={onClose}>
-              <FontAwesomeIcon icon={faBoxArchive} /> Product Management
+              <FontAwesomeIcon icon={faBoxArchive} /> Gestion des produits
             </Link>
           </li>
           <li className={isActive("/admin/orders")}>
             <Link to="orders" onClick={onClose}>
-              <FontAwesomeIcon icon={faBagShopping} /> Orders
+              <FontAwesomeIcon icon={faBagShopping} /> Commandes
             </Link>
           </li>
           <li className={isActive("/admin/users")}>
             <Link to="users" onClick={onClose}>
-              <FontAwesomeIcon icon={faUsers} /> Users
+              <FontAwesomeIcon icon={faUsers} /> Utilisateurs
             </Link>
           </li>
           <li className={isActive("/admin/settings")}>
             <Link to="settings" onClick={onClose}>
-              <FontAwesomeIcon icon={faGear} /> Settings
+              <FontAwesomeIcon icon={faGear} /> Paramètres
             </Link>
           </li>
         </ul>
@@ -92,7 +92,7 @@ export default function AdminSidebar({ isOpen = false, onClose = () => {} }) {
               textAlign: "left",
             }}
           >
-            <FontAwesomeIcon icon={faStore} /> View Store
+            <FontAwesomeIcon icon={faStore} /> Voir la boutique
           </button>
 
           <button
@@ -106,7 +106,7 @@ export default function AdminSidebar({ isOpen = false, onClose = () => {} }) {
               textAlign: "left",
             }}
           >
-            <FontAwesomeIcon icon={faRightFromBracket} /> Logout
+            <FontAwesomeIcon icon={faRightFromBracket} /> Déconnexion
           </button>
         </div>
       </aside>

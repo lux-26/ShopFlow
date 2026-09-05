@@ -12,10 +12,14 @@ export default function ProductCard({ product, onAddToCart }) {
           <span className="product-badge badge-new">{product.badge}</span>
         )}
         {/* ON PASSE LE PRODUIT VIA LE STATE ICI */}
-        <Link to={`/product/${product.id}`} state={{ product }}>
+        <Link to={`/produit/${product.id}`} state={{ product }}>
           <img
             src={product.image || product.imageUrl}
-            alt={product.name || "Produit"}
+            alt={
+              product.name
+                ? `Photo du produit ${product.name}`
+                : "Photo du produit"
+            }
             className="product-image"
           />
         </Link>

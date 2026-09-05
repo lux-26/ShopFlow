@@ -218,7 +218,7 @@ export default function ProductDetail() {
             ) : (
               <img
                 src={activeImage}
-                alt={product.name}
+                alt={`Photo du produit ${product.name}`}
                 className="main-image"
               />
             )}
@@ -235,7 +235,10 @@ export default function ProductDetail() {
                   setIsVideoActive(false);
                 }}
               >
-                <img src={img} alt={`miniature ${index + 1}`} />
+                <img
+                  src={img}
+                  alt={`Vue ${index + 1} du produit ${product.name}`}
+                />
               </div>
             ))}
 
@@ -247,7 +250,7 @@ export default function ProductDetail() {
             >
               <img
                 src={product.image}
-                alt="aperçu vidéo"
+                alt={`Aperçu vidéo du produit ${product.name}`}
                 className="thumb-video-img"
               />
               <div className="play-overlay">

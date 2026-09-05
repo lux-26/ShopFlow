@@ -6,7 +6,7 @@ export default function Loader() {
       <div className="loader-card">
         <img
           src="/ShopFlow Logo.svg"
-          alt="Logo Shopflow"
+          alt="Logo ShopFlow"
           className="loader-logo"
         />
       </div>

@@ -165,7 +165,7 @@ export default function Home() {
               style={{ cursor: "pointer" }}
             >
               <div className="category-img-container">
-                <img src={cat.image} alt={cat.name} />
+                <img src={cat.image} alt={`Catégorie ${cat.name}`} />
               </div>
               <span>{cat.name}</span>
             </div>

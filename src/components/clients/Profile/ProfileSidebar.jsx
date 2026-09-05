@@ -141,7 +141,7 @@ export default function ProfileSidebar({
               >
                 <img
                   src={userInfo.avatar}
-                  alt="Avatar"
+                  alt="Photo de profil de l'utilisateur"
                   className="profile-avatar-img"
                   style={{
                     width: "80px",

@@ -1,17 +1,11 @@
-import { useEffect, useState } from "react";
-import { Outlet, useLocation } from "react-router-dom";
+import { useState } from "react";
+import { Outlet } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faShop } from "@fortawesome/free-solid-svg-icons";
 import AdminSidebar from "./AdminSidebar";
 
 export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const location = useLocation();
-
-  // Ferme automatiquement le menu mobile à chaque changement de page
-  useEffect(() => {
-    setSidebarOpen(false);
-  }, [location.pathname]);
 
   return (
     <div className="admin-layout page-transition">
@@ -28,7 +22,7 @@ export default function AdminLayout() {
         </button>
         <div className="mobile-topbar-brand">
           <FontAwesomeIcon icon={faShop} className="brand-icon" />
-          <span>ShopFlow Admin</span>
+          <span>Administration ShopFlow</span>
         </div>
       </div>
 

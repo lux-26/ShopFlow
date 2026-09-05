@@ -474,7 +474,10 @@ export default function Catalog() {
                           {product.badge}
                         </span>
                       )}
-                      <img src={product.image} alt={product.name} />
+                      <img
+                        src={product.image}
+                        alt={`Photo du produit ${product.name}`}
+                      />
                     </Link>
 
                     <div className="product-card-body">
