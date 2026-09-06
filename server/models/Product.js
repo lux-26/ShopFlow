@@ -27,6 +27,17 @@ const productSchema = new mongoose.Schema(
       required: true,
       min: 0,
     },
+    oldprice: {
+      type: Number,
+      min: 0,
+      default: null,
+    },
+    description: {
+      type: String,
+      trim: true,
+      maxlength: 1000,
+      default: "",
+    },
     stock: {
       type: Number,
       required: true,

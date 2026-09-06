@@ -10,12 +10,14 @@ import {
   faMicrophone,
   faPlay,
   faHeart,
+  faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
 import { faBluetooth } from "@fortawesome/free-brands-svg-icons";
-import { catalogProducts } from "../../clients/catalog/Catalog";
 import "../../../components/clients/shared/ProductCard/ProductCard.css";
 import { useToast } from "../../../context/ToastContext";
 import { getBadgeClass } from "../../../utils/badgeUtils";
+import { useProduct } from "../../../hooks/useProducts";
+import { getStockStatus } from "../../../utils/ProductUtils";
 import "./ProductDetail.css";
 
 export default function ProductDetail() {
@@ -23,52 +25,18 @@ export default function ProductDetail() {
   const location = useLocation();
   const { showToast } = useToast(); // <--- On récupère le Toast global ici
 
-  // 1. Récupération prioritaire via le state passé au clic
-  let rawProduct = location.state?.product;
+  // 1. Récupération rapide via le state passé au clic (évite un fetch inutile
+  //    quand on arrive depuis une carte produit du catalogue).
+  const stateProduct = location.state?.product;
 
-  // 2. Si absent du state, on cherche dans le catalogue global et le localStorage
-  if (!rawProduct) {
-    const savedProducts =
-      JSON.parse(localStorage.getItem("shopflow_products")) || [];
-    const allProducts = [...savedProducts, ...catalogProducts];
+  // 2. Sinon, vrai appel à l'API (cas d'un accès direct par URL / rechargement).
+  const {
+    product: fetchedProduct,
+    isLoading,
+    error,
+  } = useProduct(stateProduct ? null : id);
 
-    rawProduct = allProducts.find((p) => {
-      const matchId = String(p.id) === String(id);
-      const matchSlug =
-        p.name?.toLowerCase().replace(/\s+/g, "-") === String(id).toLowerCase();
-      return matchId || matchSlug;
-    });
-  }
-
-  // 3. NORMALISATION
-  const product = rawProduct && {
-    ...rawProduct,
-    id: rawProduct.id || id,
-    name:
-      rawProduct.name ||
-      rawProduct.title ||
-      rawProduct.nom ||
-      "Produit sans nom",
-    price:
-      rawProduct.price !== undefined
-        ? rawProduct.price
-        : rawProduct.tarif || rawProduct.montant || 0,
-    image:
-      rawProduct.image ||
-      rawProduct.img ||
-      rawProduct.imageUrl ||
-      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&auto=format&fit=crop&q=60",
-    category: rawProduct.category || rawProduct.categorie || "Accessoires",
-    description: rawProduct.description || rawProduct.desc || "",
-  };
-
-  const productImages = product
-    ? [
-        product.image,
-        "https://images.unsplash.com/photo-1484704849700-f032a568e944?w=500&auto=format&fit=crop&q=60",
-        "https://images.unsplash.com/photo-1524678606370-a47ad25cb82a?w=500&auto=format&fit=crop&q=60",
-      ]
-    : [];
+  const product = stateProduct || fetchedProduct;
 
   const [quantity, setQuantity] = useState(1);
 
@@ -88,12 +56,20 @@ export default function ProductDetail() {
       : false;
   });
 
-  const [activeImage, setActiveImage] = useState(productImages[0]);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [isVideoActive, setIsVideoActive] = useState(false);
+  // Les hooks doivent toujours être appelés dans le même ordre, y compris
+  // pendant le chargement ou si l'URL pointe vers un produit inexistant.
+  if (isLoading) {
+    return (
+      <div
+        className="product-not-found page-transition"
+        style={{ padding: "80px 20px", textAlign: "center" }}
+      >
+        <FontAwesomeIcon icon={faSpinner} spin size="2x" />
+        <p style={{ marginTop: "16px" }}>Chargement du produit...</p>
+      </div>
+    );
+  }
 
-  // Les hooks doivent toujours être appelés dans le même ordre, y compris si
-  // l'URL pointe vers un produit qui n'existe plus.
   if (!product) {
     return (
       <div
@@ -101,7 +77,7 @@ export default function ProductDetail() {
         style={{ padding: "80px 20px", textAlign: "center" }}
       >
         <h2>Produit introuvable</h2>
-        <p>Désolé, ce produit n'existe pas ou a été supprimé.</p>
+        <p>{error || "Désolé, ce produit n'existe pas ou a été supprimé."}</p>
         <Link to="/" className="btn-back">
           Retour à l'accueil
         </Link>
@@ -208,60 +184,14 @@ export default function ProductDetail() {
               </span>
             )}
 
-            {isVideoActive ? (
-              <div className="video-container">
-                <iframe
-                  width="100%"
-                  height="100%"
-                  src="https://www.youtube.com/embed/dQw4w9WgXcQ"
-                  title="Démonstration produit"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                ></iframe>
-              </div>
-            ) : (
-              <img
-                src={activeImage}
-                alt={`Photo du produit ${product.name}`}
-                className="main-image"
-              />
-            )}
-          </div>
-
-          <div className="thumbnails-grid">
-            {productImages.map((img, index) => (
-              <div
-                key={index}
-                className={`thumb ${!isVideoActive && activeIndex === index ? "active" : ""}`}
-                onClick={() => {
-                  setActiveImage(img);
-                  setActiveIndex(index);
-                  setIsVideoActive(false);
-                }}
-              >
-                <img
-                  src={img}
-                  alt={`Vue ${index + 1} du produit ${product.name}`}
-                />
-              </div>
-            ))}
-
-            <div
-              className={`thumb thumb-video ${isVideoActive ? "active" : ""}`}
-              onClick={() => {
-                setIsVideoActive(true);
-              }}
-            >
-              <img
-                src={product.image}
-                alt={`Aperçu vidéo du produit ${product.name}`}
-                className="thumb-video-img"
-              />
-              <div className="play-overlay">
-                <FontAwesomeIcon icon={faPlay} />
-              </div>
-            </div>
+            <img
+              src={
+                product.image ||
+                "https://placehold.co/600x600?text=Pas+d%27image"
+              }
+              alt={`Photo du produit ${product.name}`}
+              className="main-image"
+            />
           </div>
         </div>
 
@@ -270,16 +200,36 @@ export default function ProductDetail() {
 
           <div className="product-rating">
             <span className="stars">
-              <FontAwesomeIcon icon={faStar} />
-              <FontAwesomeIcon icon={faStar} />
-              <FontAwesomeIcon icon={faStar} />
-              <FontAwesomeIcon icon={faStar} />
-              <FontAwesomeIcon icon={faStar} />
+              {[...Array(5)].map((_, i) => (
+                <FontAwesomeIcon
+                  key={i}
+                  icon={faStar}
+                  className={
+                    i < (product.rating || 0) ? "star-active" : "star-inactive"
+                  }
+                />
+              ))}
             </span>
-            <span className="reviews-count">(128 avis)</span>
+            <span className="reviews-count">
+              {product.reviews
+                ? `(${product.reviews} avis)`
+                : "(Aucun avis pourle moment)"}
+            </span>
           </div>
 
           <div className="product-price-tag">
+            {product.oldPrice && (
+              <span
+                style={{
+                  textDecoration: "line-through",
+                  color: "#94a3b8",
+                  fontSize: "10px",
+                  fontWeight: 500,
+                }}
+              >
+                {product.oldPrice.toLocaleString()} FCFA
+              </span>
+            )}
             {typeof product.price === "number"
               ? `${product.price.toLocaleString()} FCFA`
               : product.price || "Prix non disponible"}
@@ -287,22 +237,40 @@ export default function ProductDetail() {
 
           <p className="product-description-text">
             {product.description ||
-              `Découvrez le produit ${product.name}, conçu pour vous offrir une performance optimale dans la catégorie ${product.category}. Qualité garantie et design soigné.`}
+              `Découvrez le produit ${product.name}, dans la catégorie ${product.category}.`}
           </p>
 
-          <div className="stock-status">
-            <FontAwesomeIcon icon={faCircleCheck} /> En stock - Expédition
-            immédiate
-          </div>
+          {() => {
+            const stockStatus = getStockStatus(product.stock);
+            const isAvailable = stockStatus.type !== "danger";
+            return (
+              <div className="stock-status">
+                <FontAwesomeIcon icon={isAvailable ? faCircleCheck : faBan} />
+                {""}
+                {isAvailable
+                  ? `${stockStatus.label}(${product.stock}unités disponibles)`
+                  : "Rupture de stock"}
+              </div>
+            );
+          }}
 
           <div className="purchase-actions">
             <div className="quantity-selector">
-              <button onClick={handleDecrease}>&minus;</button>
+              <button onClick={handleDecrease} disabled={product.stock === 0}>
+                &minus;
+              </button>
               <span>{quantity}</span>
-              <button onClick={handleIncrease}>+</button>
+              <button onClick={handleIncrease} disabled={product.stock === 0}>
+                +
+              </button>
             </div>
-            <button className="btn-add-to-cart" onClick={handleAddToCart}>
-              <FontAwesomeIcon icon={faCartShopping} /> Ajouter au panier
+            <button
+              className="btn-add-to-cart"
+              onClick={handleAddToCart}
+              disabled={product.stock === 0}
+            >
+              <FontAwesomeIcon icon={faCartShopping} /> {""}{" "}
+              {product.stock === 0 ? "Indisponible" : "Ajouter au panier"}
             </button>
           </div>
 

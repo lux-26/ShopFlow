@@ -33,13 +33,15 @@ export default function AdminProducts() {
   const categoriesList = [
     "Électronique",
     "Accessoires",
+    "Mobilier",
+    "Beauté",
+    "Mode & Vêtements",
+    "Sport & Loisirs",
+    "Cuisine & Maison",
     "Informatique",
-    "Vêtements",
-    "Chaussures",
-    "Maison & Décoration",
-    "Beauté & Santé",
-    "Sports & Loisirs",
   ];
+
+
 
   // Liste complète des badges disponibles dans le site
   const badgesList = [

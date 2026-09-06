@@ -1,32 +1,25 @@
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useMemo } from "react";
-import { catalogProducts } from "../catalog/Catalog";
-import "../SearchPage/SearchPage";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { useProducts } from "../../../hooks/useProducts";
+import "./SearchPage.css";
 
 export default function SearchPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const query = searchParams.get("q") || "";
-  const filteredProducts = useMemo(() => {
-    const savedProducts =
-      JSON.parse(localStorage.getItem("shopflow_products")) || catalogProducts;
+  const { products, isLoading, error } = useProducts();
 
+  const filteredProducts = useMemo(() => {
     const searchTerm = query.toLowerCase().trim();
 
-    const results = savedProducts.filter((product) => {
-      const name = (product.name || product.title || "").toLowerCase();
-      const category = (
-        product.category ||
-        product.categorie ||
-        ""
-      ).toLowerCase();
-
-      // On vérifie si la recherche correspond au nom OU à la catégorie
+    return products.filter((product) => {
+      const name = (product.name || "").toLowerCase();
+      const category = (product.category || "").toLowerCase();
       return name.includes(searchTerm) || category.includes(searchTerm);
     });
-
-    return results;
-  }, [query]);
+  }, [products, query]);
 
   // CORRECTION : On passe l'objet product complet dans le state de la navigation
   const handleProductClick = (product) => {
@@ -38,7 +31,14 @@ export default function SearchPage() {
       <h2>Résultats de recherche pour : "{query}"</h2>
 
       <div className="products-grid">
-        {filteredProducts.length > 0 ? (
+        {isLoading ? (
+          <p>
+            <FontAwesomeIcon icon={faSpinner} spin />
+            Recherche en cours...
+          </p>
+        ) : error ? (
+          <p style={{ color: "#dc2626" }}>{error}</p>
+        ) : filteredProducts.length > 0 ? (
           filteredProducts.map((product) => (
             <div
               key={product.id}
