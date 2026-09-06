@@ -27,6 +27,19 @@ const productSchema = new mongoose.Schema(
       required: true,
       min: 0,
     },
+    // Prix barré optionnel, affiché en plus du prix courant pour montrer une
+    // réduction (ex: badge "-15%" avec l'ancien prix rayé à côté).
+    oldPrice: {
+      type: Number,
+      min: 0,
+      default: null,
+    },
+    description: {
+      type: String,
+      trim: true,
+      maxlength: 1000,
+      default: "",
+    },
     stock: {
       type: Number,
       required: true,

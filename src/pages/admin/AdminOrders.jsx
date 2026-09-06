@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faMagnifyingGlass,
@@ -9,11 +9,17 @@ import {
   faClock,
   faTruck,
   faWallet,
-  faArrowTrendUp,
   faSliders,
+  faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
 import { useToast } from "../../context/ToastContext";
 import Pagination from "../../components/admin/Pagination";
+import apiClient from "../../utils/apiClient";
+import {
+  getOrderStatusBadge,
+  getPaymentLabel,
+  formatOrderDate,
+} from "../../utils/orderUtils";
 
 export default function AdminOrders() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -21,66 +27,73 @@ export default function AdminOrders() {
   const [currentPage, setCurrentPage] = useState(1);
   const { showToast } = useToast();
 
-  const [orders, setOrders] = useState([
-    {
-      id: "#CMD-8902",
-      client: "Amadou Koné",
-      avatarBg: "#1e3a8a",
-      date: "24 Oct 2023",
-      total: "125 000 FCFA",
-      payment: "Carte bancaire",
-      status: "Livré",
-      statusClass: "badge-success",
-      dotClass: "badge-dot",
-    },
-    {
-      id: "#CMD-8901",
-      client: "Mariam Diallo",
-      avatarBg: "#854d0e",
-      date: "24 Oct 2023",
-      total: "45 500 FCFA",
-      payment: "Orange Money",
-      status: "En cours",
-      statusClass: "badge-warning",
-      dotClass: "badge-dot",
-    },
-    {
-      id: "#CMD-8900",
-      client: "Seydou Traoré",
-      avatarBg: "#475569",
-      date: "23 Oct 2023",
-      total: "210 000 FCFA",
-      payment: "Wave",
-      status: "Payé",
-      statusClass: "badge-success",
-      dotClass: "badge-dot",
-    },
-    {
-      id: "#CMD-8899",
-      client: "Fatou Sow",
-      avatarBg: "#b91c1c",
-      date: "22 Oct 2023",
-      total: "15 000 FCFA",
-      payment: "Espèces",
-      status: "Annulé",
-      statusClass: "badge-danger",
-      dotClass: "badge-dot",
-    },
-  ]);
+  const [orders, setOrders] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
 
-  const handleDelete = (id) => {
-    setOrders(orders.filter((item) => item.id !== id));
-    showToast(
-      "Commande supprimée",
-      `La commande ${id} a bien été supprimée.`,
-      "success",
-    );
+  const loadOrders = async () => {
+    setIsLoading(true);
+    setLoadError(null);
+    try {
+      const data = await apiClient.get("/orders");
+      setOrders(data.orders);
+    } catch (error) {
+      setLoadError(error.message || "Impossible de charger les commandes.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadOrders();
+  }, []);
+
+  const handleDelete = async (order) => {
+    try {
+      await apiClient.delete(`/orders/${order.id}`);
+      setOrders((prev) => prev.filter((item) => item.id !== order.id));
+      showToast(
+        "Commande supprimée",
+        `La commande ${order.orderNumber} a bien été supprimée.`,
+        "success",
+      );
+    } catch (error) {
+      showToast(
+        "Erreur",
+        error.message || "Impossible de supprimer cette commande.",
+        "error",
+      );
+    }
+  };
+
+  const handleStatusChange = async (order, newStatus) => {
+    try {
+      const data = await apiClient.patch(`/orders/${order.id}/status`, {
+        status: newStatus,
+      });
+      setOrders((prev) =>
+        prev.map((o) => (o.id === order.id ? data.order : o)),
+      );
+      setSelectedOrder(data.order);
+      showToast(
+        "Statut mis à jour",
+        `La commande ${order.orderNumber} est maintenant "${newStatus}".`,
+        "success",
+      );
+    } catch (error) {
+      showToast(
+        "Erreur",
+        error.message || "Impossible de mettre à jour le statut.",
+        "error",
+      );
+    }
   };
 
   const filteredOrders = orders.filter(
     (o) =>
-      o.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      o.client.toLowerCase().includes(searchTerm.toLowerCase()),
+      o.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      o.customerName.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const pageSize = 4;
@@ -90,6 +103,17 @@ export default function AdminOrders() {
     (safeCurrentPage - 1) * pageSize,
     safeCurrentPage * pageSize,
   );
+
+  const totalOrdersCount = orders.length;
+  const pendingCount = orders.filter((o) => o.status === "En attente").length;
+  const deliveredCount = orders.filter((o) => o.status === "Livré").length;
+  const deliveredRate =
+    totalOrdersCount > 0
+      ? Math.round((deliveredCount / totalOrdersCount) * 100)
+      : 0;
+  const totalRevenue = orders
+    .filter((o) => o.status !== "Annulé")
+    .reduce((sum, o) => sum + o.total, 0);
 
   return (
     <div className="admin-content-wrapper page-transition">
@@ -108,10 +132,7 @@ export default function AdminOrders() {
         <div className="kpi-card">
           <div className="kpi-info">
             <span>Total Commandes</span>
-            <h2>1,248</h2>
-            <div className="trend positive">
-              <FontAwesomeIcon icon={faArrowTrendUp} /> +12% ce mois
-            </div>
+            <h2>{totalOrdersCount}</h2>
           </div>
           <div className="kpi-icon">
             <FontAwesomeIcon icon={faBagShopping} />
@@ -121,7 +142,7 @@ export default function AdminOrders() {
         <div className="kpi-card">
           <div className="kpi-info">
             <span>En attente</span>
-            <h2>42</h2>
+            <h2>{pendingCount}</h2>
             <span
               className="text-muted"
               style={{ fontSize: "0.75rem", fontWeight: 600 }}
@@ -137,8 +158,10 @@ export default function AdminOrders() {
         <div className="kpi-card">
           <div className="kpi-info">
             <span>Livrées</span>
-            <h2>1,180</h2>
-            <span className="trend positive">Taux de succès 94%</span>
+            <h2>{deliveredCount}</h2>
+            {totalOrdersCount > 0 && (
+              <span className="trend positive">Taux de {deliveredRate}%</span>
+            )}
           </div>
           <div className="kpi-icon">
             <FontAwesomeIcon icon={faTruck} />
@@ -149,11 +172,8 @@ export default function AdminOrders() {
           <div className="kpi-info">
             <span>Revenu Total</span>
             <h2>
-              15 450 000 <small>FCFA</small>
+              {totalRevenue.toLocaleString("fr-FR")} <small>FCFA</small>
             </h2>
-            <div className="trend positive">
-              <FontAwesomeIcon icon={faArrowTrendUp} /> +8.5% ce mois
-            </div>
           </div>
           <div className="kpi-icon">
             <FontAwesomeIcon icon={faWallet} />
@@ -207,58 +227,100 @@ export default function AdminOrders() {
               </tr>
             </thead>
             <tbody>
-              {paginatedOrders.map((o) => {
-                // Initiales pour l'avatar
-                const initials = o.client
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("");
+              {isLoading ? (
+                <tr>
+                  <td
+                    colSpan="6"
+                    style={{ textAlign: "center", padding: "30px" }}
+                  >
+                    <FontAwesomeIcon icon={faSpinner} spin /> Chargement des
+                    commandes...
+                  </td>
+                </tr>
+              ) : loadError ? (
+                <tr>
+                  <td
+                    colSpan="6"
+                    style={{
+                      textAlign: "center",
+                      padding: "20px",
+                      color: "#dc2626",
+                    }}
+                  >
+                    {loadError}{" "}
+                    <button className="link-primary" onClick={loadOrders}>
+                      Réessayer
+                    </button>
+                  </td>
+                </tr>
+              ) : paginatedOrders.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan="6"
+                    style={{ textAlign: "center", padding: "30px" }}
+                  >
+                    Aucune commande pour le moment.
+                  </td>
+                </tr>
+              ) : (
+                paginatedOrders.map((o) => {
+                  const initials = o.customerName
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("");
+                  const badge = getOrderStatusBadge(o.status);
 
-                return (
-                  <tr key={o.id}>
-                    <td>
-                      <strong className="font-bold">{o.id}</strong>
-                    </td>
-                    <td>
-                      <div style={{ display: "flex", alignItems: "center" }}>
-                        <div
-                          className="order-client-avatar"
-                          style={{ backgroundColor: o.avatarBg, color: "#fff" }}
-                        >
-                          {initials}
+                  return (
+                    <tr key={o.id}>
+                      <td>
+                        <strong className="font-bold">{o.orderNumber}</strong>
+                      </td>
+                      <td>
+                        <div style={{ display: "flex", alignItems: "center" }}>
+                          <div
+                            className="order-client-avatar"
+                            style={{
+                              backgroundColor: "var(--color-primary)",
+                              color: "#fff",
+                            }}
+                          >
+                            {initials}
+                          </div>
+                          <span className="font-bold">{o.customerName}</span>
                         </div>
-                        <span className="font-bold">{o.client}</span>
-                      </div>
-                    </td>
-                    <td className="text-muted">{o.date}</td>
-                    <td>
-                      <strong>{o.total}</strong>
-                    </td>
-                    <td>
-                      <span className={`pill-badge ${o.statusClass}`}>
-                        <span className="badge-dot"></span>
-                        {o.status}
-                      </span>
-                    </td>
-                    <td style={{ textAlign: "right" }}>
-                      <button
-                        className="btn-icon"
-                        title="Voir les détails"
-                        onClick={() => setSelectedOrder(o)}
-                      >
-                        <FontAwesomeIcon icon={faEye} />
-                      </button>
-                      <button
-                        className="btn-icon text-danger"
-                        title="Supprimer"
-                        onClick={() => handleDelete(o.id)}
-                      >
-                        <FontAwesomeIcon icon={faTrashCan} />
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
+                      </td>
+                      <td className="text-muted">
+                        {formatOrderDate(o.createdAt)}
+                      </td>
+                      <td>
+                        <strong>{o.total.toLocaleString("fr-FR")} FCFA</strong>
+                      </td>
+                      <td>
+                        <span className={`pill-badge badge-${badge.type}`}>
+                          <span className="badge-dot"></span>
+                          {o.status}
+                        </span>
+                      </td>
+                      <td style={{ textAlign: "right" }}>
+                        <button
+                          className="btn-icon"
+                          title="Voir les détails"
+                          onClick={() => setSelectedOrder(o)}
+                        >
+                          <FontAwesomeIcon icon={faEye} />
+                        </button>
+                        <button
+                          className="btn-icon text-danger"
+                          title="Supprimer"
+                          onClick={() => handleDelete(o)}
+                        >
+                          <FontAwesomeIcon icon={faTrashCan} />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
@@ -275,9 +337,9 @@ export default function AdminOrders() {
       {/* Modale des détails */}
       {selectedOrder && (
         <div className="modal-overlay">
-          <div className="modal-content card">
+          <div className="modal-content card" style={{ maxWidth: "560px" }}>
             <div className="card-header-flex">
-              <h3>Détails de la commande {selectedOrder.id}</h3>
+              <h3>Détails de la commande {selectedOrder.orderNumber}</h3>
               <button
                 className="btn-icon"
                 onClick={() => setSelectedOrder(null)}
@@ -294,27 +356,71 @@ export default function AdminOrders() {
               }}
             >
               <p>
-                <strong>Client :</strong> {selectedOrder.client}
+                <strong>Client :</strong> {selectedOrder.customerName} (
+                {selectedOrder.customerEmail})
               </p>
               <p>
-                <strong>Date :</strong> {selectedOrder.date}
+                <strong>Date :</strong>{" "}
+                {formatOrderDate(selectedOrder.createdAt)}
               </p>
               <p>
-                <strong>Total :</strong> {selectedOrder.total}
+                <strong>Adresse de livraison :</strong>{" "}
+                {selectedOrder.shippingAddress.address},{" "}
+                {selectedOrder.shippingAddress.city} —{" "}
+                {selectedOrder.shippingAddress.phone}
               </p>
               <p>
-                <strong>Mode de paiement :</strong> {selectedOrder.payment}
+                <strong>Mode de paiement :</strong>{" "}
+                {getPaymentLabel(selectedOrder.paymentMethod)}
               </p>
-              <p>
-                <strong>Statut :</strong>{" "}
-                <span
-                  className={`pill-badge ${selectedOrder.statusClass}`}
-                  style={{ marginLeft: "8px" }}
+
+              <div>
+                <strong>Articles :</strong>
+                <ul style={{ margin: "6px 0 0", paddingLeft: "20px" }}>
+                  {selectedOrder.items.map((item, idx) => (
+                    <li key={idx} style={{ fontSize: "0.9rem" }}>
+                      {item.name} × {item.quantity} —{" "}
+                      {(item.price * item.quantity).toLocaleString("fr-FR")}{" "}
+                      FCFA
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <p style={{ marginTop: "8px" }}>
+                <strong>Sous-total :</strong>{" "}
+                {selectedOrder.subtotal.toLocaleString("fr-FR")} FCFA
+                <br />
+                <strong>Livraison :</strong>{" "}
+                {selectedOrder.shippingFee.toLocaleString("fr-FR")} FCFA
+                {selectedOrder.discount > 0 && (
+                  <>
+                    <br />
+                    <strong>Réduction :</strong> -
+                    {selectedOrder.discount.toLocaleString("fr-FR")} FCFA
+                  </>
+                )}
+                <br />
+                <strong>Total : </strong>
+                {selectedOrder.total.toLocaleString("fr-FR")} FCFA
+              </p>
+
+              <div className="form-group">
+                <label>Statut de la commande</label>
+                <select
+                  className="form-control"
+                  value={selectedOrder.status}
+                  onChange={(e) =>
+                    handleStatusChange(selectedOrder, e.target.value)
+                  }
                 >
-                  <span className="badge-dot"></span>
-                  {selectedOrder.status}
-                </span>
-              </p>
+                  <option>En attente</option>
+                  <option>Payé</option>
+                  <option>En cours</option>
+                  <option>Livré</option>
+                  <option>Annulé</option>
+                </select>
+              </div>
             </div>
             <div className="modal-actions-right">
               <button

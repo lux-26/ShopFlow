@@ -8,6 +8,8 @@ import ProfileSecurity from "./ProfileSecurity";
 import ProfileNotifs from "./ProfileNotifs";
 import ProfileOrders from "./ProfileOrders";
 import ProfilePayment from "./ProfilePayment";
+import { useAuth } from "../../../context/AuthContext";
+import apiClient from "../../../utils/apiClient";
 import "./Profile.css";
 
 export default function Profile() {
@@ -36,7 +38,9 @@ export default function Profile() {
     }, 3000);
   };
 
-  // Fonction pour charger les données du localStorage
+  // Fonction pour charger les données du profil : infos et fidélité restent en
+  // localStorage pour l'instant (édition de profil réelle = prochaine étape),
+  // mais les commandes viennent maintenant réellement de l'API.
   const loadProfileData = () => {
     const savedUser = localStorage.getItem("shopflow_user_info");
     if (savedUser) {
@@ -53,17 +57,6 @@ export default function Profile() {
       setUserInfo(parsedUser);
     }
 
-    const savedOrders = localStorage.getItem("shopflow_orders");
-    if (savedOrders) {
-      try {
-        setRecentOrders(JSON.parse(savedOrders));
-      } catch {
-        setRecentOrders([]);
-      }
-    } else {
-      setRecentOrders([]);
-    }
-
     const savedPoints = localStorage.getItem("shopflow_loyalty_points");
     if (savedPoints !== null) {
       setLoyaltyPoints(parseInt(savedPoints, 10));
@@ -72,43 +65,64 @@ export default function Profile() {
     }
   };
 
-  useEffect(() => {
-    // VÉRIFICATION DE SÉCURITÉ : Si la clé de connexion n'existe pas, on redirige vers /login
-    const isLogged = localStorage.getItem("shopflow_is_logged");
-    if (!isLogged) {
-      navigate("/login");
-      return;
+  // Charge les vraies commandes du client et les adapte au format attendu par
+  // ProfileInfos/ProfileOrders (id affiché, compteur d'articles, prix formaté).
+  const loadOrders = async () => {
+    try {
+      const data = await apiClient.get("/orders/mine");
+      const mapped = data.orders.map((order) => ({
+        id: order.orderNumber,
+        status: order.status.toUpperCase(),
+        itemsCount: order.itemsCount,
+        date: new Date(order.createdAt).toLocaleDateString("fr-FR", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        }),
+        price: `${order.total.toLocaleString("fr-FR")} FCFA`,
+      }));
+      setRecentOrders(mapped);
+    } catch {
+      setRecentOrders([]);
     }
+  };
 
+  useEffect(() => {
     // Chargement différé pour éviter une mise à jour d'état synchrone dans
     // l'effet tout en gardant la synchronisation avec le stockage local.
-    const initialLoadId = window.setTimeout(loadProfileData, 0);
+    const initialLoadId = window.setTimeout(() => {
+      loadProfileData();
+      loadOrders();
+    }, 0);
 
     // Écouter les mises à jour de commandes en temps réel
     const handleOrderUpdate = () => {
+      loadOrders();
+    };
+    const handleStorageUpdate = () => {
       loadProfileData();
     };
 
     window.addEventListener("orderUpdated", handleOrderUpdate);
-    window.addEventListener("storage", handleOrderUpdate);
+    window.addEventListener("storage", handleStorageUpdate);
 
     return () => {
       window.clearTimeout(initialLoadId);
       window.removeEventListener("orderUpdated", handleOrderUpdate);
-      window.removeEventListener("storage", handleOrderUpdate);
+      window.removeEventListener("storage", handleStorageUpdate);
     };
-  }, [navigate]);
+  }, []);
 
   const handleSaveProfile = () => {
     localStorage.setItem("shopflow_user_info", JSON.stringify(userInfo));
     showCustomToast("Succès", "Profil mis à jour avec succès !");
   };
 
-  const handleLogout = () => {
+  const { logout } = useAuth();
+
+  const handleLogout = async () => {
     if (window.confirm("Voulez-vous vraiment vous déconnecter ?")) {
-      localStorage.removeItem("shopflow_is_logged");
-      localStorage.removeItem("shopflow_user_avatar");
-      window.dispatchEvent(new Event("storage"));
+      await logout(); // invalide réellement la session côté serveur
       showCustomToast("Déconnexion", "Déconnexion réussie ! Redirection...");
       setTimeout(() => {
         navigate("/login");

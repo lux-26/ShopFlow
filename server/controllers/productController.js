@@ -6,19 +6,30 @@ import { PRODUCTS_UPLOAD_DIR } from "../config/uploads.js";
 
 // Schéma de validation des champs texte envoyés en multipart/form-data.
 // z.coerce car FormData transporte tout sous forme de chaînes de caractères.
-const productBodySchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(2, "Le nom doit contenir au moins 2 caractères.")
-    .max(150),
-  sku: z.string().trim().min(1, "Le SKU est requis.").max(60),
-  category: z.string().trim().min(1, "La catégorie est requise.").max(80),
-  price: z.coerce.number().min(0, "Le prix doit être positif."),
-  stock: z.coerce.number().int().min(0, "Le stock doit être positif ou nul."),
-  // Champ optionnel : absent ou vide -> pas de badge.
-  badge: z.string().trim().min(1).optional(),
-});
+const productBodySchema = z
+  .object({
+    name: z
+      .string()
+      .trim()
+      .min(2, "Le nom doit contenir au moins 2 caractères.")
+      .max(150),
+    sku: z.string().trim().min(1, "Le SKU est requis.").max(60),
+    category: z.string().trim().min(1, "La catégorie est requise.").max(80),
+    price: z.coerce.number().min(0, "Le prix doit être positif."),
+    stock: z.coerce.number().int().min(0, "Le stock doit être positif ou nul."),
+    // Champs optionnels : chaîne vide côté FormData -> traités comme absents.
+    badge: z.string().trim().min(1).optional(),
+    description: z.string().trim().max(1000).optional(),
+    oldPrice: z.union([z.coerce.number().min(0), z.literal("")]).optional(),
+  })
+  .refine(
+    (data) =>
+      !data.oldPrice || data.oldPrice === "" || data.oldPrice > data.price,
+    {
+      message: "Le prix barré doit être supérieur au prix actuel.",
+      path: ["oldPrice"],
+    },
+  );
 
 function toPublicProduct(product) {
   const obj = product.toObject ? product.toObject() : product;
@@ -28,6 +39,8 @@ function toPublicProduct(product) {
     sku: obj.sku,
     category: obj.category,
     price: obj.price,
+    oldPrice: obj.oldPrice || null,
+    description: obj.description || "",
     stock: obj.stock,
     badge: obj.badge || null,
     image: obj.image,
@@ -93,6 +106,8 @@ export async function createProduct(request, response) {
   const product = await Product.create({
     ...parseResult.data,
     badge: parseResult.data.badge || null,
+    description: parseResult.data.description || "",
+    oldPrice: parseResult.data.oldPrice || null,
     image,
   });
 
@@ -128,6 +143,8 @@ export async function updateProduct(request, response) {
   product.price = parseResult.data.price;
   product.stock = parseResult.data.stock;
   product.badge = parseResult.data.badge || null;
+  product.description = parseResult.data.description || "";
+  product.oldPrice = parseResult.data.oldPrice || null;
 
   await product.save();
 

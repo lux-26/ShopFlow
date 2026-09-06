@@ -10,6 +10,7 @@ import {
   faDesktop,
 } from "@fortawesome/free-solid-svg-icons";
 import { useToast } from "../../../context/ToastContext";
+import apiClient from "../../../utils/apiClient";
 import "./Checkout.css";
 
 export default function Checkout() {
@@ -55,7 +56,9 @@ export default function Checkout() {
   const loyaltyDiscount = useLoyaltyPoints ? 5000 : 0;
   const finalTotal = subtotal + shippingFee - loyaltyDiscount;
 
-  const handleConfirmOrder = () => {
+  const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
+
+  const handleConfirmOrder = async () => {
     if (cartItems.length === 0) {
       showToast("Attention", "Votre panier est vide !", "error");
       return;
@@ -96,36 +99,62 @@ export default function Checkout() {
       }
     }
 
-    const newNotification = {
-      id: Date.now(),
-      text: "Votre commande récente a été validée avec succès.",
-      time: "À l'instant",
-      category: "Commandes",
-    };
+    setIsSubmittingOrder(true);
+    try {
+      await apiClient.post("/orders", {
+        items: cartItems.map((item) => ({
+          productId: item.id,
+          quantity: item.quantity,
+        })),
+        shippingAddress: { firstName, lastName, address, city, phone },
+        shippingMode,
+        // Le paiement mobile (Orange/Wave) n'a pas encore de passerelle réelle
+        // branchée : on l'enregistre comme mode de paiement choisi, la
+        // transaction elle-même reste à intégrer avec un vrai fournisseur.
+        paymentMethod: paymentMethod === "wave" ? "wave" : paymentMethod,
+        useLoyaltyPoints,
+      });
 
-    const existingNotifs =
-      JSON.parse(localStorage.getItem("shopflow_notifications")) || [];
-    const updatedNotifs = [newNotification, ...existingNotifs];
-    localStorage.setItem(
-      "shopflow_notifications",
-      JSON.stringify(updatedNotifs),
-    );
+      const newNotification = {
+        id: Date.now(),
+        text: "Votre commande récente a été validée avec succès.",
+        time: "À l'instant",
+        category: "Commandes",
+      };
+      const existingNotifs =
+        JSON.parse(localStorage.getItem("shopflow_notifications")) || [];
+      localStorage.setItem(
+        "shopflow_notifications",
+        JSON.stringify([newNotification, ...existingNotifs]),
+      );
 
-    localStorage.removeItem("shopflow_cart");
-    setCartItems([]);
+      localStorage.removeItem("shopflow_cart");
+      setCartItems([]);
 
-    window.dispatchEvent(new Event("cartUpdated"));
-    window.dispatchEvent(new Event("notificationUpdated"));
+      window.dispatchEvent(new Event("cartUpdated"));
+      window.dispatchEvent(new Event("notificationUpdated"));
+      window.dispatchEvent(new Event("orderUpdated"));
 
-    showToast(
-      "Confirmation",
-      "Commande validée avec succès ! Merci pour vos achats.",
-      "success",
-    );
+      showToast(
+        "Confirmation",
+        "Commande validée avec succès ! Merci pour vos achats.",
+        "success",
+      );
 
-    setTimeout(() => {
-      navigate("/");
-    }, 1500);
+      setTimeout(() => {
+        navigate("/");
+      }, 1500);
+    } catch (error) {
+      showToast(
+        "Erreur",
+        error.errors?.[0] ||
+          error.message ||
+          "Impossible de valider la commande.",
+        "error",
+      );
+    } finally {
+      setIsSubmittingOrder(false);
+    }
   };
 
   return (
@@ -492,12 +521,25 @@ export default function Checkout() {
                 </span>
               </div>
 
-              <button className="btn-confirm-pay" onClick={handleConfirmOrder}>
+              <button
+                className="btn-confirm-pay"
+                onClick={handleConfirmOrder}
+                disabled={isSubmittingOrder}
+              >
                 <FontAwesomeIcon icon={faLock} />
-                {paymentMethod === "card" && "Payer par Carte"}
-                {paymentMethod === "orange" && "Payer via Orange Money"}
-                {paymentMethod === "wave" && "Payer via Wave"}
-                {paymentMethod === "cash" && "Confirmer la commande"}
+                {isSubmittingOrder && "Validation en cours..."}
+                {!isSubmittingOrder &&
+                  paymentMethod === "card" &&
+                  "Payer par Carte"}
+                {!isSubmittingOrder &&
+                  paymentMethod === "orange" &&
+                  "Payer via Orange Money"}
+                {!isSubmittingOrder &&
+                  paymentMethod === "wave" &&
+                  "Payer via Wave"}
+                {!isSubmittingOrder &&
+                  paymentMethod === "cash" &&
+                  "Confirmer la commande"}
               </button>
 
               <p className="secure-text">

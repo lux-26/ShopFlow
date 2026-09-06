@@ -11,8 +11,10 @@ import {
   faCircleExclamation,
 } from "@fortawesome/free-solid-svg-icons";
 import "./Cart.css";
+import { useAuth } from "../../../context/AuthContext";
 
 export default function Cart({ onGoToCheckout }) {
+  const { isAuthenticated } = useAuth();
   const [cartItems, setCartItems] = useState(
     () => JSON.parse(localStorage.getItem("shopflow_cart")) || [],
   );
@@ -64,11 +66,8 @@ export default function Cart({ onGoToCheckout }) {
   };
 
   const handleCheckoutClick = () => {
-    // 1. Vérification si l'utilisateur est connecté via le token OU via shopflow_is_logged
-    const token = localStorage.getItem("token");
-    const isLogged = localStorage.getItem("shopflow_is_logged") === "true";
-
-    if (!token && !isLogged) {
+    // 1. Vérification de la vraie session (plus de faux flags localStorage)
+    if (!isAuthenticated) {
       triggerPopup(
         "Connexion requise",
         "Veuillez vous connecter pour passer à la caisse.",

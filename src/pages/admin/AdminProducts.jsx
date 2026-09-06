@@ -15,9 +15,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useToast } from "../../context/ToastContext";
 import { getBadgeClass } from "../../utils/badgeUtils";
-import { formatPrice, getStockStatus } from "../../utils/ProductUtils";
+import { formatPrice, getStockStatus } from "../../utils/productUtils";
 import apiClient from "../../utils/apiClient";
-
 import "../../styles/admin.css";
 
 export default function AdminProducts() {
@@ -33,12 +32,12 @@ export default function AdminProducts() {
   const categoriesList = [
     "Électronique",
     "Accessoires",
+    "Mobilier",
+    "Beauté",
+    "Mode & Vêtements",
+    "Sport & Loisirs",
+    "Cuisine & Maison",
     "Informatique",
-    "Vêtements",
-    "Chaussures",
-    "Maison & Décoration",
-    "Beauté & Santé",
-    "Sports & Loisirs",
   ];
 
   // Liste complète des badges disponibles dans le site
@@ -60,12 +59,11 @@ export default function AdminProducts() {
   const loadProducts = async () => {
     setIsLoadingProducts(true);
     setLoadError(null);
-
     try {
       const data = await apiClient.get("/products");
       setProducts(data.products);
     } catch (error) {
-      setLoadError(error.message || "Impossible de charger les produits");
+      setLoadError(error.message || "Impossible de charger les produits.");
     } finally {
       setIsLoadingProducts(false);
     }
@@ -82,6 +80,8 @@ export default function AdminProducts() {
     sku: "",
     category: "Électronique",
     price: "",
+    oldPrice: "",
+    description: "",
     stock: 10,
     badge: null,
     image: null,
@@ -100,6 +100,8 @@ export default function AdminProducts() {
     sku: "",
     category: "Électronique",
     price: "",
+    oldPrice: "",
+    description: "",
     stock: 10,
     badge: null,
     image: null,
@@ -119,16 +121,18 @@ export default function AdminProducts() {
       sku: item.sku,
       category: item.category,
       price: item.price,
+      oldPrice: item.oldPrice || "",
+      description: item.description || "",
       stock: item.stock,
       badge: item.badge,
-      image: item.image,
+      image: item.image, // chemin serveur existant, utilisé pour l'aperçu
     });
-    setSelectedImageFile(null);
+    setSelectedImageFile(null); // aucun nouveau fichier tant que l'utilisateur n'en choisit pas
     setEditingProductId(item.id);
     setIsModalOpen(true);
   };
 
-  // Lit le fichier choisi et le transforme en aperçu affichable (data URL)
+  // Garde le fichier réel pour l'upload, et génère un aperçu local léger
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -148,6 +152,14 @@ export default function AdminProducts() {
     formData.append("price", String(newProduct.price).replace(/\s/g, ""));
     formData.append("stock", newProduct.stock);
     if (newProduct.badge) formData.append("badge", newProduct.badge);
+    if (newProduct.description)
+      formData.append("description", newProduct.description);
+    if (newProduct.oldPrice !== "" && newProduct.oldPrice !== null) {
+      formData.append(
+        "oldPrice",
+        String(newProduct.oldPrice).replace(/\s/g, ""),
+      );
+    }
     if (selectedImageFile) formData.append("image", selectedImageFile);
 
     try {
@@ -160,8 +172,8 @@ export default function AdminProducts() {
           prev.map((p) => (p.id === editingProductId ? data.product : p)),
         );
         showToast(
-          "Produit modifié",
-          `le produit "${data.product.name}" a été mis à jour avec succès.`,
+          "Produit modifié !",
+          `Le produit "${data.product.name}" a été mis à jour avec succès.`,
           "success",
         );
       } else {
@@ -169,12 +181,11 @@ export default function AdminProducts() {
         setProducts((prev) => [data.product, ...prev]);
         setCurrentPage(1);
         showToast(
-          "Produit ajouté",
-          `le produit "${data.product.name}" a été créé avec succès.`,
+          "Produit ajouté !",
+          `Le produit "${data.product.name}" a été créé avec succès.`,
           "success",
         );
       }
-
       handleCloseModal();
     } catch (error) {
       showToast(
@@ -200,8 +211,8 @@ export default function AdminProducts() {
       );
     } catch (error) {
       showToast(
-        "Erreur ",
-        error.message || "Impossible de suprimer ce produit.",
+        "Erreur",
+        error.message || "Impossible de supprimer ce produit.",
         "error",
       );
     }
@@ -212,15 +223,16 @@ export default function AdminProducts() {
     const matchesSearch =
       p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.sku.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchsCat =
+    const matchesCat =
       selectedCategory === "Toutes" || p.category === selectedCategory;
 
-    let matchesStok = true;
-    if (selectedStock === "in_stock") matchesStok = p.stock > 5;
+    let matchesStock = true;
+    if (selectedStock === "in_stock") matchesStock = p.stock > 5;
     if (selectedStock === "low_stock")
-      matchesStok = p.stock > 0 && p.stock <= 5;
-    if (selectedStock === "out_of_stock") matchesStok = p.stock === 0;
-    return matchesSearch && matchsCat && matchesStok;
+      matchesStock = p.stock > 0 && p.stock <= 5;
+    if (selectedStock === "out_of_stock") matchesStock = p.stock === 0;
+
+    return matchesSearch && matchesCat && matchesStock;
   });
 
   // Calculs pour la pagination
@@ -257,8 +269,8 @@ export default function AdminProducts() {
             className="btn btn-primary-dark"
             onClick={() => {
               setNewProduct(emptyProduct);
-              setSelectedImageFile(null);
               setEditingProductId(null);
+              setSelectedImageFile(null);
               setIsModalOpen(true);
             }}
           >
@@ -337,7 +349,7 @@ export default function AdminProducts() {
               {isLoadingProducts ? (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan="6"
                     style={{ textAlign: "center", padding: "30px" }}
                   >
                     <FontAwesomeIcon icon={faSpinner} spin /> Chargement des
@@ -347,15 +359,14 @@ export default function AdminProducts() {
               ) : loadError ? (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan="6"
                     style={{
                       textAlign: "center",
                       padding: "20px",
                       color: "#dc2626",
                     }}
                   >
-                    {loadError}
-                    {""}
+                    {loadError}{" "}
                     <button className="link-primary" onClick={loadProducts}>
                       Réessayer
                     </button>
@@ -583,6 +594,23 @@ export default function AdminProducts() {
               </div>
 
               <div className="form-group mb-3">
+                <label>Description (optionnel)</label>
+                <textarea
+                  className="form-control"
+                  rows={3}
+                  placeholder="Quelques phrases décrivant le produit..."
+                  value={newProduct.description}
+                  onChange={(e) =>
+                    setNewProduct({
+                      ...newProduct,
+                      description: e.target.value,
+                    })
+                  }
+                  maxLength={1000}
+                />
+              </div>
+
+              <div className="form-group mb-3">
                 <label>SKU</label>
                 <input
                   type="text"
@@ -623,6 +651,21 @@ export default function AdminProducts() {
                     setNewProduct({ ...newProduct, price: e.target.value })
                   }
                   required
+                />
+              </div>
+
+              <div className="form-group mb-3">
+                <label>
+                  Prix barré (optionnel, pour afficher une réduction)
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="ex: 55000 (laisser vide si pas de réduction)"
+                  value={newProduct.oldPrice}
+                  onChange={(e) =>
+                    setNewProduct({ ...newProduct, oldPrice: e.target.value })
+                  }
                 />
               </div>
 
