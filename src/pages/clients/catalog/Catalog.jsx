@@ -5,198 +5,12 @@ import {
   faStar,
   faCartPlus,
   faSearch,
+  faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
 import { useToast } from "../../../context/ToastContext";
 import { getBadgeClass } from "../../../utils/badgeUtils";
+import { useProducts } from "../../../hooks/useProducts";
 import "./Catalog.css";
-
-// Ce catalogue de démonstration est aussi consommé par les pages d'accueil,
-// recherche et détail ; il est volontairement conservé à côté de son affichage.
-// eslint-disable-next-line react-refresh/only-export-components
-export const catalogProducts = [
-  {
-    id: 1,
-    category: "Électronique",
-    name: "Casque Audio Premium Sans Fil",
-    description:
-      "Réduction de bruit active, 30h d'autonomie, son haute fidélité...",
-    price: 145000,
-    rating: 5,
-    reviews: 124,
-    badge: "Nouveau",
-    image:
-      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop&q=60",
-  },
-  {
-    id: 2,
-    category: "Électronique",
-    name: "Montre Connectée Sport Pro",
-    description:
-      "Suivi santé avancé, GPS intégré, étanche 50m. Parfaite pour le sport...",
-    price: 85500,
-    rating: 4,
-    reviews: 89,
-    badge: null,
-    image:
-      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&auto=format&fit=crop&q=60",
-  },
-  {
-    id: 3,
-    category: "Électronique",
-    name: 'Tablette Graphique Ultra Fine 12"',
-    description:
-      "Écran Retina, processeur octo-core, idéale pour la création numérique...",
-    oldPrice: 250000,
-    price: 212500,
-    rating: 5,
-    reviews: 312,
-    badge: "-15%",
-    image:
-      "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=500&auto=format&fit=crop&q=60",
-  },
-  {
-    id: 4,
-    category: "Électronique",
-    name: "Enceinte Bluetooth Portable Waterproof",
-    description: "Son à 360°, basses profondes, autonomie de 20 heures...",
-    price: 45000,
-    rating: 4,
-    reviews: 78,
-    badge: null,
-    image:
-      "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=500&auto=format&fit=crop&q=60",
-  },
-  {
-    id: 5,
-    category: "Électronique",
-    name: "Appareil Photo Hybride 4K",
-    description:
-      "Capteur APS-C, autofocus ultra-rapide, idéal pour vlogging...",
-    oldPrice: 480000,
-    price: 420000,
-    rating: 5,
-    reviews: 45,
-    badge: "Promo",
-    image:
-      "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=500&auto=format&fit=crop&q=60",
-  },
-  {
-    id: 6,
-    category: "Mode & Vêtements",
-    name: "Veste en Jean Casual Urbaine",
-    description:
-      "100% coton, style intemporel, confortable pour toutes les saisons...",
-    price: 35000,
-    rating: 4,
-    reviews: 56,
-    badge: "Tendance",
-    image:
-      "https://images.unsplash.com/photo-1543076447-215ad9ba6923?w=500&auto=format&fit=crop&q=60",
-  },
-  {
-    id: 7,
-    category: "Mode & Vêtements",
-    name: "Sneakers Streetwear Blanche",
-    description:
-      "Design épuré, semelle ergonomique amortissante, grand confort...",
-    oldPrice: 55000,
-    price: 44000,
-    rating: 5,
-    reviews: 180,
-    badge: "-20%",
-    image:
-      "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&auto=format&fit=crop&q=60",
-  },
-  {
-    id: 8,
-    category: "Accessoires",
-    name: "Sac à Dos Minimaliste en Cuir",
-    description:
-      "Compartiment pour ordinateur portable 15 pouces, résistant à l'eau...",
-    price: 65000,
-    rating: 4,
-    reviews: 92,
-    badge: "Nouveau",
-    image:
-      "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500&auto=format&fit=crop&q=60",
-  },
-  {
-    id: 9,
-    category: "Accessoires",
-    name: "Lunettes de Soleil Rétro Vintage",
-    description: "Monture écaille de tortue, protection UV400 intégrale...",
-    price: 20000,
-    rating: 4,
-    reviews: 34,
-    badge: null,
-    image:
-      "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=500&auto=format&fit=crop&q=60",
-  },
-  {
-    id: 10,
-    category: "Mobilier",
-    name: "Lampe de Bureau LED Design",
-    description:
-      "Intensité lumineuse réglable, ports de charge USB intégrés...",
-    price: 22000,
-    rating: 4,
-    reviews: 42,
-    badge: null,
-    image:
-      "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=500&auto=format&fit=crop&q=60",
-  },
-  {
-    id: 11,
-    category: "Cuisine & Maison",
-    name: "Set de Tasses à Café en Céramique",
-    description: "Ensemble de 4 tasses modernes résistantes à la chaleur...",
-    price: 15000,
-    rating: 5,
-    reviews: 95,
-    badge: "Populaire",
-    image:
-      "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=500&auto=format&fit=crop&q=60",
-  },
-  {
-    id: 12,
-    category: "Mobilier",
-    name: "Plante Artificielle Monstera en Pot",
-    description:
-      "Effet réaliste garanti, aucun entretien nécessaire pour votre salon...",
-    oldPrice: 40000,
-    price: 32000,
-    rating: 5,
-    reviews: 67,
-    badge: "-20%",
-    image:
-      "https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=500&auto=format&fit=crop&q=60",
-  },
-  {
-    id: 13,
-    category: "Cuisine & Maison",
-    name: "Diffuseur d'Huiles Essentielles Aromathérapie",
-    description: "Effet lumineux LED apaisant, arrêt automatique sécurisé...",
-    price: 28000,
-    rating: 4,
-    reviews: 110,
-    badge: "Nouveau",
-    image:
-      "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=500&auto=format&fit=crop&q=60",
-  },
-  {
-    id: 14,
-    category: "Accessoires",
-    name: "Chargeurs ",
-    description:
-      "Compartiment pour ordinateur portable 15 pouces, résistant à l'eau...",
-    price: 5000,
-    rating: 4,
-    reviews: 50,
-    badge: "Nouveau",
-    image:
-      "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500&auto=format&fit=crop&q=60",
-  },
-];
 
 const ALL_CATEGORIES = [
   "Électronique",
@@ -217,10 +31,11 @@ export default function Catalog() {
 
   const { showToast } = useToast();
 
+  const { products, isLoading, error, reload } = useProducts();
+
   const [sortOption, setSortOption] = useState("pertinence");
   const [selectedCategory, setSelectedCategory] = useState("Électronique");
   const [priceRange, setPriceRange] = useState({ min: "", max: "" });
-  const [selectedRating, setSelectedRating] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -233,42 +48,37 @@ export default function Catalog() {
     }
   };
 
-  const filteredProducts = catalogProducts.filter((product) => {
+  const filteredProducts = products.filter((product) => {
     const matchesMinPrice =
       priceRange.min === "" || product.price >= Number(priceRange.min);
     const matchesMaxPrice =
       priceRange.max === "" || product.price <= Number(priceRange.max);
-    const matchesRating =
-      selectedRating === null || product.rating >= selectedRating;
 
     if (filterParam === "nouveautes") {
       const isNewBadge = product.badge === "Nouveau";
-      return isNewBadge && matchesMinPrice && matchesMaxPrice && matchesRating;
+      return isNewBadge && matchesMinPrice && matchesMaxPrice;
     }
 
     const matchesSearch =
       searchQuery.trim() === "" ||
       product.name.toLowerCase().includes(searchQuery.toLowerCase().trim()) ||
-      product.description
+      (product.description || "")
         .toLowerCase()
         .includes(searchQuery.toLowerCase().trim());
 
     if (searchQuery.trim() !== "") {
-      return (
-        matchesSearch && matchesMinPrice && matchesMaxPrice && matchesRating
-      );
+      return matchesSearch && matchesMinPrice && matchesMaxPrice;
     }
 
     const matchesCategory = product.category === displayedCategory;
-    return (
-      matchesCategory && matchesMinPrice && matchesMaxPrice && matchesRating
-    );
+    return matchesCategory && matchesMinPrice && matchesMaxPrice;
   });
 
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (sortOption === "price-asc") return a.price - b.price;
     if (sortOption === "price-desc") return b.price - a.price;
-    return b.reviews * b.rating - a.reviews * a.rating;
+    // "Pertinence" par défaut : l'ordre renvoyé par l'API (plus récent d'abord).
+    return 0;
   });
 
   const itemsPerPage = 3;
@@ -389,41 +199,12 @@ export default function Catalog() {
               </div>
             </div>
 
-            <div className="filter-group">
-              <h3>Évaluation</h3>
-              <label>
-                <input
-                  type="radio"
-                  name="rating"
-                  checked={selectedRating === 4}
-                  onChange={() => {
-                    setSelectedRating(selectedRating === 4 ? null : 4);
-                    setCurrentPage(1);
-                  }}
-                />
-                <span className="stars">★★★★☆</span> & up
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  name="rating"
-                  checked={selectedRating === 3}
-                  onChange={() => {
-                    setSelectedRating(selectedRating === 3 ? null : 3);
-                    setCurrentPage(1);
-                  }}
-                />
-                <span className="stars">★★★☆☆</span> & up
-              </label>
-            </div>
-
             <button
               className="btn-reset"
               onClick={() => {
                 navigate("/catalog");
                 setSelectedCategory("Électronique");
                 setPriceRange({ min: "", max: "" });
-                setSelectedRating(null);
                 setSortOption("pertinence");
                 setSearchQuery("");
                 setCurrentPage(1);
@@ -456,7 +237,21 @@ export default function Catalog() {
               </form>
             )}
 
-            {currentProducts.length === 0 ? (
+            {isLoading ? (
+              <div className="catalog-empty">
+                <p>
+                  <FontAwesomeIcon icon={faSpinner} spin /> Chargement des
+                  produits...
+                </p>
+              </div>
+            ) : error ? (
+              <div className="catalog-empty">
+                <p style={{ color: "#dc2626" }}>{error}</p>
+                <button className="btn-reset" onClick={reload}>
+                  Réessayer
+                </button>
+              </div>
+            ) : currentProducts.length === 0 ? (
               <div className="catalog-empty">
                 <p>Aucun produit ne correspond à vos critères de recherche.</p>
               </div>
@@ -490,14 +285,14 @@ export default function Catalog() {
                             key={i}
                             icon={faStar}
                             className={
-                              i < product.rating
+                              i < (product.rating || 0)
                                 ? "star-active"
                                 : "star-inactive"
                             }
                           />
                         ))}
                         <span className="reviews-count">
-                          ({product.reviews})
+                          ({product.reviews || 0})
                         </span>
                       </div>
 

@@ -1,9 +1,9 @@
 import { useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { catalogProducts as PRODUCTS } from "../catalog/Catalog";
 import ProductCard from "../../../components/clients/shared/ProductCard/ProductCard";
 import heroImg from "../../../assets/hero.jpeg";
 import { useToast } from "../../../context/ToastContext";
+import { useProducts } from "../../../hooks/useProducts";
 import "./Home.css";
 
 const CATEGORIES = [
@@ -108,11 +108,9 @@ export default function Home() {
     }
   }, []);
 
-  const trendingProducts = PRODUCTS
-    ? [...PRODUCTS]
-        .sort((a, b) => b.rating - a.rating || b.reviews - a.reviews)
-        .slice(0, 4)
-    : [];
+  const { products, isLoading } = useProducts();
+
+  const trendingProducts = products.slice(0, 4);
 
   return (
     <div className="home-page page-transition">
@@ -180,7 +178,9 @@ export default function Home() {
         </div>
 
         <div className="product-grid">
-          {trendingProducts.length > 0 ? (
+          {isLoading ? (
+            <p>Chargement des produits...</p>
+          ) : trendingProducts.length > 0 ? (
             trendingProducts.map((product) => (
               <ProductCard
                 key={product.id}
@@ -189,7 +189,7 @@ export default function Home() {
               />
             ))
           ) : (
-            <p>Chargement des produits...</p>
+            <p>Aucun produit disponible pour le moment.</p>
           )}
         </div>
 
