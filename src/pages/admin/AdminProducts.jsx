@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlus,
@@ -11,9 +11,13 @@ import {
   faTrashCan,
   faImage,
   faXmark,
+  faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
 import { useToast } from "../../context/ToastContext";
 import { getBadgeClass } from "../../utils/badgeUtils";
+import { formatPrice, getStockStatus } from "../../utils/ProductUtils";
+import apiClient from "../../utils/apiClient";
+
 import "../../styles/admin.css";
 
 export default function AdminProducts() {
@@ -48,81 +52,29 @@ export default function AdminProducts() {
     { label: "-20%", value: "-20%" },
   ];
 
-  // Exemple de données enrichies
-  const [products, setProducts] = useState([
-    {
-      id: 1,
-      name: "Smartphone Pro Max",
-      sku: "SKU: SP-001",
-      category: "Électronique",
-      price: "650 000",
-      stock: 42,
-      status: "En Stock",
-      badge: "Nouveau",
-      statusType: "success",
-      image: null,
-    },
-    {
-      id: 2,
-      name: "Casque Audio Sans Fil",
-      sku: "SKU: CA-042",
-      category: "Accessoires",
-      price: "85 000",
-      stock: 3,
-      status: "Stock Faible",
-      badge: "Promo",
-      statusType: "warning",
-      image: null,
-    },
-    {
-      id: 3,
-      name: "Clavier Mécanique",
-      sku: "SKU: KB-109",
-      category: "Informatique",
-      price: "45 000",
-      stock: 0,
-      status: "Rupture",
-      badge: "Tendance",
-      statusType: "danger",
-      image: null,
-    },
-    {
-      id: 4,
-      name: 'Écran Gaming 27"',
-      sku: "SKU: EC-014",
-      category: "Informatique",
-      price: "210 000",
-      stock: 15,
-      status: "En Stock",
-      badge: "Populaire",
-      statusType: "success",
-      image: null,
-    },
-    {
-      id: 5,
-      name: "Basket Sport Urban",
-      sku: "SKU: BS-022",
-      category: "Chaussures",
-      price: "35 000",
-      stock: 8,
-      status: "En Stock",
-      badge: "-15%",
-      statusType: "success",
-      image: null,
-    },
-    {
-      id: 6,
-      name: "Veste Casual Homme",
-      sku: "SKU: VS-102",
-      category: "Vêtements",
-      price: "50 000",
-      stock: 2,
-      status: "Stock Faible",
-      badge: "-20%",
-      statusType: "warning",
-      image: null,
-    },
-  ]);
+  // Chargement des produits depuis l'API (plus de données codées en dur).
+  const [products, setProducts] = useState([]);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+  const [loadError, setLoadError] = useState(null);
+
+  const loadProducts = async () => {
+    setIsLoadingProducts(true);
+    setLoadError(null);
+
+    try {
+      const data = await apiClient.get("/products");
+      setProducts(data.products);
+    } catch (error) {
+      setLoadError(error.message || "Impossible de charger les produits");
+    } finally {
+      setIsLoadingProducts(false);
+    }
+  };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadProducts();
+  }, []);
 
   // CORRECTION : Ajout de la propriété badge dans l'état initial du formulaire
   const [newProduct, setNewProduct] = useState({
@@ -137,6 +89,11 @@ export default function AdminProducts() {
 
   // null = mode création ; sinon contient l'id du produit en cours de modification
   const [editingProductId, setEditingProductId] = useState(null);
+  // Fichier réellement sélectionné pour l'upload (newProduct.image ne sert
+  // qu'à l'aperçu : soit une URL locale temporaire, soit le chemin serveur
+  // existant en mode édition).
+  const [selectedImageFile, setSelectedImageFile] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const emptyProduct = {
     name: "",
@@ -151,6 +108,7 @@ export default function AdminProducts() {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setEditingProductId(null);
+    setSelectedImageFile(null);
     setNewProduct(emptyProduct);
   };
 
@@ -165,6 +123,7 @@ export default function AdminProducts() {
       badge: item.badge,
       image: item.image,
     });
+    setSelectedImageFile(null);
     setEditingProductId(item.id);
     setIsModalOpen(true);
   };
@@ -174,87 +133,78 @@ export default function AdminProducts() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      setNewProduct((prev) => ({ ...prev, image: reader.result }));
-    };
-    reader.readAsDataURL(file);
+    setSelectedImageFile(file);
+    setNewProduct((prev) => ({ ...prev, image: URL.createObjectURL(file) }));
   };
 
-  const handleCreateProduct = (e) => {
+  const handleCreateProduct = async (e) => {
     e.preventDefault();
-    const stockNum = Number(newProduct.stock);
-    let status = "En Stock";
-    let statusType = "success";
+    setIsSubmitting(true);
 
-    if (stockNum === 0) {
-      status = "Rupture";
-      statusType = "danger";
-    } else if (stockNum <= 5) {
-      status = "Stock Faible";
-      statusType = "warning";
-    }
+    const formData = new FormData();
+    formData.append("name", newProduct.name);
+    formData.append("sku", newProduct.sku);
+    formData.append("category", newProduct.category);
+    formData.append("price", String(newProduct.price).replace(/\s/g, ""));
+    formData.append("stock", newProduct.stock);
+    if (newProduct.badge) formData.append("badge", newProduct.badge);
+    if (selectedImageFile) formData.append("image", selectedImageFile);
 
-    if (editingProductId) {
-      // MODE ÉDITION : on met à jour le produit existant, sans changer son id
-      setProducts(
-        products.map((p) =>
-          p.id === editingProductId
-            ? {
-                ...p,
-                name: newProduct.name,
-                sku: newProduct.sku,
-                category: newProduct.category,
-                price: newProduct.price,
-                stock: stockNum,
-                status,
-                statusType,
-                badge: newProduct.badge,
-                image: newProduct.image,
-              }
-            : p,
-        ),
-      );
+    try {
+      if (editingProductId) {
+        const data = await apiClient.put(
+          `/products/${editingProductId}`,
+          formData,
+        );
+        setProducts((prev) =>
+          prev.map((p) => (p.id === editingProductId ? data.product : p)),
+        );
+        showToast(
+          "Produit modifié",
+          `le produit "${data.product.name}" a été mis à jour avec succès.`,
+          "success",
+        );
+      } else {
+        const data = await apiClient.post("/products", formData);
+        setProducts((prev) => [data.product, ...prev]);
+        setCurrentPage(1);
+        showToast(
+          "Produit ajouté",
+          `le produit "${data.product.name}" a été créé avec succès.`,
+          "success",
+        );
+      }
+
       handleCloseModal();
+    } catch (error) {
       showToast(
-        "Produit modifié !",
-        `Le produit "${newProduct.name}" a été mis à jour avec succès.`,
+        "Erreur",
+        error.errors?.[0] ||
+          error.message ||
+          "Impossible d'enregistrer le produit.",
+        "error",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteProduct = async (id, name) => {
+    try {
+      await apiClient.delete(`/products/${id}`);
+      setProducts((prev) => prev.filter((p) => p.id !== id));
+      showToast(
+        "Produit supprimé",
+        `Le produit "${name}" a été supprimé.`,
         "success",
       );
-      return;
+    } catch (error) {
+      showToast(
+        "Erreur ",
+        error.message || "Impossible de suprimer ce produit.",
+        "error",
+      );
     }
-
-    // MODE CRÉATION
-    const created = {
-      id: Date.now(),
-      name: newProduct.name,
-      sku: newProduct.sku || `SKU: PR-${Math.floor(100 + Math.random() * 900)}`,
-      category: newProduct.category,
-      price: newProduct.price,
-      stock: stockNum,
-      status,
-      statusType,
-      badge: newProduct.badge, // Récupération propre du badge sélectionné
-      image: newProduct.image,
-    };
-
-    setProducts([created, ...products]);
-    setCurrentPage(1);
-    handleCloseModal();
-    showToast(
-      "Produit ajouté !",
-      `Le produit "${created.name}" a été créé avec succès.`,
-      "success",
-    );
-  };
-
-  const handleDeleteProduct = (id, name) => {
-    setProducts(products.filter((p) => p.id !== id));
-    showToast(
-      "Produit supprimé",
-      `Le produit "${name}" a été supprimé.`,
-      "success",
-    );
   };
 
   // Filtrage des produits selon la recherche, la catégorie et le stock
@@ -262,16 +212,15 @@ export default function AdminProducts() {
     const matchesSearch =
       p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.sku.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCat =
+    const matchsCat =
       selectedCategory === "Toutes" || p.category === selectedCategory;
 
-    let matchesStock = true;
-    if (selectedStock === "in_stock") matchesStock = p.stock > 5;
+    let matchesStok = true;
+    if (selectedStock === "in_stock") matchesStok = p.stock > 5;
     if (selectedStock === "low_stock")
-      matchesStock = p.stock > 0 && p.stock <= 5;
-    if (selectedStock === "out_of_stock") matchesStock = p.stock === 0;
-
-    return matchesSearch && matchesCat && matchesStock;
+      matchesStok = p.stock > 0 && p.stock <= 5;
+    if (selectedStock === "out_of_stock") matchesStok = p.stock === 0;
+    return matchesSearch && matchsCat && matchesStok;
   });
 
   // Calculs pour la pagination
@@ -308,6 +257,7 @@ export default function AdminProducts() {
             className="btn btn-primary-dark"
             onClick={() => {
               setNewProduct(emptyProduct);
+              setSelectedImageFile(null);
               setEditingProductId(null);
               setIsModalOpen(true);
             }}
@@ -384,7 +334,34 @@ export default function AdminProducts() {
               </tr>
             </thead>
             <tbody>
-              {currentProducts.length > 0 ? (
+              {isLoadingProducts ? (
+                <tr>
+                  <td
+                    colSpan={6}
+                    style={{ textAlign: "center", padding: "30px" }}
+                  >
+                    <FontAwesomeIcon icon={faSpinner} spin /> Chargement des
+                    produits...
+                  </td>
+                </tr>
+              ) : loadError ? (
+                <tr>
+                  <td
+                    colSpan={6}
+                    style={{
+                      textAlign: "center",
+                      padding: "20px",
+                      color: "#dc2626",
+                    }}
+                  >
+                    {loadError}
+                    {""}
+                    <button className="link-primary" onClick={loadProducts}>
+                      Réessayer
+                    </button>
+                  </td>
+                </tr>
+              ) : currentProducts.length > 0 ? (
                 currentProducts.map((item) => (
                   <tr key={item.id}>
                     <td>
@@ -424,12 +401,12 @@ export default function AdminProducts() {
                               </span>
                             )}
                           </div>
-                          <span className="product-sku">{item.sku}</span>
+                          <span className="product-sku">SKU: {item.sku}</span>
                         </div>
                       </div>
                     </td>
                     <td className="text-muted">{item.category}</td>
-                    <td className="font-bold">{item.price}</td>
+                    <td className="font-bold">{formatPrice(item.price)}</td>
                     <td>
                       <span
                         className={
@@ -444,10 +421,17 @@ export default function AdminProducts() {
                       </span>
                     </td>
                     <td>
-                      <span className={`pill-badge badge-${item.statusType}`}>
-                        <span className="badge-dot"></span>
-                        {item.status}
-                      </span>
+                      {(() => {
+                        const stockStatus = getStockStatus(item.stock);
+                        return (
+                          <span
+                            className={`pill-badge badge-${stockStatus.type}`}
+                          >
+                            <span className="badge-dot"></span>
+                            {stockStatus.label}
+                          </span>
+                        );
+                      })()}
                     </td>
                     <td style={{ textAlign: "right" }}>
                       <button
@@ -633,6 +617,7 @@ export default function AdminProducts() {
                 <input
                   type="text"
                   className="form-control"
+                  placeholder="ex: 45000"
                   value={newProduct.price}
                   onChange={(e) =>
                     setNewProduct({ ...newProduct, price: e.target.value })
@@ -687,13 +672,25 @@ export default function AdminProducts() {
                   type="button"
                   className="btn"
                   onClick={handleCloseModal}
+                  disabled={isSubmitting}
                 >
                   Annuler
                 </button>
-                <button type="submit" className="btn btn-primary-dark">
-                  {editingProductId
-                    ? "Enregistrer les modifications"
-                    : "Créer le produit"}
+                <button
+                  type="submit"
+                  className="btn btn-primary-dark"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <FontAwesomeIcon icon={faSpinner} spin />{" "}
+                      Enregistrement...
+                    </>
+                  ) : editingProductId ? (
+                    "Enregistrer les modifications"
+                  ) : (
+                    "Créer le produit"
+                  )}
                 </button>
               </div>
             </form>

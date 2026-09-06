@@ -11,18 +11,23 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
  * avec un simple try/catch.
  */
 async function request(path, { method = "GET", body, headers } = {}) {
+  const isFormData = body instanceof FormData;
+
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method,
     credentials: "include", // indispensable : envoie/reçoit le cookie de session
     headers: {
-      ...(body ? { "Content-Type": "application/json" } : {}),
+      // Pour du FormData (upload de fichier), on laisse le navigateur poser
+      // lui-même le Content-Type avec la bonne boundary multipart.
+      ...(body && !isFormData ? { "Content-Type": "application/json" } : {}),
       ...headers,
     },
-    body: body ? JSON.stringify(body) : undefined,
+    body: isFormData ? body : body ? JSON.stringify(body) : undefined,
   });
 
-  // Les réponses 204 (No Content, ex: logout) n'ont pas de corps JSON à lire.
-  const data = response.status === 204 ? null : await response.json().catch(() => null);
+  // Les réponses 204 (No Content, ex: logout, suppression) n'ont pas de corps JSON à lire.
+  const data =
+    response.status === 204 ? null : await response.json().catch(() => null);
 
   if (!response.ok) {
     const error = new Error(data?.message || "Une erreur est survenue.");
