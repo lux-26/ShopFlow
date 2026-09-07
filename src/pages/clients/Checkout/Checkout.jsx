@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -28,6 +28,14 @@ export default function Checkout() {
     () => JSON.parse(localStorage.getItem("shopflow_cart")) || [],
   );
   const [useLoyaltyPoints, setUseLoyaltyPoints] = useState(false);
+  const [loyaltyPoints, setLoyaltyPoints] = useState(0);
+  const [promo] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("shopflow_promo")) || null;
+    } catch {
+      return null;
+    }
+  });
 
   // États pour l'adresse de livraison (initialisés à vide)
   const [firstName, setFirstName] = useState("");
@@ -53,10 +61,94 @@ export default function Checkout() {
   const shippingFee =
     cartItems.length === 0 ? 0 : shippingMode === "express" ? 2500 : 0;
 
-  const loyaltyDiscount = useLoyaltyPoints ? 5000 : 0;
-  const finalTotal = subtotal + shippingFee - loyaltyDiscount;
+  const loyaltyDiscount = useLoyaltyPoints && loyaltyPoints >= 1000 ? 5000 : 0;
+  const promoDiscount = promo?.discountAmount || 0;
+  const finalTotal = Math.max(
+    0,
+    subtotal + shippingFee - loyaltyDiscount - promoDiscount,
+  );
 
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
+  const [orderConfirmed, setOrderConfirmed] = useState(false);
+  useEffect(() => {
+    apiClient
+      .get("/loyalty")
+      .then(({ loyalty }) => setLoyaltyPoints(loyalty.points))
+      .catch(() => {});
+  }, []);
+
+  const shippingIsValid = () => {
+    const namePattern = /^[\p{L}][\p{L}' -]+$/u;
+    const phonePattern =
+      /^(?:\+221[ -]?)?7[05678](?:[ -]?\d{3})(?:[ -]?\d{2})(?:[ -]?\d{2})$/;
+    const nameVowels =
+      `${firstName} ${lastName}`.match(/[aeiouyàâäéèêëîïôöùûüÿ]/gi) || [];
+    const cityVowels = city.match(/[aeiouyàâäéèêëîïôöùûüÿ]/gi) || [];
+    return (
+      namePattern.test(firstName.trim()) &&
+      namePattern.test(lastName.trim()) &&
+      nameVowels.length >= 4 &&
+      address.trim().length >= 8 &&
+      /[\p{L}\d]/u.test(address) &&
+      (/\d/.test(address) || address.trim().split(/\s+/).length >= 2) &&
+      namePattern.test(city.trim()) &&
+      cityVowels.length >= 2 &&
+      phonePattern.test(phone.trim())
+    );
+  };
+
+  const currentStep = orderConfirmed ? 3 : shippingIsValid() ? 2 : 1;
+
+  const validateCheckoutFields = () => {
+    const namePattern = /^[\p{L}][\p{L}' -]+$/u;
+    const phonePattern =
+      /^(?:\+221[ -]?)?7[05678](?:[ -]?\d{3})(?:[ -]?\d{2})(?:[ -]?\d{2})$/;
+    const cardPattern = /^\d{16,19}$/;
+    const expirationPattern = /^(0[1-9]|1[0-2])\/\d{2}$/;
+
+    if (
+      !namePattern.test(firstName.trim()) ||
+      !namePattern.test(lastName.trim())
+    ) {
+      return "Le prénom et le nom doivent être valides.";
+    }
+    const nameVowels =
+      `${firstName} ${lastName}`.match(/[aeiouyàâäéèêëîïôöùûüÿ]/gi) || [];
+    if (nameVowels.length < 4) {
+      return "Veuillez saisir un prénom et un nom valides.";
+    }
+    if (
+      address.trim().length < 8 ||
+      !/[\p{L}\d]/u.test(address) ||
+      (!/\d/.test(address) && address.trim().split(/\s+/).length < 2)
+    ) {
+      return "Veuillez saisir une adresse de livraison valide.";
+    }
+    const cityVowels = city.match(/[aeiouyàâäéèêëîïôöùûüÿ]/gi) || [];
+    if (!namePattern.test(city.trim()) || cityVowels.length < 2) {
+      return "Veuillez saisir une ville valide.";
+    }
+    if (!phonePattern.test(phone.trim())) {
+      return "Veuillez saisir un numéro de téléphone valide.";
+    }
+    if (paymentMethod === "card") {
+      if (!cardPattern.test(cardNumber.replace(/\s/g, ""))) {
+        return "Le numéro de carte doit contenir entre 16 et 19 chiffres.";
+      }
+      if (!expirationPattern.test(cardExp.trim())) {
+        return "La date d'expiration doit respecter le format MM/AA.";
+      }
+      if (!/^\d{3,4}$/.test(cardCvc.trim())) {
+        return "Le CVC doit contenir 3 ou 4 chiffres.";
+      }
+    } else if (
+      (paymentMethod === "orange" || paymentMethod === "wave") &&
+      !phonePattern.test(phoneNumber.trim())
+    ) {
+      return "Le numéro de paiement mobile est invalide.";
+    }
+    return null;
+  };
 
   const handleConfirmOrder = async () => {
     if (cartItems.length === 0) {
@@ -99,6 +191,12 @@ export default function Checkout() {
       }
     }
 
+    const validationMessage = validateCheckoutFields();
+    if (validationMessage) {
+      showToast("Attention", validationMessage, "error");
+      return;
+    }
+
     setIsSubmittingOrder(true);
     try {
       await apiClient.post("/orders", {
@@ -113,26 +211,15 @@ export default function Checkout() {
         // transaction elle-même reste à intégrer avec un vrai fournisseur.
         paymentMethod: paymentMethod === "wave" ? "wave" : paymentMethod,
         useLoyaltyPoints,
+        promoCode: promo?.code || "",
       });
 
-      const newNotification = {
-        id: Date.now(),
-        text: "Votre commande récente a été validée avec succès.",
-        time: "À l'instant",
-        category: "Commandes",
-      };
-      const existingNotifs =
-        JSON.parse(localStorage.getItem("shopflow_notifications")) || [];
-      localStorage.setItem(
-        "shopflow_notifications",
-        JSON.stringify([newNotification, ...existingNotifs]),
-      );
+      setOrderConfirmed(true);
 
       localStorage.removeItem("shopflow_cart");
       setCartItems([]);
 
       window.dispatchEvent(new Event("cartUpdated"));
-      window.dispatchEvent(new Event("notificationUpdated"));
       window.dispatchEvent(new Event("orderUpdated"));
 
       showToast(
@@ -163,22 +250,37 @@ export default function Checkout() {
         <div className="checkout-header-main">
           <h1>Paiement Sécurisé</h1>
           <div className="checkout-steps">
-            <span className="step-item completed">
+            <span
+              className={`step-item ${currentStep > 1 ? "completed" : currentStep === 1 ? "active" : ""}`}
+            >
               <span className="step-circle">
-                <FontAwesomeIcon icon={faCheckCircle} />
+                {currentStep > 1 ? (
+                  <FontAwesomeIcon icon={faCheckCircle} />
+                ) : (
+                  "1"
+                )}
               </span>{" "}
               Livraison
             </span>
             <span className="step-separator">
               <FontAwesomeIcon icon={faChevronRight} size="xs" />
             </span>
-            <span className="step-item active">
-              <span className="step-circle number">2</span> Paiement
+            <span
+              className={`step-item ${currentStep === 2 ? "active" : currentStep > 2 ? "completed" : ""}`}
+            >
+              <span className="step-circle number">
+                {currentStep > 2 ? (
+                  <FontAwesomeIcon icon={faCheckCircle} />
+                ) : (
+                  "2"
+                )}
+              </span>{" "}
+              Paiement
             </span>
             <span className="step-separator">
               <FontAwesomeIcon icon={faChevronRight} size="xs" />
             </span>
-            <span className="step-item">
+            <span className={`step-item ${currentStep === 3 ? "active" : ""}`}>
               <span className="step-circle number">3</span> Confirmation
             </span>
           </div>
@@ -476,7 +578,7 @@ export default function Checkout() {
                   <div>
                     <strong>Récompense Fidélité</strong>
                     <p>
-                      Solde : 1 250 points
+                      Solde : {loyaltyPoints.toLocaleString()} points
                       <br />
                       Valeur : 5 000 FCFA
                     </p>
@@ -488,6 +590,7 @@ export default function Checkout() {
                     type="checkbox"
                     id="loyaltyCheck"
                     checked={useLoyaltyPoints}
+                    disabled={loyaltyPoints < 1000}
                     onChange={(e) => setUseLoyaltyPoints(e.target.checked)}
                   />
                 </div>
@@ -509,6 +612,12 @@ export default function Checkout() {
                 <div className="summary-line discount">
                   <span>Remise fidélité</span>
                   <span>-5 000 FCFA</span>
+                </div>
+              )}
+              {promoDiscount > 0 && (
+                <div className="summary-line discount">
+                  <span>Remise promo ({promo?.code})</span>
+                  <span>-{promoDiscount.toLocaleString()} FCFA</span>
                 </div>
               )}
 

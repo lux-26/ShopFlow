@@ -34,7 +34,7 @@ export default function Catalog() {
   const { products, isLoading, error, reload } = useProducts();
 
   const [sortOption, setSortOption] = useState("pertinence");
-  const [selectedCategory, setSelectedCategory] = useState("Électronique");
+  const [selectedCategory, setSelectedCategory] = useState("Toutes");
   const [priceRange, setPriceRange] = useState({ min: "", max: "" });
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
@@ -70,7 +70,8 @@ export default function Catalog() {
       return matchesSearch && matchesMinPrice && matchesMaxPrice;
     }
 
-    const matchesCategory = product.category === displayedCategory;
+    const matchesCategory =
+      displayedCategory === "Toutes" || product.category === displayedCategory;
     return matchesCategory && matchesMinPrice && matchesMaxPrice;
   });
 
@@ -128,7 +129,9 @@ export default function Catalog() {
           <h1 className="catalog-title">
             {filterParam === "nouveautes"
               ? "✨ Nouveautés"
-              : `Catalogue : ${displayedCategory}`}
+              : displayedCategory === "Toutes"
+                ? "Catalogue : Tous les produits"
+                : `Catalogue : ${displayedCategory}`}
           </h1>
           <div className="catalog-sort">
             <label htmlFor="sort-select">Trier par : </label>
@@ -151,6 +154,19 @@ export default function Catalog() {
             {filterParam !== "nouveautes" && (
               <div className="filter-group">
                 <h3>Catégorie</h3>
+                <label>
+                  <input
+                    type="radio"
+                    name="category"
+                    checked={displayedCategory === "Toutes"}
+                    onChange={() => {
+                      setSelectedCategory("Toutes");
+                      setCurrentPage(1);
+                      navigate("/catalog", { replace: true });
+                    }}
+                  />
+                  Toutes les catégories
+                </label>
                 {ALL_CATEGORIES.map((cat) => (
                   <label key={cat}>
                     <input
@@ -203,7 +219,7 @@ export default function Catalog() {
               className="btn-reset"
               onClick={() => {
                 navigate("/catalog");
-                setSelectedCategory("Électronique");
+                setSelectedCategory("Toutes");
                 setPriceRange({ min: "", max: "" });
                 setSortOption("pertinence");
                 setSearchQuery("");

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faUser,
@@ -13,15 +12,18 @@ import {
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import { useToast } from "../../../context/ToastContext";
+import apiClient from "../../../utils/apiClient";
+import { useAuth } from "../../../context/AuthContext";
 
 export default function ProfileSidebar({
   activeTab,
   setActiveTab,
   userInfo,
   setUserInfo,
+  handleLogout,
 }) {
-  const navigate = useNavigate();
   const { showToast } = useToast();
+  const { refresh } = useAuth();
 
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
@@ -42,29 +44,35 @@ export default function ProfileSidebar({
     return initials !== "" ? initials : null;
   };
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64Image = reader.result;
-        const updatedUser = { ...userInfo, avatar: base64Image };
-
+      const formData = new FormData();
+      formData.append("avatar", file);
+      try {
+        const { user: serverUser } = await apiClient.post(
+          "/auth/avatar",
+          formData,
+        );
+        const updatedUser = { ...userInfo, avatar: serverUser.avatar };
         setUserInfo(updatedUser);
-
+        await refresh();
         localStorage.setItem("shopflow_user_info", JSON.stringify(updatedUser));
-        localStorage.setItem("shopflow_user_avatar", base64Image);
-
+        localStorage.removeItem("shopflow_user_avatar");
         window.dispatchEvent(new Event("userAvatarUpdated"));
         window.dispatchEvent(new Event("storage"));
-
         showToast(
           "Succès",
           "Votre photo de profil a été mise à jour avec succès.",
           "success",
         );
-      };
-      reader.readAsDataURL(file);
+      } catch (error) {
+        showToast(
+          "Erreur",
+          error.message || "Impossible d'envoyer la photo.",
+          "error",
+        );
+      }
     }
   };
 
@@ -88,22 +96,8 @@ export default function ProfileSidebar({
     );
   };
 
-  const confirmLogout = () => {
-    // 1. Suppression de toutes les données sensibles et d'authentification
-    localStorage.removeItem("shopflow_is_logged");
-    localStorage.removeItem("shopflow_user_info");
-    localStorage.removeItem("shopflow_user_avatar");
-    localStorage.removeItem("shopflow_notifications");
-
-    // 2. Réinitialisation de l'état utilisateur global dans le composant parent
-    if (typeof setUserInfo === "function") {
-      setUserInfo(null);
-    }
-
-    // 3. Déclenchement des événements et redirection vers le login
-    window.dispatchEvent(new Event("notificationUpdated"));
-    window.dispatchEvent(new Event("storage"));
-    navigate("/");
+  const confirmLogout = async () => {
+    await handleLogout();
   };
 
   const getDisplayName = () => {
@@ -120,7 +114,8 @@ export default function ProfileSidebar({
   const hasRealAvatarImage =
     userInfo?.avatar &&
     typeof userInfo.avatar === "string" &&
-    userInfo.avatar.startsWith("data:image");
+    (userInfo.avatar.startsWith("data:image") ||
+      userInfo.avatar.startsWith("/uploads/"));
 
   return (
     <>

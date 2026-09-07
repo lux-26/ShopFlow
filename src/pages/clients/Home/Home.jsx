@@ -1,65 +1,16 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ProductCard from "../../../components/clients/shared/ProductCard/ProductCard";
 import heroImg from "../../../assets/hero.jpeg";
 import { useToast } from "../../../context/ToastContext";
 import { useProducts } from "../../../hooks/useProducts";
+import apiClient from "../../../utils/apiClient";
 import "./Home.css";
-
-const CATEGORIES = [
-  {
-    id: 1,
-    name: "Électronique",
-    image:
-      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&q=80",
-  },
-  {
-    id: 2,
-    name: "Accessoires",
-    image:
-      "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=300&q=80",
-  },
-  {
-    id: 3,
-    name: "Mobilier",
-    image:
-      "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=300&q=80",
-  },
-  {
-    id: 4,
-    name: "Beauté",
-    image:
-      "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=300&q=80",
-  },
-  {
-    id: 5,
-    name: "Mode & Vêtements",
-    image:
-      "https://images.unsplash.com/photo-1445205170230-053b83016050?w=300&q=80",
-  },
-  {
-    id: 6,
-    name: "Sport & Loisirs",
-    image:
-      "https://images.unsplash.com/photo-1517649763962-0c623066013b?w=300&q=80",
-  },
-  {
-    id: 7,
-    name: "Cuisine & Maison",
-    image:
-      "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=300&q=80",
-  },
-  {
-    id: 8,
-    name: "Informatique",
-    image:
-      "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=300&q=80",
-  },
-];
 
 export default function Home() {
   const navigate = useNavigate();
   const categoriesRef = useRef(null);
+  const [categories, setCategories] = useState([]);
 
   const { showToast } = useToast();
   const handleAddToCart = (product) => {
@@ -110,6 +61,13 @@ export default function Home() {
 
   const { products, isLoading } = useProducts();
 
+  useEffect(() => {
+    apiClient
+      .get("/categories")
+      .then((data) => setCategories(data.categories))
+      .catch(() => setCategories([]));
+  }, []);
+
   const trendingProducts = products.slice(0, 4);
 
   return (
@@ -155,7 +113,7 @@ export default function Home() {
           </div>
         </div>
         <div className="categories-grid" ref={categoriesRef}>
-          {CATEGORIES.map((cat) => (
+          {categories.map((cat) => (
             <div
               key={cat.id}
               className="category-card"

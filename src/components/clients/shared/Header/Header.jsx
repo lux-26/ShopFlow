@@ -15,9 +15,10 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import "./Header.css";
 import { useAuth } from "../../../../context/AuthContext";
+import apiClient from "../../../../utils/apiClient";
 
 export default function Header() {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [totalItems, setTotalItems] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState([]);
@@ -40,10 +41,12 @@ export default function Header() {
       const savedAvatar = localStorage.getItem("shopflow_user_avatar");
       const parsed = savedUser ? JSON.parse(savedUser) : {};
 
-      let avatar = savedAvatar || parsed?.avatar || "";
+      let avatar = user.avatar || savedAvatar || parsed?.avatar || "";
 
       const hasRealAvatarImage =
-        avatar && typeof avatar === "string" && avatar.startsWith("data:image");
+        avatar &&
+        typeof avatar === "string" &&
+        (avatar.startsWith("data:image") || avatar.startsWith("/uploads/"));
 
       let firstName = parsed.firstName || "";
       let lastName = parsed.lastName || "";
@@ -77,6 +80,14 @@ export default function Header() {
 
   const [userData, setUserData] = useState(getStoredUserData);
 
+  const serverInitials = user?.name
+    ?.trim()
+    .split(/\s+/)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+  const displayInitials = serverInitials || userData.userInitials;
+
   const notificationRef = useRef(null);
 
   const updateProfileData = () => {
@@ -84,19 +95,18 @@ export default function Header() {
   };
 
   // Chargement des notifications
-  const loadNotifications = () => {
+  const loadNotifications = async () => {
     if (!user) {
       setNotifications([]);
       return;
     }
 
     try {
-      const savedNotifs = JSON.parse(
-        localStorage.getItem("shopflow_notifications"),
-      );
+      const { notifications: savedNotifications } =
+        await apiClient.get("/notifications");
 
-      if (Array.isArray(savedNotifs) && savedNotifs.length > 0) {
-        const formattedNotifs = savedNotifs.map((notif) => {
+      if (savedNotifications.length > 0) {
+        const formattedNotifs = savedNotifications.map((notif) => {
           let icon = faBox;
           let color = "#64748b";
           let bgColor = "#f1f5f9";
@@ -115,7 +125,13 @@ export default function Header() {
             bgColor = notif.text?.includes("coupon") ? "#dbeafe" : "#f1f5f9";
           }
 
-          return { ...notif, icon, color, bgColor };
+          return {
+            ...notif,
+            time: new Date(notif.createdAt).toLocaleDateString("fr-FR"),
+            icon,
+            color,
+            bgColor,
+          };
         });
 
         setNotifications(formattedNotifs);
@@ -181,9 +197,9 @@ export default function Header() {
       window.removeEventListener("userNameUpdated", updateProfileData);
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  // Les écouteurs sont volontairement enregistrés une fois au montage.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    // Les écouteurs doivent utiliser l'utilisateur courant pour relire son avatar.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   // Quand la session change (connexion, déconnexion, ou résolution de
   // /api/auth/me au chargement), on recalcule l'affichage du profil et
@@ -192,7 +208,7 @@ export default function Header() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     updateProfileData();
     loadNotifications();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const handleProfileClick = (e) => {
@@ -209,10 +225,14 @@ export default function Header() {
     navigate("/cart");
   };
 
-  const handleClearNotifications = () => {
-    setNotifications([]);
-    localStorage.setItem("shopflow_notifications", JSON.stringify([]));
-    window.dispatchEvent(new Event("notificationUpdated"));
+  const handleClearNotifications = async () => {
+    await apiClient.post("/notifications/read-all");
+    setNotifications((currentNotifications) =>
+      currentNotifications.map((notification) => ({
+        ...notification,
+        read: true,
+      })),
+    );
   };
 
   const filteredNotifications = notifications.filter((notif) => {
@@ -233,6 +253,9 @@ export default function Header() {
     }
     return false;
   });
+  const unreadNotifications = notifications.filter(
+    (notification) => !notification.read,
+  ).length;
 
   return (
     <header className="shopflow-header page-transition">
@@ -304,8 +327,8 @@ export default function Header() {
             onClick={() => setShowNotifications(!showNotifications)}
           >
             <FontAwesomeIcon icon={faBell} />
-            {notifications.length > 0 && (
-              <span className="badge">{notifications.length}</span>
+            {unreadNotifications > 0 && (
+              <span className="badge">{unreadNotifications}</span>
             )}
           </button>
 
@@ -341,7 +364,10 @@ export default function Header() {
                 ) : (
                   filteredNotifications.map((notif, index) => (
                     <div
-                      key={notif.id ?? `${notif.category ?? "notification"}-${index}`}
+                      key={
+                        notif.id ??
+                        `${notif.category ?? "notification"}-${index}`
+                      }
                       className="notification-item-pro"
                     >
                       <div
@@ -388,10 +414,10 @@ export default function Header() {
             textDecoration: "none",
           }}
         >
-          {userData.avatar ? (
+          {isAuthenticated && userData.avatar ? (
             <img
               src={userData.avatar}
-              alt="Photo de profil de l'utilisateur"
+              alt={`Photo de profil de ${user.name}`}
               style={{
                 width: "32px",
                 height: "32px",
@@ -400,7 +426,7 @@ export default function Header() {
                 border: "1px solid #cbd5e1",
               }}
             />
-          ) : userData.userInitials ? (
+          ) : isAuthenticated && displayInitials ? (
             <div
               style={{
                 width: "32px",
@@ -415,12 +441,15 @@ export default function Header() {
                 fontSize: "0.8rem",
               }}
             >
-              {userData.userInitials}
+              {displayInitials}
             </div>
           ) : (
             <>
               <FontAwesomeIcon icon={faUser} /> Compte
             </>
+          )}
+          {isAuthenticated && user?.name && (
+            <span className="nav-profile-name">{user.name}</span>
           )}
         </a>
 

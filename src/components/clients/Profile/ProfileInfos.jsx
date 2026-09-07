@@ -86,7 +86,8 @@ export default function ProfileInfos({
   const hasRealAvatarImage =
     currentInfo?.avatar &&
     typeof currentInfo.avatar === "string" &&
-    currentInfo.avatar.startsWith("data:image");
+    (currentInfo.avatar.startsWith("data:image") ||
+      currentInfo.avatar.startsWith("/uploads/"));
 
   const onSaveClick = () => {
     setIsEditing(false);

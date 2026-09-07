@@ -1,14 +1,11 @@
 import mongoose from "mongoose";
 
-// Chaque article est "snapshotté" (nom, image, prix au moment de la commande) :
-// si le produit change de prix ou est supprimé plus tard, l'historique de
-// commande reste fidèle à ce qui a réellement été payé.
 const orderItemSchema = new mongoose.Schema(
   {
     product: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Product",
-      default: null, // conservé même si le produit d'origine est supprimé
+      default: null,
     },
     name: { type: String, required: true },
     image: { type: String, default: null },
@@ -31,25 +28,16 @@ const shippingAddressSchema = new mongoose.Schema(
 
 const orderSchema = new mongoose.Schema(
   {
+    orderNumber: { type: String, required: true, unique: true },
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
+      index: true,
     },
-    // Snapshot du nom/email du client au moment de la commande (évite d'avoir
-    // à repeupler `user` juste pour afficher un nom dans le back-office).
     customerName: { type: String, required: true },
     customerEmail: { type: String, required: true },
-
-    items: {
-      type: [orderItemSchema],
-      required: true,
-      validate: {
-        validator: (items) => Array.isArray(items) && items.length > 0,
-        message: "Une commande doit contenir au moins un article.",
-      },
-    },
-
+    items: { type: [orderItemSchema], required: true, minlength: 1 },
     shippingAddress: { type: shippingAddressSchema, required: true },
     shippingMode: {
       type: String,
@@ -61,12 +49,11 @@ const orderSchema = new mongoose.Schema(
       enum: ["card", "orange", "wave", "cash"],
       required: true,
     },
-
     subtotal: { type: Number, required: true, min: 0 },
     shippingFee: { type: Number, required: true, min: 0, default: 0 },
     discount: { type: Number, required: true, min: 0, default: 0 },
     total: { type: Number, required: true, min: 0 },
-
+    pointsAwarded: { type: Boolean, default: false },
     status: {
       type: String,
       enum: ["En attente", "Payé", "En cours", "Livré", "Annulé"],

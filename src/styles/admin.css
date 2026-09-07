@@ -999,6 +999,12 @@ html {
 
 /* Tablette large / petit desktop : sidebar fixe et réduite (icônes) */
 @media (min-width: 768px) and (max-width: 1023px) {
+    .admin-layout {
+        height: 100dvh;
+        min-height: 0;
+        overflow: hidden;
+    }
+
     .sidebar-toggle-btn {
         display: none;
     }
@@ -1042,6 +1048,8 @@ html {
         margin-left: var(--sidebar-width-collapsed);
         width: calc(100% - var(--sidebar-width-collapsed));
         padding: var(--space-6);
+        height: 100dvh;
+        overflow-y: auto;
     }
 }
 
@@ -1091,6 +1099,12 @@ html {
 
 /* Desktop : sidebar fixe, pleine largeur, contenu décalé */
 @media (min-width: 1024px) {
+    .admin-layout {
+        height: 100dvh;
+        min-height: 0;
+        overflow: hidden;
+    }
+
     .sidebar-toggle-btn {
         display: none;
     }
@@ -1109,6 +1123,8 @@ html {
         margin-left: var(--sidebar-width);
         width: calc(100% - var(--sidebar-width));
         padding: var(--space-8);
+        height: 100dvh;
+        overflow-y: auto;
     }
 }
 

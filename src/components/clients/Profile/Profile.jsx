@@ -14,6 +14,7 @@ import "./Profile.css";
 
 export default function Profile() {
   const navigate = useNavigate();
+  const { logout, user } = useAuth();
   const [activeTab, setActiveTab] = useState("infos");
 
   const [userInfo, setUserInfo] = useState({
@@ -43,19 +44,32 @@ export default function Profile() {
   // mais les commandes viennent maintenant réellement de l'API.
   const loadProfileData = () => {
     const savedUser = localStorage.getItem("shopflow_user_info");
+    const parsedUser = savedUser ? JSON.parse(savedUser) : {};
+    const serverName =
+      user?.name || parsedUser.name || parsedUser.fullName || "";
+    const nameParts = serverName.trim().split(/\s+/).filter(Boolean);
+
+    const profileData = {
+      ...parsedUser,
+      firstName: user ? nameParts[0] || "" : parsedUser.firstName || "",
+      lastName: user ? nameParts.slice(1).join(" ") : parsedUser.lastName || "",
+      email: user?.email || parsedUser.email || "",
+      avatar: user?.avatar || parsedUser.avatar || "",
+    };
+
     if (savedUser) {
-      const parsedUser = JSON.parse(savedUser);
       if (parsedUser.fullName && !parsedUser.firstName) {
         const parts = parsedUser.fullName.trim().split(" ");
-        parsedUser.firstName = parts[0] || "";
-        parsedUser.lastName = parts.slice(1).join(" ") || "";
+        profileData.firstName = parts[0] || "";
+        profileData.lastName = parts.slice(1).join(" ") || "";
       }
-      if (!parsedUser.avatar) {
-        parsedUser.avatar =
+      if (!profileData.avatar) {
+        profileData.avatar =
           "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
       }
-      setUserInfo(parsedUser);
     }
+
+    setUserInfo(profileData);
 
     const savedPoints = localStorage.getItem("shopflow_loyalty_points");
     if (savedPoints !== null) {
@@ -111,23 +125,21 @@ export default function Profile() {
       window.removeEventListener("orderUpdated", handleOrderUpdate);
       window.removeEventListener("storage", handleStorageUpdate);
     };
-  }, []);
+    // La fonction utilise les données serveur de l'utilisateur courant.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   const handleSaveProfile = () => {
     localStorage.setItem("shopflow_user_info", JSON.stringify(userInfo));
     showCustomToast("Succès", "Profil mis à jour avec succès !");
   };
 
-  const { logout } = useAuth();
-
   const handleLogout = async () => {
-    if (window.confirm("Voulez-vous vraiment vous déconnecter ?")) {
-      await logout(); // invalide réellement la session côté serveur
-      showCustomToast("Déconnexion", "Déconnexion réussie ! Redirection...");
-      setTimeout(() => {
-        navigate("/login");
-      }, 1000);
-    }
+    await logout();
+    showCustomToast("Déconnexion", "Déconnexion réussie ! Redirection...");
+    setTimeout(() => {
+      navigate("/login");
+    }, 1000);
   };
 
   const [notifs, setNotifs] = useState({

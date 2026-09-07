@@ -12,6 +12,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import "./Cart.css";
 import { useAuth } from "../../../context/AuthContext";
+import apiClient from "../../../utils/apiClient";
 
 export default function Cart({ onGoToCheckout }) {
   const { isAuthenticated } = useAuth();
@@ -20,6 +21,7 @@ export default function Cart({ onGoToCheckout }) {
   );
   const [promoCode, setPromoCode] = useState("");
   const [discount, setDiscount] = useState(0);
+  const [isApplyingPromo, setIsApplyingPromo] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [popupData, setPopupData] = useState({
     title: "",
@@ -32,6 +34,7 @@ export default function Cart({ onGoToCheckout }) {
   const updateCartStorage = (updatedItems) => {
     setCartItems(updatedItems);
     localStorage.setItem("shopflow_cart", JSON.stringify(updatedItems));
+    window.dispatchEvent(new Event("cartUpdated"));
   };
 
   const handleIncrease = (id) => {
@@ -105,18 +108,33 @@ export default function Cart({ onGoToCheckout }) {
   const shippingFee = cartItems.length > 0 ? 5000 : 0;
   const finalTotal = subtotal + shippingFee - discount;
 
-  const handleApplyPromo = () => {
-    const validPromoCodes = ["SHOPFLOW20", "BIENVENUE2026", "PROMO10"];
-    const codeFormatted = promoCode.trim().toUpperCase();
-    if (validPromoCodes.includes(codeFormatted)) {
-      setDiscount(12000);
+  const handleApplyPromo = async () => {
+    if (!isAuthenticated) {
+      triggerPopup(
+        "Connexion requise",
+        "Connectez-vous pour utiliser un code promo.",
+        "error",
+      );
+      return;
+    }
+    setIsApplyingPromo(true);
+    try {
+      const { promo } = await apiClient.post("/promos/validate", {
+        code: promoCode,
+      });
+      setDiscount(promo.discountAmount);
+      localStorage.setItem("shopflow_promo", JSON.stringify(promo));
       triggerPopup(
         "Succès",
-        "Code promo appliqué avec succès ! (-12 000 FCFA)",
+        `Code promo appliqué avec succès ! (-${promo.discountAmount.toLocaleString()} FCFA)`,
         "success",
       );
-    } else {
-      triggerPopup("Erreur", "Code promo invalide.", "error");
+    } catch (error) {
+      setDiscount(0);
+      localStorage.removeItem("shopflow_promo");
+      triggerPopup("Erreur", error.message || "Code promo invalide.", "error");
+    } finally {
+      setIsApplyingPromo(false);
     }
   };
 
@@ -262,8 +280,12 @@ export default function Cart({ onGoToCheckout }) {
                 value={promoCode}
                 onChange={(e) => setPromoCode(e.target.value)}
               />
-              <button className="apply-promo-btn" onClick={handleApplyPromo}>
-                Appliquer
+              <button
+                className="apply-promo-btn"
+                onClick={handleApplyPromo}
+                disabled={isApplyingPromo}
+              >
+                {isApplyingPromo ? "Vérification..." : "Appliquer"}
               </button>
             </div>
 

@@ -1,4 +1,10 @@
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import apiClient from "../utils/apiClient";
 
 const AuthContext = createContext(null);
@@ -28,6 +34,18 @@ export function AuthProvider({ children }) {
     refresh();
   }, [refresh]);
 
+  useEffect(() => {
+    if (!user) return undefined;
+
+    const sendPresence = () => {
+      apiClient.post("/auth/presence").catch(() => {});
+    };
+
+    sendPresence();
+    const intervalId = window.setInterval(sendPresence, 30_000);
+    return () => window.clearInterval(intervalId);
+  }, [user]);
+
   const login = useCallback(async (email, password) => {
     const data = await apiClient.post("/auth/login", { email, password });
     setUser(data.user);
@@ -35,7 +53,11 @@ export function AuthProvider({ children }) {
   }, []);
 
   const register = useCallback(async (name, email, password) => {
-    const data = await apiClient.post("/auth/register", { name, email, password });
+    const data = await apiClient.post("/auth/register", {
+      name,
+      email,
+      password,
+    });
     setUser(data.user);
     return data.user;
   }, []);
@@ -67,7 +89,9 @@ export function AuthProvider({ children }) {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error("useAuth() doit être utilisé à l'intérieur d'un <AuthProvider>.");
+    throw new Error(
+      "useAuth() doit être utilisé à l'intérieur d'un <AuthProvider>.",
+    );
   }
   return context;
 };

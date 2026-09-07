@@ -23,6 +23,7 @@ import {
 
 export default function AdminOrders() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("Tous");
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const { showToast } = useToast();
@@ -92,8 +93,9 @@ export default function AdminOrders() {
 
   const filteredOrders = orders.filter(
     (o) =>
-      o.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      o.customerName.toLowerCase().includes(searchTerm.toLowerCase()),
+      (o.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        o.customerName.toLowerCase().includes(searchTerm.toLowerCase())) &&
+      (selectedStatus === "Tous" || o.status === selectedStatus),
   );
 
   const pageSize = 4;
@@ -199,12 +201,19 @@ export default function AdminOrders() {
               }}
             />
           </div>
-          <select className="filter-select">
-            <option>Tous les statuts</option>
-            <option>Livré</option>
-            <option>En cours</option>
-            <option>Payé</option>
-            <option>Annulé</option>
+          <select
+            className="filter-select"
+            value={selectedStatus}
+            onChange={(event) => {
+              setSelectedStatus(event.target.value);
+              setCurrentPage(1);
+            }}
+          >
+            <option value="Tous">Tous les statuts</option>
+            <option value="Livré">Livré</option>
+            <option value="En cours">En cours</option>
+            <option value="Payé">Payé</option>
+            <option value="Annulé">Annulé</option>
           </select>
           <button className="btn-filter-action">
             <FontAwesomeIcon icon={faSliders} /> Filtres avancés
@@ -277,15 +286,24 @@ export default function AdminOrders() {
                       </td>
                       <td>
                         <div style={{ display: "flex", alignItems: "center" }}>
-                          <div
-                            className="order-client-avatar"
-                            style={{
-                              backgroundColor: "var(--color-primary)",
-                              color: "#fff",
-                            }}
-                          >
-                            {initials}
-                          </div>
+                          {o.customerAvatar ? (
+                            <img
+                              className="order-client-avatar"
+                              src={o.customerAvatar}
+                              alt={`Photo de ${o.customerName}`}
+                              style={{ objectFit: "cover" }}
+                            />
+                          ) : (
+                            <div
+                              className="order-client-avatar"
+                              style={{
+                                backgroundColor: "var(--color-primary)",
+                                color: "#fff",
+                              }}
+                            >
+                              {initials}
+                            </div>
+                          )}
                           <span className="font-bold">{o.customerName}</span>
                         </div>
                       </td>

@@ -80,6 +80,11 @@ export default function AdminSidebar({ isOpen = false, onClose = () => {} }) {
               <FontAwesomeIcon icon={faGear} /> Paramètres
             </Link>
           </li>
+          <li className={isActive("/admin/categories")}>
+            <Link to="categories" onClick={onClose}>
+              <FontAwesomeIcon icon={faStore} /> Catégories
+            </Link>
+          </li>
         </ul>
 
         <div className="sidebar-footer">

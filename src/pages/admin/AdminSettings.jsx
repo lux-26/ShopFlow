@@ -1,20 +1,74 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useToast } from "../../context/ToastContext";
+import apiClient from "../../utils/apiClient";
 
 export default function AdminSettings() {
-  const [storeName, setStoreName] = useState("ShopFlow");
-  const [storeEmail, setStoreEmail] = useState("contact@shopflow.ci");
+  const [storeName, setStoreName] = useState("");
+  const [storeEmail, setStoreEmail] = useState("");
   const [currency, setCurrency] = useState("XOF");
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [loadError, setLoadError] = useState(null);
   const { showToast } = useToast();
 
-  const handleSave = (e) => {
+  useEffect(() => {
+    let isMounted = true;
+
+    apiClient
+      .get("/settings")
+      .then(({ settings }) => {
+        if (!isMounted) return;
+        setStoreName(settings.storeName);
+        setStoreEmail(settings.storeEmail);
+        setCurrency(settings.currency);
+        setNotificationsEnabled(settings.notificationsEnabled);
+      })
+      .catch((error) => {
+        if (isMounted)
+          setLoadError(
+            error.message || "Impossible de charger les paramètres.",
+          );
+      })
+      .finally(() => {
+        if (isMounted) setIsLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const handleSave = async (e) => {
     e.preventDefault();
-    showToast(
-      "Paramètres enregistrés",
-      "Les modifications de la boutique ont bien été enregistrées.",
-      "success",
-    );
+    setIsSaving(true);
+    try {
+      const { settings } = await apiClient.patch("/settings", {
+        storeName,
+        storeEmail,
+        currency,
+        notificationsEnabled,
+      });
+      setStoreName(settings.storeName);
+      setStoreEmail(settings.storeEmail);
+      setCurrency(settings.currency);
+      setNotificationsEnabled(settings.notificationsEnabled);
+      showToast(
+        "Paramètres enregistrés",
+        "Les modifications ont bien été sauvegardées.",
+        "success",
+      );
+    } catch (error) {
+      showToast(
+        "Erreur",
+        error.errors?.[0] ||
+          error.message ||
+          "Impossible d'enregistrer les paramètres.",
+        "error",
+      );
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -31,6 +85,8 @@ export default function AdminSettings() {
 
       {/* Formulaire des paramètres dans une carte */}
       <div className="card settings-card">
+        {isLoading ? <p>Chargement des paramètres...</p> : null}
+        {loadError ? <p style={{ color: "#dc2626" }}>{loadError}</p> : null}
         <form onSubmit={handleSave}>
           <div className="form-group">
             <label>Nom de la boutique</label>
@@ -38,6 +94,7 @@ export default function AdminSettings() {
               type="text"
               className="form-control"
               value={storeName}
+              disabled={isLoading || isSaving}
               onChange={(e) => setStoreName(e.target.value)}
             />
           </div>
@@ -48,6 +105,7 @@ export default function AdminSettings() {
               type="email"
               className="form-control"
               value={storeEmail}
+              disabled={isLoading || isSaving}
               onChange={(e) => setStoreEmail(e.target.value)}
             />
           </div>
@@ -57,6 +115,7 @@ export default function AdminSettings() {
             <select
               className="form-control"
               value={currency}
+              disabled={isLoading || isSaving}
               onChange={(e) => setCurrency(e.target.value)}
             >
               <option value="XOF">FCFA (XOF)</option>
@@ -77,6 +136,7 @@ export default function AdminSettings() {
               type="checkbox"
               id="notif"
               checked={notificationsEnabled}
+              disabled={isLoading || isSaving}
               onChange={(e) => setNotificationsEnabled(e.target.checked)}
               style={{ width: "16px", height: "16px", cursor: "pointer" }}
             />
@@ -96,8 +156,12 @@ export default function AdminSettings() {
             </label>
           </div>
 
-          <button type="submit" className="btn btn-primary-dark">
-            Enregistrer les modifications
+          <button
+            type="submit"
+            className="btn btn-primary-dark"
+            disabled={isLoading || isSaving}
+          >
+            {isSaving ? "Enregistrement..." : "Enregistrer les modifications"}
           </button>
         </form>
       </div>

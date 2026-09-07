@@ -13,11 +13,10 @@ function getCookieOptions() {
 }
 
 export function createToken(user) {
-  return jwt.sign(
-    { role: user.role },
-    process.env.JWT_SECRET,
-    { subject: user.id, expiresIn: "7d" },
-  );
+  return jwt.sign({ role: user.role }, process.env.JWT_SECRET, {
+    subject: user.id,
+    expiresIn: "7d",
+  });
 }
 
 export function setSessionCookie(response, token) {
@@ -48,6 +47,7 @@ export function publicUser(user) {
     email: user.email,
     role: user.role,
     isActive: user.isActive,
+    avatar: user.avatar || null,
     createdAt: user.createdAt,
   };
 }

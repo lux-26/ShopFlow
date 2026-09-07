@@ -1,0 +1,130 @@
+.categories-admin-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    padding: 8px 24px;
+}
+
+.category-admin-row {
+    display: grid;
+    grid-template-columns: 148px minmax(0, 1fr);
+    gap: 16px;
+    align-items: center;
+    padding: 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #fff;
+}
+
+.category-admin-preview {
+    position: relative;
+    width: 148px;
+    height: 104px;
+    overflow: hidden;
+    border: 1px solid #dbe4ef;
+    border-radius: 10px;
+    background: #f1f5f9;
+}
+
+.category-admin-preview img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.category-admin-camera {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    display: grid;
+    width: 34px;
+    height: 34px;
+    place-items: center;
+    border-radius: 50%;
+    background: #1e3a8a;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 2px 7px rgb(15 23 42 / 35%);
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.category-admin-camera:hover {
+    background: #172554;
+    transform: scale(1.06);
+}
+
+.category-admin-fields {
+    display: grid;
+    gap: 8px;
+    min-width: 0;
+}
+
+.category-admin-fields label {
+    margin: 0;
+    color: #475569;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.category-admin-fields input[type="text"] {
+    width: 100%;
+    min-height: 44px;
+    box-sizing: border-box;
+}
+
+.category-admin-file-name {
+    overflow: hidden;
+    color: #64748b;
+    font-size: 0.8rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.category-admin-save {
+    grid-column: 2;
+    min-width: 122px;
+    white-space: nowrap;
+    justify-self: start;
+}
+
+@media (max-width: 760px) {
+    .categories-admin-list {
+        grid-template-columns: 1fr;
+        padding: 8px 16px;
+    }
+
+    .category-admin-row {
+        grid-template-columns: 140px minmax(0, 1fr);
+        gap: 16px;
+    }
+
+    .category-admin-preview {
+        width: 140px;
+        height: 96px;
+    }
+
+    .category-admin-save {
+        grid-column: 2;
+        justify-self: start;
+    }
+}
+
+@media (max-width: 480px) {
+    .category-admin-row {
+        grid-template-columns: 1fr;
+    }
+
+    .category-admin-preview {
+        width: 100%;
+        height: 150px;
+    }
+
+    .category-admin-save {
+        grid-column: auto;
+        width: 100%;
+    }
+}
