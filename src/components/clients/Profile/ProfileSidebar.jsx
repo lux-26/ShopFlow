@@ -13,6 +13,7 @@ import {
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import { useToast } from "../../../context/ToastContext";
+import { useAuth } from "../../../context/AuthContext";
 
 export default function ProfileSidebar({
   activeTab,
@@ -22,6 +23,7 @@ export default function ProfileSidebar({
 }) {
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const { logout } = useAuth();
 
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
@@ -88,20 +90,16 @@ export default function ProfileSidebar({
     );
   };
 
-  const confirmLogout = () => {
-    // 1. Suppression de toutes les données sensibles et d'authentification
-    localStorage.removeItem("shopflow_is_logged");
-    localStorage.removeItem("shopflow_user_info");
-    localStorage.removeItem("shopflow_user_avatar");
-    localStorage.removeItem("shopflow_notifications");
-
-    // 2. Réinitialisation de l'état utilisateur global dans le composant parent
+  const confirmLogout = async () => {
+    // Réinitialisation de l'état local du profil avant de quitter la page.
     if (typeof setUserInfo === "function") {
       setUserInfo(null);
     }
 
-    // 3. Déclenchement des événements et redirection vers le login
-    window.dispatchEvent(new Event("notificationUpdated"));
+    // Invalide le cookie de session et nettoie les données persistées.
+    await logout();
+
+    // Déclenchement des événements et redirection vers l'accueil.
     window.dispatchEvent(new Event("storage"));
     navigate("/");
   };

@@ -102,7 +102,9 @@ export default function Cart({ onGoToCheckout }) {
     (sum, item) => sum + item.price * item.quantity,
     0,
   );
-  const shippingFee = cartItems.length > 0 ? 5000 : 0;
+  // Le montant doit rester identique à celui envoyé par Checkout et calculé
+  // côté serveur : la livraison standard est gratuite.
+  const shippingFee = 0;
   const finalTotal = subtotal + shippingFee - discount;
 
   const handleApplyPromo = () => {

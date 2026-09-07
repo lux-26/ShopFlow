@@ -388,7 +388,7 @@ export default function Header() {
             textDecoration: "none",
           }}
         >
-          {userData.avatar ? (
+          {user && userData.avatar ? (
             <img
               src={userData.avatar}
               alt="Photo de profil de l'utilisateur"
@@ -400,7 +400,7 @@ export default function Header() {
                 border: "1px solid #cbd5e1",
               }}
             />
-          ) : userData.userInitials ? (
+          ) : user && userData.userInitials ? (
             <div
               style={{
                 width: "32px",
