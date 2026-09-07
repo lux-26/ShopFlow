@@ -6,6 +6,7 @@ import express from "express";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import authRoutes from "./routes/authRoutes.js";
+import orderRoutes from "./routes/orderRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler.js";
 
@@ -40,6 +41,7 @@ app.get("/api/health", (request, response) => {
 });
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/orders", orderRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

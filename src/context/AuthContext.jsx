@@ -45,6 +45,10 @@ export function AuthProvider({ children }) {
       await apiClient.post("/auth/logout");
     } finally {
       setUser(null);
+      localStorage.removeItem("shopflow_is_logged");
+      localStorage.removeItem("shopflow_user_info");
+      localStorage.removeItem("shopflow_user_avatar");
+      localStorage.removeItem("shopflow_notifications");
     }
   }, []);
 
