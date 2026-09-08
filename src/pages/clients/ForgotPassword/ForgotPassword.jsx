@@ -6,17 +6,32 @@ import {
   faArrowLeft,
   faCheckCircle,
 } from "@fortawesome/free-solid-svg-icons";
+import apiClient from "../../../utils/apiClient";
 import "./ForgotPassword.css";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [devResetLink, setDevResetLink] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (email.trim()) {
-      // Simulation de l'envoi de l'e-mail de réinitialisation
+    if (!email.trim()) return;
+
+    setIsSubmitting(true);
+    setErrorMessage(null);
+    try {
+      const data = await apiClient.post("/auth/forgot-password", { email });
       setIsSubmitted(true);
+      // Uniquement présent en développement, quand aucun service email
+      // n'est configuré côté serveur (voir server/utils/email.js).
+      setDevResetLink(data.devResetLink || null);
+    } catch (error) {
+      setErrorMessage(error.message || "Une erreur est survenue.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -30,7 +45,7 @@ export default function ForgotPassword() {
             <p>
               {!isSubmitted
                 ? "Entrez votre adresse e-mail associée à votre compte et nous vous enverrons un lien de réinitialisation."
-                : "Un e-mail de réinitialisation a été simulé avec succès !"}
+                : "Si un compte existe avec cette adresse, un email vient de vous être envoyé."}
             </p>
           </div>
 
@@ -48,15 +63,25 @@ export default function ForgotPassword() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="vous@exemple.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
                     required
                   />
                 </div>
               </div>
 
-              <button type="submit" className="submit-btn">
-                Envoyer le lien de réinitialisation
+              {errorMessage && (
+                <p style={{ color: "#dc2626", fontSize: "0.9rem" }}>
+                  {errorMessage}
+                </p>
+              )}
+
+              <button
+                type="submit"
+                className="submit-btn"
+                disabled={isSubmitting}
+              >
+                {isSubmitting
+                  ? "Envoi en cours..."
+                  : "Envoyer le lien de réinitialisation"}
               </button>
             </form>
           ) : (
@@ -65,15 +90,28 @@ export default function ForgotPassword() {
                 <FontAwesomeIcon icon={faCheckCircle} />
               </div>
               <p className="success-message">
-                Un e-mail contenant les instructions a été envoyé à : <br />
+                Si un compte existe pour : <br />
                 <strong>{email}</strong>
+                <br />
+                vous allez recevoir un email avec les instructions.
               </p>
-              <p className="simulation-note">
-                (Mode simulation : Dans un environnement réel, vous recevriez un
-                lien sécurisé par e-mail.)
-              </p>
+
+              {devResetLink && (
+                <p
+                  className="simulation-note"
+                  style={{ wordBreak: "break-all" }}
+                >
+                  (Mode développement : aucun service email n'est configuré.
+                  Lien de test —{" "}
+                  <a href={devResetLink}>cliquez ici pour réinitialiser</a>)
+                </p>
+              )}
+
               <button
-                onClick={() => setIsSubmitted(false)}
+                onClick={() => {
+                  setIsSubmitted(false);
+                  setDevResetLink(null);
+                }}
                 className="secondary-btn"
                 style={{ marginTop: "16px" }}
               >

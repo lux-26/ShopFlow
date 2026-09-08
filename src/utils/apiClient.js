@@ -2,7 +2,7 @@
 // Toutes les requêtes passent par ici : ça centralise la base URL, l'envoi
 // du cookie de session (credentials: "include") et la gestion des erreurs.
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
+const API_BASE_URL = "http://localhost:5000/api";
 
 /**
  * Effectue un appel à l'API et retourne le JSON de la réponse.

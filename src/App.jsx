@@ -28,6 +28,7 @@ import Register from "./pages/clients/Register/Register";
 import SearchPage from "./pages/clients/SearchPage/SearchPage";
 import Checkout from "./pages/clients/Checkout/Checkout";
 import ForgotPassword from "./pages/clients/ForgotPassword/ForgotPassword";
+import ResetPassword from "./pages/clients/ResetPassword/ResetPassword";
 
 // Composants Admin
 import AdminLayout from "./components/admin/AdminLayout";
@@ -92,6 +93,7 @@ function AppContent() {
           />
           <Route path="/login" element={<Login />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/register" element={<Register />} />
           <Route path="/search" element={<SearchPage />} />
 
