@@ -223,6 +223,17 @@ export async function listAllOrders(request, response) {
   return response.json({ orders: orders.map(toPublicOrder) });
 }
 
+export async function getOrder(request, response) {
+  const order = await Order.findById(request.params.id).populate(
+    "user",
+    "avatar",
+  );
+  if (!order) {
+    return response.status(404).json({ message: "Commande introuvable." });
+  }
+  return response.json({ order: toPublicOrder(order) });
+}
+
 export async function updateOrderStatus(request, response) {
   const result = updateStatusSchema.safeParse(request.body);
   if (!result.success) return validationError(response, result);

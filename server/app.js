@@ -6,7 +6,6 @@ import express from "express";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import authRoutes from "./routes/authRoutes.js";
-import orderRoutes from "./routes/orderRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
