@@ -1,16 +1,65 @@
-# React + Vite
+# ShopFlow
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Application e-commerce MERN organisée en monorepo :
 
-Currently, two official plugins are available:
+```text
+backend/
+  src/
+    config/
+    controllers/
+    middleware/
+    models/
+    routes/
+    scripts/
+    utils/
+  uploads/
+frontend/
+  public/
+  src/
+```
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Développement
 
-## React Compiler
+Installez les dépendances puis configurez le fichier `.env` à la racine.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+npm install
+npm run dev       # Frontend Vite
+npm run server    # API Express avec watch
+```
 
-## Expanding the ESLint configuration
+Autres commandes disponibles :
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm run build
+npm run preview
+npm run lint
+npm run seed:admin
+```
+
+Le frontend est servi sur `http://localhost:5173` et l'API sur
+`http://localhost:5000`. Le proxy Vite transmet `/api` et `/uploads` à l'API
+pendant le développement.
+
+## Exploitation et production
+
+La création d'une commande utilise une transaction MongoDB pour réserver le
+stock, créer la commande, débiter les points fidélité et créer la notification
+de façon atomique. MongoDB doit donc être exécuté en replica set ; MongoDB
+Atlas convient par défaut.
+
+Avant la mise en ligne :
+
+- activer les sauvegardes automatiques et les sauvegardes ponctuelles MongoDB
+  (avec une rétention adaptée) ;
+- surveiller `/api/health`, les erreurs HTTP 5xx, les redémarrages du processus
+  et la saturation de la base ;
+- centraliser les logs côté hébergeur sans journaliser de mots de passe, tokens
+  ou données d'authentification ;
+- tester régulièrement la restauration d'une sauvegarde.
+
+Les tests backend se lancent avec :
+
+```bash
+npm test
+```

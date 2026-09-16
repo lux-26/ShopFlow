@@ -4,13 +4,14 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "server": "node --watch server/server.js",
-    "start": "node server/server.js",
-    "seed:admin": "node server/scripts/createAdmin.js",
-    "build": "vite build",
+    "dev": "vite --config frontend/vite.config.js",
+    "server": "node --watch backend/src/server.js",
+    "start": "node backend/src/server.js",
+    "seed:admin": "node backend/src/scripts/createAdmin.js",
+    "test": "node --test backend/test/*.test.js",
+    "build": "vite build --config frontend/vite.config.js",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview --config frontend/vite.config.js"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^7.3.1",
