@@ -52,6 +52,11 @@ VITE_API_URL=https://api.exemple.com/api
 Cette variable est injectée au moment du build frontend ; après toute
 modification, relancez `npm run build` ou redémarrez Vite.
 
+Lorsque le frontend et le backend sont déployés sur deux domaines HTTPS
+différents, définissez aussi `CLIENT_URL` sur l'URL du frontend côté backend.
+Le serveur active alors automatiquement un cookie de session compatible
+cross-site (`SameSite=None; Secure`).
+
 ## Exploitation et production
 
 La création d'une commande utilise une transaction MongoDB pour réserver le

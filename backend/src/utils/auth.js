@@ -3,11 +3,25 @@ import jwt from "jsonwebtoken";
 const SESSION_COOKIE = "shopflow_session";
 const REMEMBERED_SESSION_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
 
+function usesCrossSiteCookies() {
+  const configuredOrigins = (process.env.CLIENT_URL || "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+  return (
+    process.env.NODE_ENV === "production" ||
+    configuredOrigins.some((origin) => origin.startsWith("https://"))
+  );
+}
+
 function getCookieOptions() {
+  const crossSite = usesCrossSiteCookies();
+
   return {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    secure: crossSite,
+    sameSite: crossSite ? "none" : "lax",
     path: "/",
   };
 }
