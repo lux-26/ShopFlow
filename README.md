@@ -41,6 +41,17 @@ Le frontend est servi sur `http://localhost:5173` et l'API sur
 `http://localhost:5000`. Le proxy Vite transmet `/api` et `/uploads` à l'API
 pendant le développement.
 
+La base URL de l'API est configurée par `VITE_API_URL`. Copiez
+`frontend/.env.example` vers `frontend/.env.local` pour un réglage local. Pour
+une mise en production avec un backend séparé, définissez par exemple :
+
+```env
+VITE_API_URL=https://api.exemple.com/api
+```
+
+Cette variable est injectée au moment du build frontend ; après toute
+modification, relancez `npm run build` ou redémarrez Vite.
+
 ## Exploitation et production
 
 La création d'une commande utilise une transaction MongoDB pour réserver le
