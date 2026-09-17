@@ -1,3 +1,4 @@
+import express from "express";
 import "dotenv/config";
 import app from "./app.js";
 import { connectDatabase } from "./config/database.js";
@@ -6,12 +7,13 @@ import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const frontendDistPath = path.join(__dirname, "../../frontend/dist");
 
 // Servir les fichiers statiques du build Vite/React
-app.use(express.static(path.join(__dirname, "../frontend/dist")));
+app.use(express.static(frontendDistPath));
 
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
+app.get("/{*splat}", (req, res) => {
+  res.sendFile(path.join(frontendDistPath, "index.html"));
 });
 
 const port = Number(process.env.PORT) || 5000;
