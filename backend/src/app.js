@@ -22,10 +22,20 @@ const app = express();
 const clientOrigins = (process.env.CLIENT_URL || "http://localhost:5173")
   .split(",")
   .map((origin) => origin.trim());
+const vercelOriginPattern = /^https:\/\/shop-flow-[a-z0-9-]+\.vercel\.app$/;
+
+function isAllowedOrigin(origin, callback) {
+  if (!origin || clientOrigins.includes(origin) || vercelOriginPattern.test(origin)) {
+    callback(null, true);
+    return;
+  }
+
+  callback(null, false);
+}
 
 app.set("trust proxy", 1);
 app.use(helmet({ crossOriginResourcePolicy: false }));
-app.use(cors({ origin: clientOrigins, credentials: true }));
+app.use(cors({ origin: isAllowedOrigin, credentials: true }));
 app.use(express.json({ limit: "10kb" }));
 app.use(cookieParser());
 
