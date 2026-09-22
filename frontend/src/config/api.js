@@ -1,8 +1,12 @@
 const configuredApiUrl = import.meta.env.VITE_API_URL?.trim();
+const productionApiUrl = "https://shopflow-0agy.onrender.com/api";
 
 // En développement, Vite redirige /api vers le serveur Express local.
 // En production, VITE_API_URL doit contenir l'URL publique de l'API.
-export const API_BASE_URL = (configuredApiUrl || "/api").replace(/\/+$/, "");
+export const API_BASE_URL = (
+  configuredApiUrl ||
+  (import.meta.env.PROD ? productionApiUrl : "/api")
+).replace(/\/+$/, "");
 
 export function getAssetUrl(assetPath) {
   if (
