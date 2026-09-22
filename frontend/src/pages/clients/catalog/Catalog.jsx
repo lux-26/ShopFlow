@@ -9,6 +9,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useToast } from "../../../context/ToastContext";
 import { getBadgeClass } from "../../../utils/badgeUtils";
+import { getAssetUrl } from "../../../config/api";
 import { useProducts } from "../../../hooks/useProducts";
 import "./Catalog.css";
 
@@ -289,7 +290,7 @@ export default function Catalog() {
                         </span>
                       )}
                       <img
-                        src={product.image}
+                        src={getAssetUrl(product.image)}
                         alt={`Photo du produit ${product.name}`}
                       />
                     </Link>

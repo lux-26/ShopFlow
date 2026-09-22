@@ -5,6 +5,7 @@ import heroImg from "../../../assets/hero.jpeg";
 import { useToast } from "../../../context/ToastContext";
 import { useProducts } from "../../../hooks/useProducts";
 import apiClient from "../../../utils/apiClient";
+import { getAssetUrl } from "../../../config/api";
 import "./Home.css";
 
 export default function Home() {
@@ -121,7 +122,7 @@ export default function Home() {
               style={{ cursor: "pointer" }}
             >
               <div className="category-img-container">
-                <img src={cat.image} alt={`Catégorie ${cat.name}`} />
+                <img src={getAssetUrl(cat.image)} alt={`Catégorie ${cat.name}`} />
               </div>
               <span>{cat.name}</span>
             </div>

@@ -17,6 +17,7 @@ import { useToast } from "../../context/ToastContext";
 import { getBadgeClass } from "../../utils/badgeUtils";
 import { formatPrice, getStockStatus } from "../../utils/productUtils";
 import apiClient from "../../utils/apiClient";
+import { getAssetUrl } from "../../config/api";
 import "../../styles/admin.css";
 
 export default function AdminProducts() {
@@ -379,7 +380,7 @@ export default function AdminProducts() {
                       <div className="product-item-cell">
                         <div className="product-thumb">
                           {item.image ? (
-                            <img src={item.image} alt={item.name} />
+                            <img src={getAssetUrl(item.image)} alt={item.name} />
                           ) : (
                             <FontAwesomeIcon
                               icon={faImage}
@@ -551,7 +552,7 @@ export default function AdminProducts() {
                 >
                   {newProduct.image ? (
                     <img
-                      src={newProduct.image}
+                      src={getAssetUrl(newProduct.image)}
                       alt="Aperçu du produit"
                       style={{
                         width: "100%",

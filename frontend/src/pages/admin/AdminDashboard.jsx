@@ -11,6 +11,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useToast } from "../../context/ToastContext";
 import apiClient from "../../utils/apiClient";
+import { getAssetUrl } from "../../config/api";
 
 const periodLabels = {
   month: "Ce mois",
@@ -212,7 +213,7 @@ export default function AdminDashboard() {
                         {order.customerAvatar ? (
                           <img
                             className="order-client-avatar"
-                            src={order.customerAvatar}
+                            src={getAssetUrl(order.customerAvatar)}
                             alt={`Photo de ${order.client}`}
                             style={{ objectFit: "cover" }}
                           />

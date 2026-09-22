@@ -11,6 +11,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useToast } from "../../../context/ToastContext";
 import apiClient from "../../../utils/apiClient";
+import { getAssetUrl } from "../../../config/api";
 import "./Checkout.css";
 
 const MONGO_ID_PATTERN = /^[a-f\d]{24}$/i;
@@ -579,7 +580,7 @@ export default function Checkout() {
                     <div className="checkout-item" key={item.id}>
                       <div className="checkout-item-info">
                         <img
-                          src={item.image}
+                          src={getAssetUrl(item.image)}
                           alt={`Photo du produit ${item.name}`}
                           className="checkout-item-img"
                         />

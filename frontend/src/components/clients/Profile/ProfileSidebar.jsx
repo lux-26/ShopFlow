@@ -13,6 +13,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useToast } from "../../../context/ToastContext";
 import apiClient from "../../../utils/apiClient";
+import { getAssetUrl } from "../../../config/api";
 import { useAuth } from "../../../context/AuthContext";
 
 export default function ProfileSidebar({
@@ -143,7 +144,7 @@ export default function ProfileSidebar({
                 style={{ cursor: "pointer", display: "block" }}
               >
                 <img
-                  src={userInfo.avatar}
+                  src={getAssetUrl(userInfo.avatar)}
                   alt="Photo de profil de l'utilisateur"
                   className="profile-avatar-img"
                   style={{

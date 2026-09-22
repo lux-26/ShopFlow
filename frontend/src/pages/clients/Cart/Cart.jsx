@@ -13,6 +13,7 @@ import {
 import "./Cart.css";
 import { useAuth } from "../../../context/AuthContext";
 import apiClient from "../../../utils/apiClient";
+import { getAssetUrl } from "../../../config/api";
 
 export default function Cart({ onGoToCheckout }) {
   const { isAuthenticated } = useAuth();
@@ -187,7 +188,7 @@ export default function Cart({ onGoToCheckout }) {
                       <span className="cart-badge">{item.badge}</span>
                     )}
                     <img
-                      src={item.image}
+                      src={getAssetUrl(item.image)}
                       alt={`Photo du produit ${item.name}`}
                       className="cart-item-img"
                     />

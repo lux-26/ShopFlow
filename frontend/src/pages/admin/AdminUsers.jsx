@@ -10,6 +10,7 @@ import {
 import { useToast } from "../../context/ToastContext";
 import Pagination from "../../components/admin/Pagination";
 import apiClient from "../../utils/apiClient";
+import { getAssetUrl } from "../../config/api";
 
 export default function AdminUsers() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -185,7 +186,7 @@ export default function AdminUsers() {
                           {user.avatar ? (
                             <img
                               className="order-client-avatar"
-                              src={user.avatar}
+                              src={getAssetUrl(user.avatar)}
                               alt={`Photo de ${user.name}`}
                               style={{ objectFit: "cover" }}
                             />

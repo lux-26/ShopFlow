@@ -15,6 +15,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import "./Header.css";
 import { useAuth } from "../../../../context/AuthContext";
+import { getAssetUrl } from "../../../../config/api";
 import apiClient from "../../../../utils/apiClient";
 
 export default function Header() {
@@ -416,7 +417,7 @@ export default function Header() {
         >
           {isAuthenticated && userData.avatar ? (
             <img
-              src={userData.avatar}
+              src={getAssetUrl(userData.avatar)}
               alt={`Photo de profil de ${user.name}`}
               style={{
                 width: "32px",

@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { useProducts } from "../../../hooks/useProducts";
+import { getAssetUrl } from "../../../config/api";
 import "./SearchPage.css";
 
 export default function SearchPage() {
@@ -48,7 +49,7 @@ export default function SearchPage() {
               {product.image && (
                 <div className="product-image-container">
                   <img
-                    src={product.image || product.imageUrl}
+                    src={getAssetUrl(product.image || product.imageUrl)}
                     alt={`Photo du produit ${product.name}`}
                     className="product-image"
                   />

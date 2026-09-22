@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
 import { getBadgeClass } from "../../../../utils/badgeUtils";
+import { getAssetUrl } from "../../../../config/api";
 
 export default function ProductCard({ product, onAddToCart }) {
   if (!product) return null;
@@ -17,7 +18,7 @@ export default function ProductCard({ product, onAddToCart }) {
         {/* ON PASSE LE PRODUIT VIA LE STATE ICI */}
         <Link to={`/produit/${product.id}`} state={{ product }}>
           <img
-            src={product.image || product.imageUrl}
+            src={getAssetUrl(product.image || product.imageUrl)}
             alt={
               product.name
                 ? `Photo du produit ${product.name}`

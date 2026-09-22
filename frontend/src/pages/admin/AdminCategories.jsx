@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCamera } from "@fortawesome/free-solid-svg-icons";
 import apiClient from "../../utils/apiClient";
+import { getAssetUrl } from "../../config/api";
 import { useToast } from "../../context/ToastContext";
 import "./AdminCategories.css";
 
@@ -91,7 +92,7 @@ export default function AdminCategories() {
             <div key={category.id} className="category-admin-row">
               <div className="category-admin-preview">
                 <img
-                  src={previews[category.id] || category.image}
+                  src={getAssetUrl(previews[category.id] || category.image)}
                   alt={category.name}
                 />
                 <label

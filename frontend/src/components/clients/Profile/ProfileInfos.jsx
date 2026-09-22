@@ -15,6 +15,7 @@ import {
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 import { useToast } from "../../../context/ToastContext";
+import { getAssetUrl } from "../../../config/api";
 
 export default function ProfileInfos({
   userInfo,
@@ -152,7 +153,7 @@ export default function ProfileInfos({
           <div style={{ width: "48px", height: "48px", flexShrink: 0 }}>
             {hasRealAvatarImage ? (
               <img
-                src={currentInfo.avatar}
+                src={getAssetUrl(currentInfo.avatar)}
                 alt="Photo de profil de l'utilisateur"
                 style={{
                   width: "100%",

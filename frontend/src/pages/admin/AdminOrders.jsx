@@ -15,6 +15,7 @@ import {
 import { useToast } from "../../context/ToastContext";
 import Pagination from "../../components/admin/Pagination";
 import apiClient from "../../utils/apiClient";
+import { getAssetUrl } from "../../config/api";
 import {
   getOrderStatusBadge,
   getPaymentLabel,
@@ -289,7 +290,7 @@ export default function AdminOrders() {
                           {o.customerAvatar ? (
                             <img
                               className="order-client-avatar"
-                              src={o.customerAvatar}
+                              src={getAssetUrl(o.customerAvatar)}
                               alt={`Photo de ${o.customerName}`}
                               style={{ objectFit: "cover" }}
                             />

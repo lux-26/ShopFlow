@@ -13,6 +13,7 @@ import {
 import "../../../components/clients/shared/ProductCard/ProductCard.css";
 import { useToast } from "../../../context/ToastContext";
 import { getBadgeClass } from "../../../utils/badgeUtils";
+import { getAssetUrl } from "../../../config/api";
 import { useProduct } from "../../../hooks/useProducts";
 import { getStockStatus } from "../../../utils/productUtils";
 import "./ProductDetail.css";
@@ -182,7 +183,9 @@ export default function ProductDetail() {
             )}
 
             <img
-              src={product.image || "https://placehold.co/600x600?text=Pas+d%27image"}
+              src={getAssetUrl(
+                product.image || "https://placehold.co/600x600?text=Pas+d%27image",
+              )}
               alt={`Photo du produit ${product.name}`}
               className="main-image"
             />
