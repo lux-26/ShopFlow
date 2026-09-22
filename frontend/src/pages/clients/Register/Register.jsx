@@ -4,14 +4,15 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faEye,
   faEyeSlash,
-  faCircleInfo,
 } from "@fortawesome/free-solid-svg-icons";
 import { useAuth } from "../../../context/AuthContext";
+import { useToast } from "../../../context/ToastContext";
 import "../Login/Login.css";
 
 export default function Register() {
   const navigate = useNavigate();
   const { register } = useAuth();
+  const { showToast } = useToast();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -22,29 +23,20 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Pop-up personnalisée
-  const [toastData, setToastData] = useState(null);
-
-  const showCustomToast = (title, message) => {
-    setToastData({ title, message });
-    setTimeout(() => {
-      setToastData(null);
-    }, 3000);
-  };
-
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
 
     // 1. Validation des mots de passe (le serveur revalide de toute façon)
     if (password !== confirmPassword) {
-      showCustomToast("Erreur", "Les mots de passe ne correspondent pas.");
+      showToast("Erreur", "Les mots de passe ne correspondent pas.", "error");
       return;
     }
 
     if (password.length < 8) {
-      showCustomToast(
+      showToast(
         "Erreur",
         "Le mot de passe doit contenir au moins 8 caractères.",
+        "error",
       );
       return;
     }
@@ -52,15 +44,16 @@ export default function Register() {
     setIsSubmitting(true);
     try {
       await register(fullName, email, password);
-      showCustomToast("Succès", "Compte créé avec succès ! Redirection...");
+      showToast("Succès", "Compte créé avec succès ! Redirection...", "success");
 
       setTimeout(() => {
         navigate("/profile");
       }, 1000);
     } catch (error) {
-      showCustomToast(
+      showToast(
         "Erreur",
         error.errors?.[0] || error.message || "Impossible de créer le compte.",
+        "error",
       );
     } finally {
       setIsSubmitting(false);
@@ -180,9 +173,10 @@ export default function Register() {
               type="button"
               className="social-btn"
               onClick={() =>
-                showCustomToast(
+                showToast(
                   "Bientôt disponible",
                   "L'inscription via Google n'est pas encore activée.",
+                  "info",
                 )
               }
             >
@@ -192,9 +186,10 @@ export default function Register() {
               type="button"
               className="social-btn"
               onClick={() =>
-                showCustomToast(
+                showToast(
                   "Bientôt disponible",
                   "L'inscription via Apple n'est pas encore activée.",
+                  "info",
                 )
               }
             >
@@ -208,18 +203,6 @@ export default function Register() {
         </div>
       </main>
 
-      {/* Pop-up Toast de Notification */}
-      {toastData && (
-        <div className="shopflow-toast-popup">
-          <div className="toast-icon-wrapper">
-            <FontAwesomeIcon icon={faCircleInfo} />
-          </div>
-          <div className="toast-text-content">
-            <strong>{toastData.title}</strong>
-            <p>{toastData.message}</p>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

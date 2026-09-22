@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleInfo } from "@fortawesome/free-solid-svg-icons";
 import ProfileSidebar from "./ProfileSidebar";
 import ProfileInfos from "./ProfileInfos";
 import ProfileSecurity from "./ProfileSecurity";
@@ -9,12 +7,14 @@ import ProfileNotifs from "./ProfileNotifs";
 import ProfileOrders from "./ProfileOrders";
 import ProfilePayment from "./ProfilePayment";
 import { useAuth } from "../../../context/AuthContext";
+import { useToast } from "../../../context/ToastContext";
 import apiClient from "../../../utils/apiClient";
 import "./Profile.css";
 
 export default function Profile() {
   const navigate = useNavigate();
   const { logout, user } = useAuth();
+  const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState("infos");
 
   const [userInfo, setUserInfo] = useState({
@@ -28,15 +28,6 @@ export default function Profile() {
 
   const [recentOrders, setRecentOrders] = useState([]);
   const [loyaltyPoints, setLoyaltyPoints] = useState(1250);
-
-  const [toastData, setToastData] = useState(null);
-
-  const showCustomToast = (title, message) => {
-    setToastData({ title, message });
-    setTimeout(() => {
-      setToastData(null);
-    }, 3000);
-  };
 
   // Fonction pour charger les données du profil : infos et fidélité restent en
   // localStorage pour l'instant (édition de profil réelle = prochaine étape),
@@ -126,12 +117,12 @@ export default function Profile() {
 
   const handleSaveProfile = () => {
     localStorage.setItem("shopflow_user_info", JSON.stringify(userInfo));
-    showCustomToast("Succès", "Profil mis à jour avec succès !");
+    showToast("Succès", "Profil mis à jour avec succès !", "success");
   };
 
   const handleLogout = async () => {
     await logout();
-    showCustomToast("Déconnexion", "Déconnexion réussie ! Redirection...");
+    showToast("Déconnexion", "Déconnexion réussie ! Redirection...", "success");
     setTimeout(() => {
       navigate("/login");
     }, 1000);
@@ -169,7 +160,7 @@ export default function Profile() {
             handleSaveProfile={handleSaveProfile}
             recentOrders={recentOrders}
             loyaltyPoints={loyaltyPoints}
-            triggerPopup={showCustomToast}
+            triggerPopup={showToast}
             setActiveTab={setActiveTab}
           />
         )}
@@ -186,21 +177,10 @@ export default function Profile() {
         )}
 
         {activeTab === "payment" && (
-          <ProfilePayment triggerPopup={showCustomToast} />
+          <ProfilePayment triggerPopup={showToast} />
         )}
       </div>
 
-      {toastData && (
-        <div className="shopflow-toast-popup">
-          <div className="toast-icon-wrapper">
-            <FontAwesomeIcon icon={faCircleInfo} />
-          </div>
-          <div className="toast-text-content">
-            <strong>{toastData.title}</strong>
-            <p>{toastData.message}</p>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
