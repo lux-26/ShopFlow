@@ -63,3 +63,7 @@ export async function uploadToCloudinary(
     stream.end(fileBuffer);
   });
 }
+// Ajoute ces exports en bas de ton fichier de configuration actuel
+export const PRODUCTS_UPLOAD_DIR = "/tmp";
+export const CATEGORIES_UPLOAD_DIR = "/tmp";
+export const PROFILES_UPLOAD_DIR = "/tmp";

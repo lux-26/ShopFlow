@@ -7,8 +7,8 @@ import {
   deleteProduct,
 } from "../controllers/productController.js";
 import { requireAuth, requireRole } from "../middleware/auth.js";
-// import { uploadProductImage } from "../config/uploads.js";
-import { upload } from "../middleware/cloudinary.js";
+import { uploadProductImage } from "../config/uploads.js";
+// import { upload } from "../middleware/cloudinary.js";
 
 const router = Router();
 
@@ -21,16 +21,16 @@ router.post(
   "/",
   requireAuth,
   requireRole("ADMIN"),
-  // uploadProductImage.single("image"),
-  upload.single("image"),
+  uploadProductImage.single("image"),
+  // upload.single("image"),
   createProduct,
 );
 router.put(
   "/:id",
   requireAuth,
   requireRole("ADMIN"),
-  // uploadProductImage.single("image"),
-  upload.single("image"),
+  uploadProductImage.single("image"),
+  // upload.single("image"),
   updateProduct,
 );
 router.delete("/:id", requireAuth, requireRole("ADMIN"), deleteProduct);
