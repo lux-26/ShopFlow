@@ -13,8 +13,10 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: "shopflow_products", // Nom du dossier de destination sur Cloudinary
-    allowed_formats: ["jpg", "png", "jpeg", "webp"],
+    folder: "shopflow_products",
+    format: async (req, file) => "png", // ou supprime simplement la ligne allowed_formats
+    public_id: (req, file) =>
+      Date.now() + "-" + file.originalname.split(".")[0],
   },
 });
 
