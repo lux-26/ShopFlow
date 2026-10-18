@@ -2,20 +2,10 @@ import { v2 as cloudinary } from "cloudinary";
 import multer from "multer";
 
 // Configuration officielle Cloudinary
-// cloudinary.config({
-//   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-//   api_key: process.env.CLOUDINARY_API_KEY,
-//   api_secret: process.env.CLOUDINARY_API_SECRET,
-// });
-
-console.log("DEBUG CLOUDINARY CONFIG:", {
+cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY
-    ? "PRÉSENTE (" + process.env.CLOUDINARY_API_KEY.length + " chars)"
-    : "MANQUANTE",
-  api_secret: process.env.CLOUDINARY_API_SECRET
-    ? "PRÉSENTE (" + process.env.CLOUDINARY_API_SECRET.length + " chars)"
-    : "MANQUANTE",
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 const ALLOWED_MIME_TYPES = new Set([
