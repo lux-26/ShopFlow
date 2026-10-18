@@ -14,9 +14,15 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: "shopflow_products",
-    format: async (req, file) => "png", // ou supprime simplement la ligne allowed_formats
-    public_id: (req, file) =>
-      Date.now() + "-" + file.originalname.split(".")[0],
+    format: async (req, file) => "png",
+    public_id: (req, file) => {
+      // Nettoie le nom : remplace les espaces par des tirets bas et passe en minuscules
+      const cleanName = file.originalname
+        .split(".")[0]
+        .replace(/[^a-zA-Z0-9]/g, "_")
+        .toLowerCase();
+      return `${Date.now()}-${cleanName}`;
+    },
   },
 });
 
