@@ -1,34 +1,12 @@
-import { randomUUID } from "node:crypto";
-import fs from "node:fs/promises";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { v2 as cloudinary } from "cloudinary";
 import multer from "multer";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-// Les fichiers sont stockés sur le disque du serveur, dans backend/uploads/products.
-// Servis ensuite en statique via app.use("/uploads", ...) dans app.js.
-export const PRODUCTS_UPLOAD_DIR = path.join(
-  __dirname,
-  "..",
-  "..",
-  "uploads",
-  "products",
-);
-export const CATEGORIES_UPLOAD_DIR = path.join(
-  __dirname,
-  "..",
-  "..",
-  "uploads",
-  "categories",
-);
-export const PROFILES_UPLOAD_DIR = path.join(
-  __dirname,
-  "..",
-  "..",
-  "uploads",
-  "profiles",
-);
+// Configuration officielle Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 const ALLOWED_MIME_TYPES = new Set([
   "image/jpeg",
@@ -37,39 +15,8 @@ const ALLOWED_MIME_TYPES = new Set([
   "image/gif",
 ]);
 
-const storage = multer.diskStorage({
-  destination: (request, file, callback) => {
-    callback(null, PRODUCTS_UPLOAD_DIR);
-  },
-  filename: (request, file, callback) => {
-    const extension = path.extname(file.originalname).toLowerCase();
-    callback(null, `${randomUUID()}${extension}`);
-  },
-});
-
-const categoryStorage = multer.diskStorage({
-  destination: (request, file, callback) => {
-    fs.mkdir(CATEGORIES_UPLOAD_DIR, { recursive: true })
-      .then(() => callback(null, CATEGORIES_UPLOAD_DIR))
-      .catch(callback);
-  },
-  filename: (request, file, callback) => {
-    const extension = path.extname(file.originalname).toLowerCase();
-    callback(null, `${randomUUID()}${extension}`);
-  },
-});
-
-const profileStorage = multer.diskStorage({
-  destination: (request, file, callback) => {
-    fs.mkdir(PROFILES_UPLOAD_DIR, { recursive: true })
-      .then(() => callback(null, PROFILES_UPLOAD_DIR))
-      .catch(callback);
-  },
-  filename: (request, file, callback) => {
-    const extension = path.extname(file.originalname).toLowerCase();
-    callback(null, `${randomUUID()}${extension}`);
-  },
-});
+// Stockage en mémoire RAM
+const storage = multer.memoryStorage();
 
 export function fileFilter(request, file, callback) {
   if (!ALLOWED_MIME_TYPES.has(file.mimetype)) {
@@ -85,17 +32,34 @@ export function fileFilter(request, file, callback) {
 export const uploadProductImage = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5 Mo maximum
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 Mo max
 });
 
 export const uploadCategoryImage = multer({
-  storage: categoryStorage,
+  storage,
   fileFilter,
   limits: { fileSize: 5 * 1024 * 1024 },
 });
 
 export const uploadProfileImage = multer({
-  storage: profileStorage,
+  storage,
   fileFilter,
   limits: { fileSize: 5 * 1024 * 1024 },
 });
+
+// Fonction d'envoi direct du buffer vers Cloudinary
+export async function uploadToCloudinary(
+  fileBuffer,
+  folder = "shopflow_products",
+) {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder, resource_type: "auto" },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result.secure_url);
+      },
+    );
+    stream.end(fileBuffer);
+  });
+}
