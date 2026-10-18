@@ -2,16 +2,21 @@ import { v2 as cloudinary } from "cloudinary";
 import multer from "multer";
 
 // Configuration officielle Cloudinary
+// Configuration officielle Cloudinary avec .trim() pour éliminer les espaces invisibles
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME?.trim(),
+  api_key: process.env.CLOUDINARY_API_KEY?.trim(),
+  api_secret: process.env.CLOUDINARY_API_SECRET?.trim(),
 });
 
 console.log("DEBUG CLOUDINARY CONFIG:", {
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY ? "PRÉSENTE (" + process.env.CLOUDINARY_API_KEY.length + " chars)" : "MANQUANTE",
-  api_secret: process.env.CLOUDINARY_API_SECRET ? "PRÉSENTE (" + process.env.CLOUDINARY_API_SECRET.length + " chars)" : "MANQUANTE"
+  api_key: process.env.CLOUDINARY_API_KEY
+    ? "PRÉSENTE (" + process.env.CLOUDINARY_API_KEY.length + " chars)"
+    : "MANQUANTE",
+  api_secret: process.env.CLOUDINARY_API_SECRET
+    ? "PRÉSENTE (" + process.env.CLOUDINARY_API_SECRET.length + " chars)"
+    : "MANQUANTE",
 });
 
 const ALLOWED_MIME_TYPES = new Set([
