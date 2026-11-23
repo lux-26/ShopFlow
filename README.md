@@ -128,15 +128,55 @@ Depuis la racine :
 
 Pour créer le compte administrateur, renseignez `ADMIN_NAME`, `ADMIN_EMAIL` et `ADMIN_PASSWORD` dans le fichier d'environnement, puis exécutez la commande une seule fois.
 
-## Configuration de production
+## Déploiement
 
-- Déployez le frontend et l'API selon votre architecture d'hébergement.
-- Définissez `VITE_API_URL` avec l'URL publique de l'API avant le build frontend.
-- Définissez `CLIENT_URL` côté backend avec l'origine exacte du frontend.
-- Configurez MongoDB en replica set pour permettre les transactions.
-- Configurez les secrets dans le gestionnaire de variables d'environnement de l'hébergeur, jamais dans Git.
-- Activez les sauvegardes MongoDB, la surveillance des erreurs et la rotation des journaux.
-- Vérifiez les domaines autorisés pour CORS et les cookies de session en HTTPS.
+La configuration du dépôt prévoit un frontend statique sur **Vercel** et une API Express sur **Render**.
+
+### Frontend — Vercel
+
+Le fichier `vercel.json` configure déjà la commande de build et le dossier de sortie.
+
+- Framework : Vite.
+- Build command : `npm run build`.
+- Output directory : `frontend/dist`.
+- Root directory : racine du dépôt.
+- Variable d'environnement à définir avant le build : `VITE_API_URL=https://shopflow-0agy.onrender.com/api`.
+
+Le projet utilise cette variable au moment de la compilation du frontend. Après toute modification, un nouveau build et un redéploiement sont nécessaires.
+
+### Backend — Render
+
+Le serveur Express démarre avec `npm start` depuis la racine du dépôt.
+
+- Build command : `npm ci && npm ci --prefix backend && npm run build`.
+- Start command : `npm start`.
+- Health check path : `/api/health`.
+- Root directory : racine du dépôt.
+
+Variables à configurer dans le tableau de bord Render :
+
+| Variable | Valeur |
+|---|---|
+| `NODE_ENV` | `production` |
+| `MONGODB_URI` | URI MongoDB Atlas avec replica set |
+| `JWT_SECRET` | Secret long, aléatoire et unique |
+| `CLIENT_URL` | URL exacte du frontend Vercel, sans chemin final |
+| `CLOUDINARY_CLOUD_NAME` | Identifiant du compte Cloudinary |
+| `CLOUDINARY_API_KEY` | Clé API Cloudinary |
+| `CLOUDINARY_API_SECRET` | Secret API Cloudinary |
+
+Render fournit normalement la variable `PORT) automatiquement. Ne publiez jamais les valeurs secrètes dans le dépôt.
+
+### Vérifications avant mise en production
+
+1. Vérifier que `https://shopflow-0agy.onrender.com/api/health` renvoie un statut HTTP 200 et un JSON avec `status: "ok"`.
+2. Vérifier que `CLIENT_URL` correspond exactement au domaine Vercel réellement utilisé. Le backend autorise aussi les domaines de prévisualisation correspondant au motif `shop-flow-*.vercel.app`.
+3. Vérifier la connexion MongoDB et le fonctionnement des transactions avec une instance configurée en replica set.
+4. Tester l'inscription, la connexion, la déconnexion et la persistance des cookies en HTTPS.
+5. Tester l'ajout d'images via Cloudinary et la création d'une commande.
+6. Activer les sauvegardes MongoDB et surveiller les journaux et erreurs du service.
+
+Le dépôt contient le fichier Vercel, mais aucun fichier de déploiement Render. Les paramètres Render ci-dessus sont donc à renseigner ou à confirmer dans le tableau de bord du service existant.
 
 ## Tests et qualité
 
