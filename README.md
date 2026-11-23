@@ -165,7 +165,7 @@ Variables à configurer dans le tableau de bord Render :
 | `CLOUDINARY_API_KEY` | Clé API Cloudinary |
 | `CLOUDINARY_API_SECRET` | Secret API Cloudinary |
 
-Render fournit normalement la variable `PORT) automatiquement. Ne publiez jamais les valeurs secrètes dans le dépôt.
+Render fournit normalement la variable `PORT` automatiquement. Ne publiez jamais les valeurs secrètes dans le dépôt.
 
 ### Vérifications avant mise en production
 
