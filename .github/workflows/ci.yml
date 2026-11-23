@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Lint, tests et build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+
+      - name: Configurer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            backend/package-lock.json
+
+      - name: Installer les dépendances frontend et racine
+        run: npm ci
+
+      - name: Installer les dépendances backend
+        run: npm ci --prefix backend
+
+      - name: Vérifier le lint
+        run: npm run lint
+
+      - name: Exécuter les tests
+        run: npm test
+
+      - name: Construire le frontend
+        run: npm run build
